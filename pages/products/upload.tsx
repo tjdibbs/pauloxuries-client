@@ -31,7 +31,6 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Cookie from "js-cookie";
 import { GetServerSideProps } from "next";
 import { auth } from "@lib/redux/reducer";
-import { getUser } from "../../server/routes/router";
 import { marked } from "marked";
 
 const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
