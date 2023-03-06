@@ -48,9 +48,9 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
     setWidth(window.innerWidth < 600);
     window.addEventListener("resize", handleResize);
 
-    fetch("/api/visitor", { method: "PUT" }).then((response) => {
-      return;
-    });
+    // fetch("/api/visitor", { method: "PUT" }).then((response) => {
+    //   return;
+    // });
 
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -62,7 +62,8 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
       <header className="page-header sticky top-0 z-50 bg-gray-300">
         {!user && (
           <div className={"offer bg-primary-low dark:bg-[#2a271c] py-2 px-4"}>
-            <p className="text-sm font-semibold text-center leading-7">
+            {/* @ts-ignore */}
+            <marquee className="text-sm font-semibold text-center leading-7">
               Limited Time Only: Get 10% off your first order when you{" "}
               <Link
                 href="/sign-up"
@@ -70,7 +71,8 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
               >
                 SIGN UP
               </Link>
-            </p>
+              {/* @ts-ignore */}
+            </marquee>
           </div>
         )}
         <div className="bg-primary/10">
@@ -156,12 +158,12 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
 const CountCart = dynamic(
   async () =>
     function CountCart() {
-      const carts = useAppSelector((state) => state.shop.carts);
+      const shop = useAppSelector((state) => state.shop);
       const router = useRouter();
 
       return (
         <IconButton onClick={() => router.push("/cart")}>
-          <Badge color="primary" badgeContent={carts.length} showZero>
+          <Badge color="primary" badgeContent={shop.carts.length} showZero>
             <ShoppingCartRounded fontSize="medium" />
           </Badge>
         </IconButton>

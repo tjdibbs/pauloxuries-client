@@ -1,6 +1,6 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { CartProduct } from "@lib/types";
+import { CartProduct, Product } from "@lib/types";
 import { motion } from "framer-motion";
 
 // components
@@ -38,7 +38,7 @@ function Cart({ cart }: { cart: CartProduct }) {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const inWishlist = wishlists.includes(cart.product_id);
+  const inWishlist = wishlists.includes(cart.product!.id!);
 
   const handleState = (name: keyof State, n: number) => {
     if (
@@ -55,15 +55,10 @@ function Cart({ cart }: { cart: CartProduct }) {
   const handleCartQuantity = (value: string | number) => {
     dispatch(
       updateCarts({
-        cartid: cart.product_id,
+        cartid: cart.id as string,
         userid: user?.id,
         cart: {
-          size: cart.size,
-          product_id: cart.product_id,
-          color: cart.color ?? "",
-          discountPercentage: cart.discountPercentage,
-          totalPrice:
-            (cart.product!.price as number) * parseInt(value as string),
+          ...(cart as CartProduct),
           quantity: parseInt(value as string),
         },
       })
@@ -71,11 +66,17 @@ function Cart({ cart }: { cart: CartProduct }) {
   };
 
   const handleRemoveCart = () => {
-    dispatch(deleteCart({ userid: user?.id, cartid: cart.product_id }));
+    dispatch(deleteCart({ userid: user?.id, cartid: cart.id as string }));
   };
 
-  const AddToWishlist = () => dispatch(setWish(cart.product_id));
-  const RemoveWishlist = () => dispatch(removeWish(cart.product_id));
+  const AddToWishlist = () => dispatch(setWish(cart.id as string));
+  const RemoveWishlist = () => dispatch(removeWish(cart.id as string));
+
+  let { price, discountPercentage } = cart.product as Product;
+  console.log({ cart });
+  const cartTotalPrice =
+    (price as number) * cart.quantity! -
+    (price as number) * (discountPercentage / 100);
 
   return (
     <div className="card bg-white/70 backdrop-blur">
@@ -89,7 +90,9 @@ function Cart({ cart }: { cart: CartProduct }) {
         <span className="flex-grow font-semibold overflow-hidden text-ellipsis">
           {cart.product!.title}
         </span>
-        <Chip label={cart.product!.stock - cart.product!.sold + " in stock"} />
+        <Chip
+          label={cart.product?.stock! - cart.product!.sold! + " in stock"}
+        />
       </div>
       <div className="card-content px-2 my-5">
         <div className="flex justify-between items-center">
@@ -131,10 +134,10 @@ function Cart({ cart }: { cart: CartProduct }) {
           />
           <Box>
             <span className="text-sm font-bold mr-2 text-primary-low">
-              #{cart.totalPrice.toLocaleString("en")} -
+              #{cartTotalPrice.toLocaleString("en")} -
             </span>
             <span className="text-xs">
-              #{cart.product!.price.toLocaleString("en")} per 1 item
+              #{cart.product!.price?.toLocaleString("en")} per 1 item
             </span>
           </Box>
         </div>

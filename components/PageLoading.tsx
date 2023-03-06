@@ -11,11 +11,11 @@ export default React.forwardRef(function PageLoading(props, ref) {
 
   React.useEffect(() => {
     Router.events.on("routeChangeStart", () => {
-      JQuery("body").toggleClass("overflow-hidden");
+      JQuery("body").addClass("overflow-hidden");
       setOpen(true);
     });
     Router.events.on("routeChangeComplete", () => {
-      JQuery("body").toggleClass("overflow-hidden");
+      JQuery("body").removeClass("overflow-hidden");
       setOpen(false);
     });
   });

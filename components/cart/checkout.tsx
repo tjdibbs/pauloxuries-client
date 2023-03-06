@@ -1,4 +1,4 @@
-import { Cart, CartProduct, CartProduct as Product } from "@lib/types";
+import { Cart, CartProduct, Product } from "@lib/types";
 import { Box, Button, Card, Divider, Paper } from "@mui/material";
 import Link from "next/link";
 import React from "react";
@@ -6,16 +6,20 @@ import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import Cookie from "js-cookie";
 import router from "next/router";
 
-function Checkout({ carts }: { carts: Product[] }) {
+function Checkout({ carts }: { carts: CartProduct[] }) {
   if (!carts?.length) return <></>;
 
   const totalProducts = carts.reduce<number>((total, cart) => {
-    return total + cart.totalPrice;
+    let { price, discountPercentage } = cart.product as Product;
+    let cartTotalPrice =
+      (price as number) * cart.quantity -
+      (price as number) * (discountPercentage / 100);
+    return total + cartTotalPrice;
   }, 0);
 
   const discountedTotal = Math.floor(
     carts.reduce<number>((totalDiscount, cart) => {
-      let discountPercentage = cart.discountPercentage;
+      let discountPercentage = cart.product.discountPercentage!;
 
       let discountedTotal =
         (discountPercentage / 100) *

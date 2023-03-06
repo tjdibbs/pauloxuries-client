@@ -9,6 +9,8 @@ import { useSnackbar } from "notistack";
 import Loading from "./loading";
 import AliceCarousel from "react-alice-carousel";
 import { Divider, Typography } from "@mui/material";
+import { breakpoints } from "@lib/constants";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 const responsive = {
   0: { items: 2 },
@@ -18,16 +20,11 @@ const responsive = {
 };
 
 export default function Viewed({ id }: { id?: string }) {
-  const [viewed, setViewed] = React.useState<Product[]>([]);
-  const [loading, setLoading] = React.useState<boolean>(true);
+  const [viewed, setViewed] = React.useState<Product[]>(
+    JSON.parse(Cookies.get("viewed") ?? "[]")
+  );
 
-  React.useEffect(() => {
-    let _viewed = Cookies.get("viewed");
-    setViewed(
-      (JSON.parse(_viewed ?? "[]") as Product[]).filter((p) => p.id !== id)
-    );
-    setLoading(false);
-  }, [id]);
+  if (!viewed.length) return <></>;
 
   return (
     <Box sx={{ flexGrow: 1, my: 5 }}>
@@ -36,27 +33,21 @@ export default function Viewed({ id }: { id?: string }) {
           <Typography variant="h6">What you recently view</Typography>
         </Divider>
       </Box>
-      {!loading && (
-        <AliceCarousel
-          mouseTracking
-          disableButtonsControls
-          disableDotsControls
-          items={
-            loading
-              ? Array.from(new Array(4)).map((i) => (
-                  <Loading component="div" key={i} />
-                ))
-              : viewed?.map((item, index) => (
-                  <Box mr={0.5} key={index} maxWidth={{ xs: 200, sm: 250 }}>
-                    <ProductStyle2 item={item} component="div" />
-                  </Box>
-                ))
-          }
-          responsive={responsive}
-          controlsStrategy={"alternate"}
-          infinite={false}
-        />
-      )}
+      <Swiper
+        slidesPerView={1}
+        spaceBetween={10}
+        pagination={{
+          clickable: true,
+        }}
+        breakpoints={breakpoints}
+        className="px-2 py-6"
+      >
+        {viewed.map((product, index) => (
+          <SwiperSlide key={product.id}>
+            <ProductStyle2 item={product} component="div" />
+          </SwiperSlide>
+        ))}
+      </Swiper>
     </Box>
   );
 }

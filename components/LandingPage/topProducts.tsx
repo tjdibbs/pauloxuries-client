@@ -9,6 +9,9 @@ import Loading from "../loading";
 import AliceCarousel from "react-alice-carousel";
 import { Pagination } from "swiper";
 import { SwiperSlide, Swiper } from "swiper/react";
+import { BASE_URL, breakpoints } from "@lib/constants";
+import useMessage from "@hook/useMessage";
+import { nanoid } from "nanoid";
 
 const responsive = {
   0: { items: 2 },
@@ -20,29 +23,24 @@ const responsive = {
 export default function TopProducts() {
   const [topProducts, setTopProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
-  const { enqueueSnackbar } = useSnackbar();
+  const { alertMessage } = useMessage();
 
   React.useEffect(() => {
     axios
-      .get<{ success: boolean; products: Product[] }>("/api/products/top")
+      .get<{ success: boolean; products: Product[] }>(
+        BASE_URL + "/api/products/top"
+      )
       .then((response) => {
         const { success, products } = response.data;
         if (success) {
           setTopProducts(products);
           setLoading(false);
-          return;
-        }
-
-        enqueueSnackbar("Internal Server Error", {
-          variant: "error",
-        });
+        } else alertMessage("Internal Server Error", "error");
       })
       .catch(() => {
-        enqueueSnackbar("There is problem fetching search products", {
-          variant: "error",
-        });
+        alertMessage("There is problem fetching search products", "error");
       });
-  }, [enqueueSnackbar]);
+  }, []);
 
   return (
     <Box sx={{ flexGrow: 1, my: 5 }}>
@@ -52,25 +50,15 @@ export default function TopProducts() {
         pagination={{
           clickable: true,
         }}
-        breakpoints={{
-          0: {
-            slidesPerView: 2,
-            spaceBetween: 10,
-          },
-          768: {
-            slidesPerView: 4,
-            spaceBetween: 10,
-          },
-          1024: {
-            slidesPerView: 4,
-            spaceBetween: 10,
-          },
-        }}
+        breakpoints={breakpoints}
         className="px-2 py-6"
       >
         {loading
           ? Array.from(new Array(4)).map((i) => (
-              <SwiperSlide key={i}>
+              <SwiperSlide
+                key={nanoid()}
+                className={"max-w-[50%] sm:max-w-[300px]"}
+              >
                 <Loading />
               </SwiperSlide>
             ))

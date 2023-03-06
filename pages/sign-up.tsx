@@ -9,6 +9,7 @@ import Cookies from "js-cookie";
 import { Button, Input } from "antd";
 import { motion } from "framer-motion";
 import message from "@lib/message";
+import { BASE_URL } from "@lib/constants";
 
 type State = Partial<{
   firstname: string;
@@ -43,7 +44,7 @@ function SignUp(): JSX.Element {
       }
 
       setLoading({ pending: true, message: null });
-      const request = await axios.post("/api/sign-up", state);
+      const request = await axios.post(BASE_URL + "/api/sign-up", state);
       const response = await request.data;
 
       enqueueSnackbar(

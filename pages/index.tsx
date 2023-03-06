@@ -3,7 +3,7 @@ import { Box, Typography, useTheme, Container, Divider } from "@mui/material";
 import type { GetServerSideProps, NextPage } from "next";
 import React from "react";
 import { AppState, Product } from "@lib/types";
-import client from "@server/connection/db";
+// import client from "@server/connection/db";
 
 // components
 import BrandShopping from "@comp/LandingPage/brandShopping";
@@ -15,6 +15,7 @@ import FetchCartsHook from "@comp/fetchCartsHook";
 import Collections from "@comp/LandingPage/collections";
 import SEO from "@comp/seo";
 import Viewed from "@comp/viewed";
+import dynamic from "next/dynamic";
 
 const pageDescription = {
   title: `Home`,
@@ -28,7 +29,8 @@ const Home: React.FC<{ user: AppState["user"]; jerseys: string }> = ({
   user,
   jerseys,
 }) => {
-  FetchCartsHook({ user, loading: false, setLoading: () => null });
+  // FetchCartsHook({ user, loading: false, setLoading: () => null });
+
 
   return (
     <React.Fragment>
@@ -76,7 +78,7 @@ const Home: React.FC<{ user: AppState["user"]; jerseys: string }> = ({
           <Collections />
         </Box>
         <Box className="category" mt={5}>
-          <Category jerseys={jerseys} />
+          {/*<Category jerseys={jerseys} />*/}
         </Box>
       </Box>
       <Viewed />
@@ -84,22 +86,22 @@ const Home: React.FC<{ user: AppState["user"]; jerseys: string }> = ({
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const { req } = ctx;
-  // @ts-ignore
-  const user = req.session.user ?? null;
-  const jerseys = (
-    await client.query(
-      "SELECT * FROM Product WHERE category REGEXP 'jersey' LIMIT 12"
-    )
-  )[0];
+// export const getServerSideProps: GetServerSideProps = async (ctx) => {
+//   const { req } = ctx;
+//   // @ts-ignore
+//   const user = req.session?.user ?? null;
+//   // const jerseys = (
+//   //   await client.query(
+//   //     "SELECT * FROM Product WHERE category REGEXP 'jersey' LIMIT 12"
+//   //   )
+//   // )[0];
+//
+//   return {
+//     props: {
+//       user,
+//       // jerseys: JSON.stringify(jerseys),
+//     },
+//   };
+// };
 
-  return {
-    props: {
-      user,
-      jerseys: JSON.stringify(jerseys),
-    },
-  };
-};
-
-export default Home;
+export default Home

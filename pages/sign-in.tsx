@@ -16,6 +16,8 @@ import Cookies from "js-cookie";
 import { auth } from "lib/redux/reducer";
 import { Button, Input } from "antd";
 import { motion } from "framer-motion";
+import { BASE_URL } from "@lib/constants";
+import useMessage from "@hook/useMessage";
 
 type State = Partial<{
   email: string;
@@ -30,57 +32,50 @@ export default function SignIn(): JSX.Element {
     pending: false,
     message: null,
   });
-  const { enqueueSnackbar } = useSnackbar();
+
   const dispatch = useAppDispatch();
   const router = useRouter();
-  const redirect = router.query.redirect as string;
+
+  const { alertMessage } = useMessage();
+
   const {
-    handleSubmit,
     formState: { errors },
-    register,
   } = useForm();
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!state?.email || !state.password) {
-      message(enqueueSnackbar, "All Fields Required", "error");
+      alertMessage("All Fields Required", "error");
     }
 
     try {
       if (loading.pending) return;
       setLoading({ ...loading, pending: true });
 
-      const request = await axios.post("/api/sign-in", state);
-      const response = await request.data;
+      const request = await axios.post(BASE_URL + "/api/auth/sign-in", state);
+      const { success, user } = await request.data;
 
-      message(
-        enqueueSnackbar,
-        response?.message,
-        response.success ? "success" : "error"
+      alertMessage(
+        success
+          ? "Authenticated as " + user.firstname + " " + user.lastname
+          : "Email or Password Incorrect",
+        success ? "success" : "error"
       );
 
-      if (response.success) {
+      if (success) {
         setLoading({ ...loading, message: "Redirecting...." });
+        dispatch(auth(user));
 
-        if (!response?.user[0]?.verified) {
-          router.replace(
-            "/email/request-verification" +
-              (redirect ? "?redirect=" + redirect : "")
-          );
-          return;
-        }
-
-        dispatch(auth(response.user[0]));
-        router.replace(redirect || "/").then(() => {
-          setLoading({ pending: false, message: null });
-        });
-      } else setLoading({ pending: false, message: null });
+        router.replace("/");
+      }
     } catch (e: any) {
-      message(enqueueSnackbar, e.message, "error");
+      alertMessage("Internal server error", "error");
+    } finally {
       setLoading({ pending: false, message: null });
     }
   };
+  const disabled = loading.pending || !state.email || !state.password;
 
   return (
     <Container className="auth-container component-wrap ">
@@ -131,12 +126,7 @@ export default function SignIn(): JSX.Element {
                 htmlType="submit"
                 className="w-full bg-primary-low"
                 loading={loading.pending}
-                disabled={
-                  loading.pending ||
-                  Boolean(loading.message) ||
-                  !state.email ||
-                  !state.password
-                }
+                disabled={disabled}
               >
                 <span>
                   {loading.pending
@@ -171,22 +161,17 @@ export default function SignIn(): JSX.Element {
 
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   //@ts-ignore
-  const userid = req.session.user ?? null;
-  // const cookies = res.cookie
+  const token = req.cookies?._u;
+  console.log({ token });
 
-  res.setHeader(
-    "Cache-Control",
-    "public, s-maxage=60, stale-while-revalidate=120"
-  );
-
-  if (userid) {
-    return {
-      redirect: {
-        destination: "/",
-        permanent: true,
-      },
-    };
-  }
+  // if (userid) {
+  //   return {
+  //     redirect: {
+  //       destination: "/",
+  //       permanent: true,
+  //     },
+  //   };
+  // }
 
   return {
     props: {},

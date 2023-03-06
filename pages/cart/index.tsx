@@ -6,7 +6,6 @@ import {
   Breadcrumbs,
   CircularProgress,
   Container,
-  Divider,
   Paper,
   Skeleton,
   Stack,
@@ -14,29 +13,73 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
-import { useAppSelector } from "@lib/redux/store";
-import type { AppState } from "@lib/types";
-import { getUser } from "@server/routes/router";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import type { AppState, CartProduct } from "@lib/types";
 import Checkout from "@comp/cart/checkout";
 import Nocart from "@comp/cart/nocart";
-import CartProduct from "@comp/cart/CartProduct";
+import Cart from "@comp/cart/CartProduct";
 import FetchCartsHook from "@comp/fetchCartsHook";
+import axios from "axios";
+import { BASE_URL } from "@lib/constants";
+import { setAllCarts } from "@lib/redux/cartSlice";
+import { setAllCart } from "@lib/redux/reducer";
 
 interface Props {
   user: AppState["user"];
 }
 
-export default function Cart(props: Props) {
-  const { carts } = useAppSelector((state) => state.shop);
+export default function Carts(props: Props) {
+  const { carts, user } = useAppSelector((state) => state.shop);
   const [loading, setLoading] = React.useState<boolean>(true);
 
-  FetchCartsHook({ user: props.user, loading, setLoading });
+  const dispatch = useAppDispatch();
+
+  const updateCartFields = (products: CartProduct["product"][]) => {
+    // after getting the updated details of the cart product,
+    // we update the localCart with the detail we get from backend
+    // note: cart are updated by their cart id
+    let compiledCarts = products.map((productDetail) => {
+      let localCart = carts.find(
+        (cart) => cart.product?.id == productDetail.id
+      ) as CartProduct;
+      return {
+        ...localCart,
+        product: productDetail,
+      };
+    });
+
+    dispatch(setAllCart(compiledCarts));
+    setLoading(false);
+  };
+
+  React.useEffect(() => {
+    if (!user) {
+      // we need to send the local cart ids to get the updated cart product details
+      let localCartIds = carts.map((cart) => cart.product?.id);
+      axios
+        .post<{ products: CartProduct[] }>(
+          BASE_URL + `/api/products/info`,
+          localCartIds
+        )
+        .then((res) => updateCartFields(res.data.products))
+        .catch(console.error);
+    } else {
+      axios
+        .get<{ carts: CartProduct[] }>(BASE_URL + `/carts/` + user?.id)
+        .then((res) => {
+          dispatch(setAllCart(res.data.carts));
+          setLoading(false);
+        });
+
+      setLoading(false);
+    }
+  }, [user]);
 
   return (
     <Container maxWidth={"xl"} sx={{ p: 0 }} className="component-wrap">
-      <Head>
-        <title>Pauloxuries - {props.user!?.firstname ?? "User"} Carts</title>
-      </Head>
+      {/*<Head>*/}
+      {/*  <title>Pauloxuries - {props.user!?.firstname ?? "User"} Carts</title>*/}
+      {/*</Head>*/}
       <Box my={3}>
         <Breadcrumbs
           separator={<ArrowForwardIosRounded sx={{ fontSize: 11 }} />}
@@ -61,11 +104,11 @@ export default function Cart(props: Props) {
             <React.Fragment>
               <div className="flex-grow flex flex-col gap-y-3">
                 {carts.map((cart, index) => {
-                  return <CartProduct key={index} cart={cart} />;
+                  return <Cart key={index} cart={cart as CartProduct} />;
                 })}
               </div>
               <Box sx={{ width: { xs: "100%", sm: 300 } }}>
-                <Checkout carts={carts} />
+                {/*<Checkout carts={carts} />*/}
               </Box>
             </React.Fragment>
           ) : (
@@ -122,15 +165,3 @@ export default function Cart(props: Props) {
     </Container>
   );
 }
-
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  //@ts-ignore
-  const user = req.session.user ?? null;
-  // const cookies = res.cookie
-
-  return {
-    props: {
-      user,
-    },
-  };
-};

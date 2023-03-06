@@ -3,7 +3,7 @@ import React from "react";
 import Link from "next/link";
 import { CartProduct, Product } from "@lib/types";
 import useMessage from "hooks/useMessage";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 // material ui components
 import Box from "@mui/material/Box";
@@ -23,6 +23,8 @@ import { addToCarts, deleteCart } from "@lib/redux/cartSlice";
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import { Spin } from "antd";
+import { nanoid } from "nanoid";
 
 type Props = {
   item: Product;
@@ -36,29 +38,34 @@ export default function ProductStyle2({ item, sm, xs, component, md }: Props) {
   const dispatch = useAppDispatch();
   const { alertMessage } = useMessage();
   const { carts, wishlists, user } = useAppSelector((state) => state.shop);
+  const [loading, setLoading] = React.useState<boolean>(false);
 
-  const inCart = carts.findIndex((cart) => cart.product_id === item.id);
+  const inCart = carts.findIndex((cart) => cart.product!.id === item.id);
   const inWishlist = wishlists.includes(item.id);
 
   const handleAddCart = () => {
-    const cartProduct: CartProduct = {
-      product_id: item.id,
+    setLoading(true);
+
+    const cartProduct: Partial<CartProduct> = {
+      user: user?.id,
+      product: { id: item.id },
       quantity: 1,
-      color: JSON.parse(item.colors)?.length ? JSON.parse(item.colors)[0] : "",
-      size: JSON.parse(item.sizes)?.length ? JSON.parse(item.sizes)[0] : "",
-      discountPercentage: item.discountPercentage,
-      totalPrice: item.price as number,
     };
 
-    dispatch(addToCarts({ id: user!?.id, cart: cartProduct })).then(() => {
-      alertMessage(item.title + " added to cart", "success");
-    });
+    dispatch(addToCarts({ user: user!?.id, cart: cartProduct }))
+      .then(() => {
+        alertMessage(item.title + " added to cart", "success");
+      })
+      .finally(() => setLoading(false));
   };
 
   const handleRemoveCart = () => {
-    dispatch(deleteCart({ userid: user?.id, cartid: item.id })).then(() => {
-      alertMessage(item.title + " removed from cart", "warning");
-    });
+    setLoading(true);
+    dispatch(deleteCart({ userid: user?.id, cartid: item.id }))
+      .then(() => {
+        alertMessage(item.title + " removed from cart", "warning");
+      })
+      .finally(() => setLoading(false));
   };
 
   const handleWish = () => {
@@ -73,8 +80,25 @@ export default function ProductStyle2({ item, sm, xs, component, md }: Props) {
       initial={{ scale: 0.9 }}
       animate={{ scale: 1 }}
       key={item.id}
-      className={"product-items bg-primary-low/5 shadow-xl"}
+      className={
+        "product-items bg-primary-low/5 shadow-xl relative overflow-hidden"
+      }
     >
+      <AnimatePresence>
+        {loading && (
+          <motion.div
+            className={
+              "grid place-items-center bg-black/40 absolute h-full w-full top-0 left-0"
+            }
+            animate={{ opacity: 1 }}
+            initial={{ opacity: 0.5 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.7 }}
+          >
+            <Spin />
+          </motion.div>
+        )}
+      </AnimatePresence>
       {Boolean(item.discountPercentage) &&
         !Boolean(item.stock - item.sold < 1) && (
           <Chip

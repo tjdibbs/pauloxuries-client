@@ -4,7 +4,7 @@ import React from "react";
 import dynamic from "next/dynamic";
 import type { CartProduct } from "@lib/types";
 
-function NoCart({ carts }: { carts: CartProduct[] }) {
+function NoCart({ carts }: { carts: Partial<CartProduct>[] }) {
   if (carts?.length) return <></>;
   return (
     <div className="card grid place-items-center w-full mt-5">

@@ -5,18 +5,40 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="39c24a79-2868-4453-8f15-9bb98fdd4d72" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/hooks/useApi.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/constants.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nodemon.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pages/products/upload.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/products/upload.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/snapshots.js" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/stack.yaml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/LandingPage/arrivals.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/LandingPage/arrivals.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/LandingPage/topProducts.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/LandingPage/topProducts.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/PageLoading.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/PageLoading.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/cart/CartProduct.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cart/CartProduct.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/cart/checkout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cart/checkout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/cart/nocart.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cart/nocart.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/header/wrapper.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/header/wrapper.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/productStyle2.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/productStyle2.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/viewed.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/viewed.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/getUser.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/getUser.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/redux/cartSlice.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/redux/cartSlice.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/redux/reducer.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/redux/reducer.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/types.ts" beforeDir="false" afterPath="$PROJECT_DIR$/lib/types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/cart/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/cart/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/sign-in.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/sign-in.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pages/sign-up.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/pages/sign-up.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/tsconfig.json" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -32,22 +54,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "last_opened_file_path": "/Users/tjdibbs/Documents/pauloxuries",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "prettierjs.PrettierConfiguration.Package": "C:\\Users\\KAYTECH\\Documents\\pauloxuries-frame\\node_modules\\prettier",
-    "ts.external.directory.path": "/Users/tjdibbs/Documents/pauloxuries/pauloxuries-client/node_modules/typescript/lib",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/tjdibbs/Documents/pauloxuries&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;prettierjs.PrettierConfiguration.Package&quot;: &quot;/Users/tjdibbs/Documents/pauloxuries/pauloxuries-client/node_modules/prettier&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.sourceCode&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;/Users/tjdibbs/Documents/pauloxuries/pauloxuries-client/node_modules/typescript/lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;mysql&quot;
+    ]
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected="npm.dev">
     <configuration name="dev" type="js.build_tools.npm" temporary="true" nameIsGenerated="true">
       <package-json value="$PROJECT_DIR$/package.json" />
@@ -92,10 +120,19 @@
       <workItem from="1677063267365" duration="384000" />
       <workItem from="1677215773383" duration="635000" />
       <workItem from="1677318211896" duration="3483000" />
+      <workItem from="1677841173807" duration="473000" />
+      <workItem from="1677855854240" duration="3531000" />
+      <workItem from="1677867722656" duration="3395000" />
+      <workItem from="1678013011237" duration="6068000" />
+      <workItem from="1678030150594" duration="16067000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

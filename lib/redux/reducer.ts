@@ -34,7 +34,7 @@ const Shop = createSlice({
 
     removeCart: (state: AppState, actions: PayloadAction<string>) => {
       let product = state.carts.findIndex(
-        (cart) => cart.product_id === actions.payload
+        (cart) => cart.id === actions.payload
       );
       state.carts.splice(product, 1);
       Cookie.set("carts", JSON.stringify(state.carts), { expires: 365 });
@@ -49,7 +49,7 @@ const Shop = createSlice({
     ) => {
       const { id, field, value } = actions.payload;
       state.carts.forEach((cart, index) => {
-        if (cart.product_id === id) {
+        if (cart.id === id) {
           (
             state.carts[index] as {
               [x: string]: string | number | CartProduct["product"];
@@ -84,7 +84,10 @@ const Shop = createSlice({
     },
     auth: (state: AppState, actions: PayloadAction<AppState["user"]>) => {
       if (actions.payload) {
-        state.user = actions.payload;
+        state.user = {
+          ...actions.payload,
+          carts: JSON.parse(actions.payload.carts as unknown as string),
+        };
         state.loggedIn = !state.loggedIn;
       } else {
         state.user = null;
@@ -94,18 +97,24 @@ const Shop = createSlice({
   extraReducers(builder) {
     builder.addCase(
       addToCarts.fulfilled,
-      (state, actions: PayloadAction<CartProduct>) => {
+      (state, actions: PayloadAction<Partial<CartProduct>>) => {
         state.carts.push(actions.payload);
+
+        if (
+          state.user &&
+          !state.user?.carts.includes(actions.payload.id as string)
+        ) {
+          state.user?.carts.push(actions.payload.id as string);
+        }
+
         Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
       }
     );
     builder.addCase(updateCarts.fulfilled, (state, actions) => {
       const { cartid, cart } = actions.payload;
       state.carts.forEach((c, index) => {
-        if (c.product_id === cartid) {
-          (state.carts[index] as {
-            [x: string]: string | number | CartProduct["product"];
-          }) = { ...c, ...cart };
+        if (c.id === cartid) {
+          state.carts[index] = { ...c, ...cart };
         }
       });
 
@@ -113,7 +122,7 @@ const Shop = createSlice({
     });
     builder.addCase(deleteCart.fulfilled, (state, actions) => {
       let product = state.carts.findIndex(
-        (cart) => cart.product_id === actions.payload.cartid
+        (cart) => cart.id === actions.payload.cartid
       );
       state.carts.splice(product, 1);
       Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });

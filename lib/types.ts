@@ -96,7 +96,7 @@ export interface RouterQuery {
 export type AppState = {
   mode: "light" | "dark";
   theme: "default" | "light" | "dark";
-  carts: CartProduct[];
+  carts: Partial<CartProduct>[];
   wishlists: string[];
   loggedIn: boolean;
   user?: {
@@ -106,15 +106,16 @@ export type AppState = {
     lastname: string;
     image: string;
     admin: boolean;
-    carts: CartProduct[];
+    carts: string[];
     wishLists: string[];
     verified: boolean;
   } | null;
 };
 
 export type CartProduct = {
-  product_id: string;
-  product?: {
+  id: string;
+  user: string;
+  product: Partial<{
     id: string;
     title: string;
     price: number | string;
@@ -122,12 +123,10 @@ export type CartProduct = {
     discountPercentage: number | null;
     stock: number;
     sold: number;
-  };
+  }>;
   quantity: number;
-  size: string | number;
-  color: string;
-  totalPrice: number;
-  discountPercentage: number;
+  sizes: (string | number)[];
+  colors: string[];
 };
 
 export type Cart<T> = {

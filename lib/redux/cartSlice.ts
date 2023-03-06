@@ -1,3 +1,4 @@
+import { BASE_URL } from "../constants";
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import { CartProduct } from "../types";
@@ -8,20 +9,24 @@ type updateParams = {
   cart: CartProduct;
 };
 
-type setParams = { userid?: string; carts: CartProduct[] };
+const CART_URL = BASE_URL + "/api/carts/";
 
-type addParams = { id?: string; cart: CartProduct };
+type setParams = { userid?: string; carts: CartProduct[] };
+type addParams = { user?: string; cart: Partial<CartProduct> };
 type deleteParams = { userid?: string; cartid: string };
 
 export const addToCarts = createAsyncThunk(
   "shop/cart/add",
   async (params: addParams) => {
     try {
-      if (!params.id) return params.cart;
-      await axios.put<{ success: boolean }>(
-        "/api/carts/" + params.id,
-        params.cart
-      );
+      //   if no user, that means the user hasn't signed in
+      //   return the cart to be added to user local cart
+      if (!params.user) return params.cart;
+
+      await axios.put(CART_URL + "/new", {
+        carts: [params.cart],
+        user: params.user,
+      });
 
       return params.cart;
     } catch (e: any) {
@@ -35,7 +40,7 @@ export const deleteCart = createAsyncThunk(
   async (params: deleteParams) => {
     try {
       if (!params.userid) return params;
-      await axios.delete("/api/carts/" + params.userid + "/" + params.cartid);
+      await axios.delete(CART_URL + params.userid + "/" + params.cartid);
       return params;
     } catch (e: any) {
       return params;
@@ -47,10 +52,9 @@ export const updateCarts = createAsyncThunk(
   "shop/carts/update",
   async (params: updateParams) => {
     try {
-      console.log({ params });
       if (!params.userid) return params;
       await axios.post(
-        "/api/carts/" + params.userid + "/update/" + params.cartid,
+        BASE_URL + "/api/carts/" + params.userid + "/" + params.cartid,
         params.cart
       );
 
@@ -66,10 +70,11 @@ export const setAllCarts = createAsyncThunk(
   async (params: setParams) => {
     try {
       if (!params.userid) return params.carts;
-      await axios.post<{ success: boolean }>(
-        "/api/carts/all/" + params.userid,
+      await axios.put<{ success: boolean }>(
+        CART_URL + params.userid,
         params.carts
       );
+
       return params.carts;
     } catch (e: any) {
       return params.carts;
