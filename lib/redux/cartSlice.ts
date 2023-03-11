@@ -1,10 +1,15 @@
 import { BASE_URL } from "../constants";
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import {
+  ActionReducerMapBuilder,
+  createAsyncThunk,
+  PayloadAction,
+} from "@reduxjs/toolkit";
 import axios from "axios";
-import { CartProduct } from "../types";
+import { AppState, CartProduct } from "../types";
+import Cookie from "js-cookie";
 
 type updateParams = {
-  cartid: string;
+  cart_id: string;
   userid?: string;
   cart: CartProduct;
 };
@@ -13,7 +18,7 @@ const CART_URL = BASE_URL + "/api/carts/";
 
 type setParams = { userid?: string; carts: CartProduct[] };
 type addParams = { user?: string; cart: Partial<CartProduct> };
-type deleteParams = { userid?: string; cartid: string };
+type deleteParams = { userid?: string; cart_id: string };
 
 export const addToCarts = createAsyncThunk(
   "shop/cart/add",
@@ -40,7 +45,7 @@ export const deleteCart = createAsyncThunk(
   async (params: deleteParams) => {
     try {
       if (!params.userid) return params;
-      await axios.delete(CART_URL + params.userid + "/" + params.cartid);
+      await axios.delete(CART_URL + params.userid + "/" + params.cart_id);
       return params;
     } catch (e: any) {
       return params;
@@ -54,7 +59,7 @@ export const updateCarts = createAsyncThunk(
     try {
       if (!params.userid) return params;
       await axios.post(
-        BASE_URL + "/api/carts/" + params.userid + "/" + params.cartid,
+        BASE_URL + "/api/carts/" + params.userid + "/" + params.cart_id,
         params.cart
       );
 
@@ -81,3 +86,47 @@ export const setAllCarts = createAsyncThunk(
     }
   }
 );
+
+export const CartBuilder = (builder: ActionReducerMapBuilder<AppState>) => {
+  // add cart fulfilled callback
+  builder.addCase(
+    addToCarts.fulfilled,
+    (state, actions: PayloadAction<Partial<CartProduct>>) => {
+      state.carts.push(actions.payload);
+
+      if (
+        state.user &&
+        !state.user?.carts.includes(actions.payload.id as string)
+      ) {
+        state.user?.carts.push(actions.payload.id as string);
+      }
+
+      Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
+    }
+  );
+
+  // cart update request fulfilled callback
+  builder.addCase(updateCarts.fulfilled, (state, actions) => {
+    const { cart_id, cart: updatedCart } = actions.payload;
+    state.carts = state.carts.map((cart) => {
+      if (cart.id === cart_id) return { ...cart, ...updatedCart };
+      return cart;
+    });
+
+    Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
+  });
+
+  // carts delete request fulfilled callback
+  builder.addCase(deleteCart.fulfilled, (state, actions) => {
+    state.carts = state.carts.filter(
+      (cart) => cart.product?.id !== actions.payload.cart_id
+    );
+    Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
+  });
+
+  // set all user carts fulfilled callback
+  builder.addCase(setAllCarts.fulfilled, (state, actions) => {
+    state.carts = actions.payload;
+    Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
+  });
+};

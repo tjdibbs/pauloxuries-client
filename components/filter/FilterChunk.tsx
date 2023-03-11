@@ -57,4 +57,4 @@ function FilterChunk(props: FilterChunkPropsType) {
 }
 
 // eslint-disable-next-line react/display-name
-export default React.memo(FilterChunk, () => true);
+export default React.memo(FilterChunk);

@@ -14,7 +14,7 @@ import {
 import Link from "next/link";
 import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import type { AppState, CartProduct } from "@lib/types";
+import type { AppState, CartProduct, Product } from "@lib/types";
 import Checkout from "@comp/cart/checkout";
 import Nocart from "@comp/cart/nocart";
 import Cart from "@comp/cart/CartProduct";
@@ -23,6 +23,7 @@ import axios from "axios";
 import { BASE_URL } from "@lib/constants";
 import { setAllCarts } from "@lib/redux/cartSlice";
 import { setAllCart } from "@lib/redux/reducer";
+import useMessage from "@hook/useMessage";
 
 interface Props {
   user: AppState["user"];
@@ -31,6 +32,7 @@ interface Props {
 export default function Carts(props: Props) {
   const { carts, user } = useAppSelector((state) => state.shop);
   const [loading, setLoading] = React.useState<boolean>(true);
+  const { alertMessage } = useMessage();
 
   const dispatch = useAppDispatch();
 
@@ -49,30 +51,44 @@ export default function Carts(props: Props) {
     });
 
     dispatch(setAllCart(compiledCarts));
-    setLoading(false);
   };
 
   React.useEffect(() => {
-    if (!user) {
-      // we need to send the local cart ids to get the updated cart product details
-      let localCartIds = carts.map((cart) => cart.product?.id);
-      axios
-        .post<{ products: CartProduct[] }>(
-          BASE_URL + `/api/products/info`,
-          localCartIds
-        )
-        .then((res) => updateCartFields(res.data.products))
-        .catch(console.error);
-    } else {
-      axios
-        .get<{ carts: CartProduct[] }>(BASE_URL + `/carts/` + user?.id)
-        .then((res) => {
-          dispatch(setAllCart(res.data.carts));
-          setLoading(false);
-        });
+    // we need to send the local cart ids to get the updated cart product details
+    let localcart_ids = carts.map((cart) => cart.product?.id);
+    if (!localcart_ids?.length) return;
 
-      setLoading(false);
-    }
+    (async () => {
+      try {
+        // if user is signed in it made a get request while there is no user it made a post request
+        const req = await axios[user ? "get" : "post"]<
+          | { products: Product[] }
+          | {
+              carts: CartProduct[];
+            }
+        >(
+          BASE_URL + (user ? `/carts/` + user?.id : `/api/products/info`),
+          localcart_ids
+        );
+
+        const res = await req.data;
+
+        // if user is signed in, it means carts is coming from the server else if the user is not signed
+        // in then access the carts page the endpoint will return each cart product details which can be accessible by
+        // the cart product id
+        user
+          ? dispatch(setAllCart((res as { carts: CartProduct[] }).carts))
+          : updateCartFields((res as { products: Product[] }).products);
+      } catch (e) {
+        console.error({ e });
+        alertMessage(
+          "We are having issue communicating with the server",
+          "error"
+        );
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [user]);
 
   return (
@@ -99,7 +115,7 @@ export default function Carts(props: Props) {
         <h5 className="title font-bold text-lg bg-primary-low/10 px-4 py-2 rounded-lg mb-3 w-max">
           Shopping Cart
         </h5>
-        <div className="flex flex-wrap justify-end gap-3">
+        <div className="flex flex-wrap justify-end gap-3 my-5">
           {!loading ? (
             <React.Fragment>
               <div className="flex-grow flex flex-col gap-y-3">
@@ -112,56 +128,57 @@ export default function Carts(props: Props) {
               </Box>
             </React.Fragment>
           ) : (
-            <React.Fragment>
-              <Box sx={{ flexGrow: 1 }}>
-                {Array.from(new Array(5)).map((product, index) => {
-                  return (
-                    <Paper
-                      sx={{ p: 2, mb: 2, borderRadius: "20px" }}
-                      key={index}
-                    >
-                      <Skeleton
-                        variant={"rectangular"}
-                        className="w-full rounded-lg h-[30px]"
-                      />
-                      <Stack
-                        sx={{ mt: 3 }}
-                        direction={"row"}
-                        justifyContent={"space-between"}
-                      >
-                        <Skeleton
-                          variant={"rectangular"}
-                          width={80}
-                          height={30}
-                          sx={{ borderRadius: "20px" }}
-                        />
-                        <Box>
-                          <Skeleton
-                            variant={"rectangular"}
-                            width={100}
-                            height={10}
-                            sx={{ mb: 1, borderRadius: "20px" }}
-                          />
-                          <Skeleton
-                            variant={"rectangular"}
-                            width={60}
-                            height={10}
-                            sx={{ borderRadius: "20px" }}
-                          />
-                        </Box>
-                      </Stack>
-                    </Paper>
-                  );
-                })}
-              </Box>
-              <Paper sx={{ width: 300, display: "grid", placeItems: "center" }}>
-                <CircularProgress />
-              </Paper>
-            </React.Fragment>
+            <CartSkeleton />
           )}
         </div>
-        <Nocart carts={carts} />
+        {!loading && <Nocart carts={carts} />}
       </section>
     </Container>
   );
 }
+
+const CartSkeleton = () => (
+  <React.Fragment>
+    <Box sx={{ flexGrow: 1 }}>
+      {Array.from(new Array(5)).map((product, index) => {
+        return (
+          <div className={"card p-4 mb-4"} key={index}>
+            <Skeleton
+              variant={"rectangular"}
+              className="w-full rounded-lg h-[30px]"
+            />
+            <Stack
+              sx={{ mt: 3 }}
+              direction={"row"}
+              justifyContent={"space-between"}
+            >
+              <Skeleton
+                variant={"rectangular"}
+                width={80}
+                height={30}
+                sx={{ borderRadius: "20px" }}
+              />
+              <div>
+                <Skeleton
+                  variant={"rectangular"}
+                  width={100}
+                  height={10}
+                  sx={{ mb: 1, borderRadius: "20px" }}
+                />
+                <Skeleton
+                  variant={"rectangular"}
+                  width={60}
+                  height={10}
+                  sx={{ borderRadius: "20px" }}
+                />
+              </div>
+            </Stack>
+          </div>
+        );
+      })}
+    </Box>
+    <div className={"card w-[300px] grid place-items-center bg-primary-low/10"}>
+      <CircularProgress />
+    </div>
+  </React.Fragment>
+);

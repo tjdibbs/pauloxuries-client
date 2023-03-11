@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
-import { Box, Button, MenuItem, TextField } from "@mui/material";
+import { Box, Button, MenuItem, TextField, Divider } from "@mui/material";
 import type { Product, RouterQuery } from "@lib/types";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { useRouter } from "next/router";
@@ -13,6 +13,7 @@ import checkProduct from "@helper/checkProduct";
 
 import MobileFilter from "./MobileFilter";
 import FilterComponent from "./FilterComponent";
+import { Events } from "@lib/constants";
 
 type FilterType = Partial<{ [key in keyof RouterQuery]: string[] }>;
 interface FilterProps {
@@ -63,7 +64,7 @@ function Filter(props: FilterProps) {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSortValue(e.target.value as keyof typeof sort);
-    emitCustomEvent("SortEvent", e.target.value);
+    emitCustomEvent(Events.SORT, e.target.value);
   };
 
   React.useEffect(() => {
@@ -74,7 +75,7 @@ function Filter(props: FilterProps) {
         e.target == filterRef.current ||
         filterRef.current?.contains(e.target as Node);
 
-      if (!isFilterBox) emitCustomEvent("filterEvent", "");
+      if (!isFilterBox) emitCustomEvent(Events.FILTER, "");
     };
 
     const handleResize = () => {
@@ -89,34 +90,36 @@ function Filter(props: FilterProps) {
       document.onclick = null;
       window.onresize = null;
     };
-  }, []);
+  }, [props]);
 
   React.useEffect(() => {
     const query = router.query as unknown as RouterQuery;
     const queryKeys = Object.keys(query) as [x: keyof RouterQuery];
 
-    if (isFirstRender.current) {
+    if (isFirstRender.current || !router.isReady) {
       isFirstRender.current = false;
       return;
     }
 
+    // filter product based on the query in the url
     let filteredProducts = products.filter((product) =>
       checkProduct(query, product)
     );
 
-    emitCustomEvent("FilteredProductsEvent", filteredProducts);
-    alertMessage(
-      queryKeys.length
-        ? `Filtered Products by ${queryKeys.join(",")}`
-        : "Revoked filter",
-      "info"
-    );
+    emitCustomEvent(Events.FILTERED, filteredProducts);
+
+    // alertMessage(
+    //   queryKeys.length
+    //     ? `Filtered Products by ${queryKeys.join(",")}`
+    //     : "Revoked filter",
+    //   "info"
+    // );
   }, [router]);
 
-  if (!props.products) return <></>;
+  if (!products?.length) return <></>;
 
   return (
-    <div className={"mb-5"}>
+    <div className={""}>
       <div className="filter-box gap-x-4 items-center justify-between flex">
         {width ? (
           <div ref={filterRef} className="hidden sm:flex gap-x-4 max-h-full">
@@ -161,8 +164,13 @@ function Filter(props: FilterProps) {
           </TextField>
         </Box>
       </div>
+      <Divider className="mt-5" />
     </div>
   );
 }
+
+export const FilterComponentLoader: React.FC = () => {
+  return <div className="bg-gray-400 animate-pulse p-4 rounded-lg" />;
+};
 
 export default Filter;

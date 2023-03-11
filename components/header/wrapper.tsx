@@ -129,7 +129,7 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
                 <SearchRoundedIcon />
               </IconButton>
               <CountCart />
-              {!width && !user && <NotSignedInSwitch />}
+              {/* {!width && !user && <NotSignedInSwitch />} */}
               {!width && !user && (
                 <Link
                   className="text-primary-low"
@@ -210,12 +210,7 @@ const DropDownMenu = (props: {
                       onClick={() => props.setOpenMenu(false)}
                       label={
                         <Link
-                          href={
-                            "/collections/" +
-                            submenu.label.toLowerCase() +
-                            "/" +
-                            title.toLowerCase()
-                          }
+                          href={`/collections?shop_by=${submenu.label.toLowerCase()}&name=${title.toLowerCase()}`}
                         >
                           {title}
                         </Link>

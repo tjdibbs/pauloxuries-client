@@ -42,16 +42,20 @@ export default function ExtractProps(products: Product[]) {
   };
 }
 
-function countDuplicates(pr: Product[], f: "sizes" | "colors" | "category") {
+function countDuplicates(
+  pr: Product[],
+  productField: "sizes" | "colors" | "category"
+) {
   return pr
     .reduce<string[]>((d, p) => {
-      if (p[f])
-        return d.concat(
-          f === "category"
-            ? p[f].split(",")
-            : JSON.parse(p[f] as unknown as string)
-        );
-      else return d;
+      if (p[productField]) {
+        let val;
+
+        if (productField === "category") val = p[productField].split(",");
+        else val = Object.keys(JSON.parse(p[productField]));
+
+        return d.concat(val);
+      } else return d;
     }, [])
     .map((a) => toLowCase(a))
     .sort()

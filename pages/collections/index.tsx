@@ -1,30 +1,25 @@
 import React from "react";
-import { GetServerSideProps, NextPage } from "next";
-import {
-  Box,
-  Breadcrumbs,
-  Button,
-  Container,
-  Divider,
-  Paper,
-  Typography,
-} from "@mui/material";
+import { GetServerSideProps, GetStaticProps, NextPage } from "next";
+import { Box, Button, Container, Typography } from "@mui/material";
 import Link from "next/link";
-import Filter from "@comp/filter";
+import Filter, { FilterComponentLoader } from "@comp/filter";
 import { ArrowForwardIosRounded } from "@mui/icons-material";
 import { AppState, Product } from "@lib/types";
-import { fetchProducts } from "../../server/routes/getProducts";
-import RenderProducts from "@comp/renderProducts";
-import { getUser } from "server/routes/router";
-import FetchCartsHook from "@comp/fetchCartsHook";
+import RenderProducts, { ProductsLoader } from "@comp/renderProducts";
 import SEO from "@comp/seo";
 import Viewed from "@comp/viewed";
+import axios from "axios";
+import { BASE_URL, Events } from "@lib/constants";
+import { useRouter } from "next/router";
+import useMessage from "@hook/useMessage";
+import BreadcrumbComp from "@comp/BreadcrumComp";
+import { emitCustomEvent } from "react-custom-events";
 
 type Props = Partial<{
-  products: string;
+  products: Product[];
   error: boolean;
   message: string;
-  user: AppState["user"];
+  // user: AppState["user"];
 }>;
 
 const pageDescription = {
@@ -36,90 +31,115 @@ const pageDescription = {
 };
 
 const Collections: NextPage<Props> = (props) => {
-  const [products, setProducts] = React.useState<Product[]>(
-    JSON.parse(props.products ?? "[]") ?? []
-  );
+  const [loading, setLoading] = React.useState<boolean>(true);
+  const [products, setProducts] = React.useState<Product[]>([]);
+  const { alertMessage } = useMessage();
 
-  if (props.error) {
-    return (
-      <React.Fragment>
-        <SEO {...pageDescription} />
-        <Container sx={{ p: 0 }} className="component-wrap">
-          <Paper sx={{ p: 3, my: 3 }}>
-            <Typography variant={"subtitle2"} my={2}>
-              Internal Server Error Occur
-            </Typography>
-            <Button
-              variant={"contained"}
-              sx={{ textTransform: "none" }}
-              onClick={() => window?.location.reload()}
-            >
-              Reload Page
-            </Button>
-          </Paper>
-        </Container>
-      </React.Fragment>
-    );
-  }
+  const router = useRouter();
+  const { shop_by, name } = router.query;
 
-  FetchCartsHook({ user: props.user, loading: false, setLoading: () => null });
+  React.useEffect(() => {
+    if (!router.isReady) return;
+
+    (async () => {
+      try {
+        let endpoint =
+          "/api/products" + (shop_by && name ? `/${shop_by}/${name}` : "");
+        const getProducts = await axios.get(BASE_URL + endpoint);
+        const { success, products } = await getProducts.data;
+
+        if (success && products) setProducts(products);
+
+        // trigger this event to force update some child components
+        emitCustomEvent(Events.NEW_PRODUCTS, products);
+      } catch (e: any) {
+        console.log({ e });
+        alertMessage(
+          "We are having issue getting products from server",
+          "error"
+        );
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [alertMessage, shop_by, name, router]);
+
+  React.useEffect(() => {
+    const handler = () => setLoading(true);
+    router.events.on("routeChangeStart", handler);
+    router.events.on("routeChangeComplete", () => setLoading(false));
+
+    return () => router.events.off("routeChangeStart", handler);
+  });
+
+  const links = [
+    {
+      path: "/",
+      label: "home",
+    },
+    {
+      path: "/collections",
+      label: "collections",
+    },
+    ...(shop_by
+      ? [
+          { label: shop_by as string, disabled: true },
+          { label: name as string, disabled: true },
+        ]
+      : []),
+  ];
 
   return (
     <React.Fragment>
       <SEO {...pageDescription} />
       <Container maxWidth={"xl"} sx={{ p: 0 }} className="component-wrap">
-        <Box className={"breadcrumbs-wrapper"} my={3}>
-          <Breadcrumbs
-            separator={<ArrowForwardIosRounded sx={{ fontSize: 11 }} />}
-          >
-            <Link href={"/"}>
-              <Typography sx={{ cursor: "pointer" }} variant={"subtitle2"}>
-                Home
-              </Typography>
-            </Link>
-            <Link href={"/collections"}>
-              <Typography variant={"subtitle2"}>Collections</Typography>
-            </Link>
-          </Breadcrumbs>
-        </Box>
-        <Box className="filter-wrapper">
-          <Filter products={products} />
-          <Divider />
-        </Box>
-        {products.length > 0 ? (
-          <RenderProducts products={products} />
-        ) : (
-          <Paper sx={{ p: 3 }}>
-            <Typography variant={"subtitle1"} mb={2}>
-              No product found
-            </Typography>
-            <Link href={"/collections"}>
-              <Button variant={"contained"} size={"small"}>
-                Go back
-              </Button>
-            </Link>
-          </Paper>
+        <BreadcrumbComp links={links} />
+
+        {/* Display if there shop_by query */}
+        {shop_by && (
+          <div className="mb-4 p-3 bg-primary-low/10 shadow-lg flex gap-x-1 rounded-lg items-center">
+            <small className="">Products {shop_by}: </small>
+            <p className="font-bold capitalize">{name}</p>
+          </div>
         )}
 
-        <Viewed />
+        <Box className="filter-wrapper">
+          {loading ? <FilterComponentLoader /> : <Filter {...{ products }} />}
+        </Box>
+
+        {loading ? (
+          <ProductsLoader />
+        ) : (
+          !!products.length && <RenderProducts {...{ products }} />
+        )}
+
+        {!loading && !products.length && (
+          <div className={"card bg-primary-low/10"}>
+            <Typography variant={"subtitle1"} mb={2}>
+              {shop_by ? (
+                <span>
+                  <b className="capitalize">{name}</b> wears is not available in
+                  the store
+                </span>
+              ) : (
+                "Error fetching products"
+              )}
+            </Typography>
+            <Button
+              variant={"contained"}
+              size={"small"}
+              className="bg-primary-low"
+              onClick={() => (shop_by ? router.back() : router.reload())}
+            >
+              {shop_by ? "Go back" : " Reload Page"}
+            </Button>
+          </div>
+        )}
+
+        {!loading && <Viewed />}
       </Container>
     </React.Fragment>
   );
 };
 
 export default Collections;
-
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const { success, products } = await fetchProducts();
-  const query = ctx.query;
-
-  //@ts-ignore
-  const user = ctx.req.session.user ?? null;
-
-  return {
-    props: {
-      ...(success ? { products: JSON.stringify(products) } : { error: true }),
-      user,
-    },
-  };
-};

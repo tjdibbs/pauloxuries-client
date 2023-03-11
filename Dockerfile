@@ -6,7 +6,7 @@ COPY . /home/app
 WORKDIR /home/app
 
 RUN npm install --location=global npm@8.16.0
-RUN npm install -f
+RUN npm install -productField
 RUN npm run build
 
 CMD [ "npm", "start" ]

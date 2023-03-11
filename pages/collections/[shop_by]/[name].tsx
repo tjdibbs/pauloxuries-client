@@ -14,7 +14,6 @@ import Link from "next/link";
 import { ArrowForwardIosRounded } from "@mui/icons-material";
 import { AppState, Product } from "@lib/types";
 import { useRouter } from "next/router";
-import client from "@server/connection/db";
 import RenderProducts from "@comp/renderProducts";
 import Filter from "@comp/filter";
 import FetchCartsHook from "@comp/fetchCartsHook";
@@ -133,27 +132,27 @@ const Collections: React.FC<Props> = (props) => {
 
 export default Collections;
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  try {
-    //@ts-ignore
-    const user = ctx.req.session.user ?? null;
-    const { shop_by, name } = ctx.query as { shop_by: string; name: string };
+// export const getServerSideProps: GetServerSideProps = async (ctx) => {
+//   try {
+//     //@ts-ignore
+//     const user = ctx.req.session.user ?? null;
+//     const { shop_by, name } = ctx.query as { shop_by: string; name: string };
 
-    const findQuery = `SELECT id,stock,category,brand,price,title,discountPercentage,rating,images FROM Product WHERE ${shop_by} REGEXP '${name}' LIMIT 12`;
-    const products = (await client.query(findQuery))[0] as Product[];
+//     const findQuery = `SELECT id,stock,category,brand,price,title,discountPercentage,rating,images FROM Product WHERE ${shop_by} REGEXP '${name}' LIMIT 12`;
+//     const products = (await client.query(findQuery))[0] as Product[];
 
-    return {
-      props: {
-        user,
-        products: JSON.stringify(products ?? "[]"),
-      },
-    };
-  } catch (e: any) {
-    return {
-      props: {
-        error: true,
-        message: e.message,
-      },
-    };
-  }
-};
+//     return {
+//       props: {
+//         user,
+//         products: JSON.stringify(products ?? "[]"),
+//       },
+//     };
+//   } catch (e: any) {
+//     return {
+//       props: {
+//         error: true,
+//         message: e.message,
+//       },
+//     };
+//   }
+// };

@@ -18,24 +18,26 @@ import {
 } from "@mui/material";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import InstagramIcon from "@mui/icons-material/Instagram";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
 import useStyles from "@lib/styles";
-import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
-import ModelTrainingIcon from "@mui/icons-material/ModelTraining";
-import ShopRoundedIcon from "@mui/icons-material/ShopRounded";
 import SwipeableViews from "react-swipeable-views";
-import ArrowBackIosRoundedIcon from "@mui/icons-material/ArrowBackIosRounded";
 import Avatar from "@mui/material/Avatar";
-import ShareLocationIcon from "@mui/icons-material/ShareLocation";
 import Logout from "@mui/icons-material/Logout";
 import { auth } from "@lib/redux/reducer";
-import UploadIcon from "@mui/icons-material/Upload";
 import { useRouter } from "next/router";
 import { themes } from "./menu";
 import axios from "axios";
 import Cookies from "js-cookie";
+
+// Icons
+import ArrowBackIosRoundedIcon from "@mui/icons-material/ArrowBackIosRounded";
+import ShareLocationIcon from "@mui/icons-material/ShareLocation";
+import UploadIcon from "@mui/icons-material/Upload";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import TwitterIcon from "@mui/icons-material/Twitter";
+import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
+import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
+import ModelTrainingIcon from "@mui/icons-material/ModelTraining";
+import ShopRoundedIcon from "@mui/icons-material/ShopRounded";
 
 interface SideBarProps {
   open: boolean;
@@ -61,7 +63,7 @@ export const navData = [
       },
       {
         label: "Category",
-        submenu: ["Pants", "T-Shirts", "Shirts", "Shoes", "Sports Wear"],
+        submenu: ["Pants", "T-Shirts", "Shirts", "Sneakers", "Sports", "Pam"],
       },
     ],
   },
@@ -98,6 +100,8 @@ export default function Sidebar(props: SideBarProps) {
     setOpen(false);
   };
 
+  // const TabItem = () => ()
+
   return (
     <SwipeableDrawer
       anchor={"left"}
@@ -106,7 +110,7 @@ export default function Sidebar(props: SideBarProps) {
       onClose={handleClick}
       onOpen={() => setOpen(true)}
     >
-      <Box width={300} minHeight={"100vh"} maxWidth={"100vw"}>
+      <div className="w-[300px] min-h-screen max-w-screen bg-primary-low/20">
         {user && (
           <CardHeader
             avatar={<Avatar src={user!.image} />}
@@ -155,16 +159,26 @@ export default function Sidebar(props: SideBarProps) {
                     <ModelTrainingIcon fontSize={"small"} />
                   </ListItemIcon>
                   <ListItemText primary={"Theme"} />
-                  <ArrowForwardIosRoundedIcon fontSize={"small"} />
+                  <IconButton>
+                    <ArrowForwardIosRoundedIcon fontSize={"small"} />
+                  </IconButton>
                 </ListItemButton>
-                <ListItemButton
-                  onClick={() => setValue({ title: "shop_by", index: 1 })}
-                >
-                  <ListItemIcon>
-                    <ShopRoundedIcon fontSize={"small"} />
-                  </ListItemIcon>
-                  <ListItemText primary={"Shop By"} />
-                  <ArrowForwardIosRoundedIcon fontSize={"small"} />
+                <ListItemButton>
+                  <Link
+                    href={"/collections"}
+                    className={"flex gap-x-1 items-center flex-grow"}
+                    onClick={() => setOpen(false)}
+                  >
+                    <ListItemIcon>
+                      <ShopRoundedIcon fontSize={"small"} />
+                    </ListItemIcon>
+                    <ListItemText primary={"Shop By"} />
+                  </Link>
+                  <IconButton
+                    onClick={() => setValue({ title: "shop_by", index: 1 })}
+                  >
+                    <ArrowForwardIosRoundedIcon fontSize={"small"} />
+                  </IconButton>
                 </ListItemButton>
                 {user && (
                   <ListItemButton
@@ -186,25 +200,10 @@ export default function Sidebar(props: SideBarProps) {
                 <Box pb={2} className={"nav-page"} height={500}>
                   {value.title !== "theme" ? (
                     <Box>
-                      <Box
-                        px={1}
-                        position={"sticky"}
-                        top={0}
-                        zIndex={10}
-                        bgcolor={"secondary." + theme.palette.mode}
+                      <TabHeader
+                        label="Shop By"
                         onClick={() => setValue({ title: "", index: 0 })}
-                      >
-                        <IconButton>
-                          <ArrowBackIosRoundedIcon fontSize={"small"} />
-                        </IconButton>
-                        <Typography
-                          variant={"subtitle2"}
-                          p={2}
-                          component={"span"}
-                        >
-                          Shop By
-                        </Typography>
-                      </Box>
+                      />
                       <List>
                         {["Brands", "Styles"].map((title, index) => {
                           return (
@@ -223,38 +222,18 @@ export default function Sidebar(props: SideBarProps) {
                     </Box>
                   ) : (
                     <Box sx={{ position: "relative" }}>
-                      <Box
-                        px={1}
-                        position={"sticky"}
-                        top={0}
-                        zIndex={10}
-                        bgcolor={"secondary." + theme.palette.mode}
-                        onClick={() => setValue({ index: 0, title: "theme" })}
-                      >
-                        <IconButton sx={{ mr: 2 }}>
-                          <ArrowBackIosRoundedIcon fontSize={"small"} />
-                        </IconButton>
-                        <Typography
-                          variant={"subtitle2"}
-                          p={2}
-                          component={"span"}
-                        >
-                          Theme
-                        </Typography>
-                      </Box>
-                      <Box
-                        className="themes"
-                        role="list"
-                        minHeight={"max-content"}
-                      >
+                      <TabHeader
+                        label="Theme"
+                        onClick={() => setValue({ title: "theme", index: 0 })}
+                      />
+                      <ul className="themes min-h-max" role="list">
                         {themes.map((theme, index) => {
                           return (
-                            <Box
+                            <li
+                              className={
+                                "flex justify-between p-4 items-center"
+                              }
                               key={index}
-                              display={"flex"}
-                              justifyContent={"space-between"}
-                              p={2}
-                              alignItems={"center"}
                             >
                               <Box
                                 sx={{ alignItems: "center", display: "flex" }}
@@ -273,34 +252,19 @@ export default function Sidebar(props: SideBarProps) {
                                   theme.name as "dark" | "light" | "default"
                                 }
                               />
-                            </Box>
+                            </li>
                           );
                         })}
-                      </Box>
+                      </ul>
                     </Box>
                   )}
                 </Box>
                 {value.title !== "theme" ? (
                   <Box pb={2} className={"nav-page"}>
-                    <Box
-                      px={1}
-                      position={"sticky"}
-                      top={0}
-                      zIndex={10}
-                      bgcolor={"secondary." + theme.palette.mode}
+                    <TabHeader
+                      label={navData[0].submenu![shopValue.value]?.label}
                       onClick={() => setShopValue({ value: 0, index: 0 })}
-                    >
-                      <IconButton sx={{ mr: 2 }}>
-                        <ArrowBackIosRoundedIcon fontSize={"small"} />
-                      </IconButton>
-                      <Typography
-                        variant={"subtitle2"}
-                        p={2}
-                        component={"span"}
-                      >
-                        {navData[0].submenu![shopValue.value]?.label}
-                      </Typography>
-                    </Box>
+                    />
                     <List>
                       {navData[0].submenu![shopValue.value]?.submenu?.map(
                         (title, index) => {
@@ -309,12 +273,9 @@ export default function Sidebar(props: SideBarProps) {
                               key={index}
                               onClick={() =>
                                 handleClose(
-                                  "/collections/" +
-                                    navData[0].submenu![
-                                      shopValue.value
-                                    ]?.label.toLowerCase() +
-                                    "/" +
-                                    title
+                                  `/collections?shop_by=${navData[0].submenu![
+                                    shopValue.value
+                                  ]?.label.toLowerCase()}&name=${title}`
                                 )
                               }
                             >
@@ -332,48 +293,69 @@ export default function Sidebar(props: SideBarProps) {
             </Box>
           </SwipeableViews>
         </Box>
-        <Box className={styles.swiperBottom}>
+        <Box className="absolute bottom-0 w-full p-4">
           {!user && (
-            <CardActions sx={{ justifyContent: "center" }}>
-              <Link href={"/sign-in"}>
+            <div className="card-actions">
+              <Link href={"/sign-in"} className="w-full block mb-3">
                 <Button
-                  size={"small"}
-                  variant="outlined"
+                  variant="contained"
                   onClick={handleClick}
-                  sx={{ textTransform: "none" }}
+                  fullWidth
+                  className="shadow-lg rounded-lg bg-primary-low capitalize"
                 >
-                  Sign in
+                  Login
                 </Button>
               </Link>
-              <Link href={"/sign-up"}>
+              <Link href={"/sign-up"} className="w-full block mb-3">
                 <Button
                   onClick={handleClick}
                   size={"small"}
                   variant="outlined"
+                  fullWidth
                   sx={{ textTransform: "none" }}
                 >
                   Sign up
                 </Button>
               </Link>
-            </CardActions>
+            </div>
           )}
-          <Box className={"social-icons"}>
-            <Stack direction={"row"} gap={1}>
+          <div
+            className={"social-icons flex gap-x-3 justify-center items-center "}
+          >
+            <Link href="https://instagram.com/pauloxuries">
+              <IconButton>
+                <InstagramIcon />
+              </IconButton>
+            </Link>
+            <Link href="https://twitter.com/pauloxuries">
+              <IconButton>
+                <InstagramIcon />
+              </IconButton>
+            </Link>
+            <Link href="https://facebook.com/pauloxuries">
               <IconButton>
                 <FacebookRoundedIcon />
               </IconButton>
-              <IconButton>
-                <TwitterIcon />
-              </IconButton>
-              <Link href="https://instagram.com/pauloxuries">
-                <IconButton>
-                  <InstagramIcon />
-                </IconButton>
-              </Link>
-            </Stack>
-          </Box>
+            </Link>
+          </div>
         </Box>
-      </Box>
+      </div>
     </SwipeableDrawer>
   );
 }
+
+const TabHeader = (props: {
+  label: string;
+  onClick: React.MouseEventHandler;
+}) => (
+  <div className={"sticky top-0 z-10 bg-primary-low/10"}>
+    <IconButton onClick={props.onClick}>
+      <ArrowBackIosRoundedIcon fontSize={"small"} />
+    </IconButton>
+    <span className={"font-semibold text-sm"}>{props.label}</span>
+  </div>
+);
+
+// const NavItem = (props: {icon: boolean}) => (
+
+// )

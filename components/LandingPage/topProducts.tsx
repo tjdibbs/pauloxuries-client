@@ -12,6 +12,7 @@ import { SwiperSlide, Swiper } from "swiper/react";
 import { BASE_URL, breakpoints } from "@lib/constants";
 import useMessage from "@hook/useMessage";
 import { nanoid } from "nanoid";
+import { useAppSelector } from "@lib/redux/store";
 
 const responsive = {
   0: { items: 2 },
@@ -24,6 +25,8 @@ export default function TopProducts() {
   const [topProducts, setTopProducts] = React.useState<Product[]>([]);
   const [loading, setLoading] = React.useState<boolean>(true);
   const { alertMessage } = useMessage();
+
+  const { carts, wishlist, user } = useAppSelector((state) => state.shop);
 
   React.useEffect(() => {
     axios
@@ -40,7 +43,7 @@ export default function TopProducts() {
       .catch(() => {
         alertMessage("There is problem fetching search products", "error");
       });
-  }, []);
+  }, [alertMessage]);
 
   return (
     <Box sx={{ flexGrow: 1, my: 5 }}>
@@ -62,11 +65,22 @@ export default function TopProducts() {
                 <Loading />
               </SwiperSlide>
             ))
-          : topProducts.map((product) => (
-              <SwiperSlide key={product.id}>
-                <ProductStyle2 item={product} component="div" />
-              </SwiperSlide>
-            ))}
+          : topProducts.map((product) => {
+              const inCart = carts.findIndex(
+                (cart) => cart.product!.id === product.id
+              );
+              const inWishlist = wishlist.includes(product.id);
+
+              return (
+                <SwiperSlide key={product.id}>
+                  <ProductStyle2
+                    item={product}
+                    {...{ inCart, inWishlist }}
+                    component="div"
+                  />
+                </SwiperSlide>
+              );
+            })}
       </Swiper>
     </Box>
   );

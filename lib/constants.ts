@@ -22,3 +22,10 @@ export const BASE_URL =
   process.env.NODE_ENV === "production"
     ? "https://api.pauloxuries.com"
     : "http://localhost:8000";
+
+export enum Events {
+  FILTERED = "FilteredProductsEvent",
+  FILTER = "filterEvent",
+  SORT = "SortEvent",
+  NEW_PRODUCTS = "Products",
+}

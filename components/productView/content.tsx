@@ -88,7 +88,7 @@ function ProductContent(props: { product: Product }) {
   };
 
   const handleRemoveCart = () => {
-    dispatch(deleteCart({ userid: user?.id, cartid: product.id })).then(() => {
+    dispatch(deleteCart({ userid: user?.id, cart_id: product.id })).then(() => {
       enqueueSnackbar("Removed from cart", {
         variant: "success",
         anchorOrigin: {
@@ -139,7 +139,7 @@ function ProductContent(props: { product: Product }) {
     if (inCart === -1) return;
     dispatch(
       updateCarts({
-        cartid: product.id,
+        cart_id: product.id,
         userid: user?.id,
         cart: {
           size: size,

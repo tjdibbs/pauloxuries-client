@@ -5,70 +5,38 @@ import { Box, Grid, Pagination } from "@mui/material";
 import ProductStyle2 from "./productStyle2";
 import { motion } from "framer-motion";
 import { sort } from "./filter";
-import sortByPrice from "@helper/sortByPrice";
+import { useAppSelector } from "@lib/redux/store";
+import Loading from "@comp/loading";
+import SortFunc from "@helper/sort";
+import { Events } from "@lib/constants";
+import { useRouter } from "next/router";
 
 const RenderProducts = (props: { products: Product[] }) => {
+  const router = useRouter();
   const [filterProducts, setFilterProducts] = React.useState<Product[]>(
     props.products ?? []
   );
+
   const [page, setPage] = React.useState(1);
   const [sortValue, setSortValue] = React.useState<keyof typeof sort>("FE");
   const productsContainerRef = React.useRef<HTMLDivElement>(null);
+  const { carts, wishlist, user } = useAppSelector((state) => state.shop);
 
-  useCustomEventListener("FilteredProductsEvent", (products: Product[]) => {
-    setFilterProducts(products);
-    setPage(1);
-  });
+  useCustomEventListener(
+    Events.FILTERED,
+    (products: Product[]) => {
+      setFilterProducts(products);
+      setPage(1);
+    },
+    []
+  );
 
-  useCustomEventListener("SortEvent", (type: keyof typeof sort) => {
-    setSortValue(() => type);
-  });
+  useCustomEventListener(Events.SORT, setSortValue, []);
+  useCustomEventListener(Events.NEW_PRODUCTS, setFilterProducts, []);
 
   React.useEffect(() => {
-    switch (sortValue) {
-      case "Z-A":
-        setFilterProducts((filterProducts) => [
-          ...filterProducts.sort((a, b) => b.title.localeCompare(a.title)),
-        ]);
-        break;
-      case "A-Z":
-        setFilterProducts((filterProducts) => [
-          ...filterProducts.sort((a, b) => a.title.localeCompare(b.title)),
-        ]);
-        break;
-      case "P-L-H":
-        setFilterProducts((filterProducts) => [
-          ...filterProducts.sort((a, b) => sortByPrice(a, b, "P-L-H")),
-        ]);
-        break;
-      case "P-H-L":
-        setFilterProducts((filterProducts) => [
-          ...filterProducts.sort((a, b) => sortByPrice(a, b, "P-H-L")),
-        ]);
-        break;
-      case "D-N-O":
-        setFilterProducts((filterProducts) => [
-          ...filterProducts.sort(
-            // @ts-ignore
-            (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-          ),
-        ]);
-        break;
-      case "D-O-N":
-        setFilterProducts((filterProducts) => [
-          ...filterProducts.sort(
-            // @ts-ignore
-            (a, b) => new Date(a.createdAt) - new Date(b.createdAt)
-          ),
-        ]);
-        break;
-      default:
-        setFilterProducts(props.products);
-        break;
-    }
-  }, [props.products, sortValue]);
-
-  if (!props.products) return <></>;
+    setFilterProducts(SortFunc.bind({ sortValue }));
+  }, [sortValue]);
 
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     productsContainerRef.current?.scrollIntoView({
@@ -83,15 +51,27 @@ const RenderProducts = (props: { products: Product[] }) => {
       ? filterProducts.length / 12
       : Math.floor(filterProducts.length / 12) + 1;
 
+  if (!filterProducts?.length) return <></>;
+
   return (
     <React.Fragment>
       <div className="products flex-grow my-5" ref={productsContainerRef}>
         <Grid container spacing={1}>
           {filterProducts
             .slice((page - 1) * 12, 12 * page)
-            .map((brand, index) => (
-              <ProductStyle2 key={index} item={brand} />
-            ))}
+            .map((product, index) => {
+              const inCart = carts.findIndex(
+                (cart) => cart.product!.id === product.id
+              );
+              const inWishlist = wishlist.includes(product.id);
+              return (
+                <ProductStyle2
+                  key={index}
+                  item={product}
+                  {...{ inCart, inWishlist }}
+                />
+              );
+            })}
         </Grid>
         {!Boolean(filterProducts.length) && (
           <motion.div
@@ -117,5 +97,13 @@ const RenderProducts = (props: { products: Product[] }) => {
     </React.Fragment>
   );
 };
+
+export const ProductsLoader = () => (
+  <Grid container spacing={1}>
+    {Array.from(new Array(4)).map((_, index) => (
+      <Loading key={index} />
+    ))}
+  </Grid>
+);
 
 export default RenderProducts;

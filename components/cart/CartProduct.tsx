@@ -55,7 +55,7 @@ function Cart({ cart }: { cart: CartProduct }) {
   const handleCartQuantity = (value: string | number) => {
     dispatch(
       updateCarts({
-        cartid: cart.id as string,
+        cart_id: cart.id as string,
         userid: user?.id,
         cart: {
           ...(cart as CartProduct),
@@ -66,7 +66,7 @@ function Cart({ cart }: { cart: CartProduct }) {
   };
 
   const handleRemoveCart = () => {
-    dispatch(deleteCart({ userid: user?.id, cartid: cart.id as string }));
+    dispatch(deleteCart({ userid: user?.id, cart_id: cart.id as string }));
   };
 
   const AddToWishlist = () => dispatch(setWish(cart.id as string));
@@ -83,7 +83,10 @@ function Cart({ cart }: { cart: CartProduct }) {
       <div className="flex gap-2 items-center p-2">
         <Avatar
           variant={"rounded"}
-          src={"/images/products/" + cart.product!.image}
+          src={
+            "https://pauloxuries.com/images/products/" +
+            cart.product!.image?.replaceAll('"', "")
+          }
         >
           <ShoppingCartCheckoutIcon />
         </Avatar>

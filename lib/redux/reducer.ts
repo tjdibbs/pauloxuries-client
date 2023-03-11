@@ -2,21 +2,23 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
 import { AppState, CartProduct, Product } from "../types";
 import Cookie from "js-cookie";
-import { addToCarts, deleteCart, updateCarts, setAllCarts } from "./cartSlice";
+import { CartBuilder } from "./cartSlice";
 import getCurrentTheme from "lib/getCurrentTheme";
+import { wishBuilder } from "./wishSlice";
 
 const carts = Cookie.get("carts");
-const wishlist = Cookie.get("wishlists");
+const wishlist = Cookie.get("wishlist");
 const theme = Cookie.get("theme") as "light" | "dark" | "default";
 const mode = "light";
 
 const initialState: AppState = {
   // @ts-ignore
   mode,
-  carts: carts ? JSON.parse(carts) : [],
+  carts: JSON.parse(carts ?? "[]"),
   theme: theme ?? "default",
-  wishlists: wishlist ? JSON.parse(wishlist) : [],
+  wishlist: JSON.parse(wishlist ?? "[]"),
   loggedIn: false,
+  device: "mobile",
 };
 
 const Shop = createSlice({
@@ -60,15 +62,6 @@ const Shop = createSlice({
 
       Cookie.set("carts", JSON.stringify(state.carts), { expires: 365 });
     },
-    setWish: (state: AppState, actions: PayloadAction<string>) => {
-      state.wishlists.push(actions.payload);
-    },
-    removeWish: (state: AppState, actions: PayloadAction<string>) => {
-      let product = state.wishlists.findIndex(
-        (wish) => wish === actions.payload
-      );
-      state.wishlists.splice(product, 1);
-    },
     setMode: (
       state: AppState,
       actions: PayloadAction<"light" | "dark" | "default">
@@ -95,57 +88,15 @@ const Shop = createSlice({
     },
   },
   extraReducers(builder) {
-    builder.addCase(
-      addToCarts.fulfilled,
-      (state, actions: PayloadAction<Partial<CartProduct>>) => {
-        state.carts.push(actions.payload);
-
-        if (
-          state.user &&
-          !state.user?.carts.includes(actions.payload.id as string)
-        ) {
-          state.user?.carts.push(actions.payload.id as string);
-        }
-
-        Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
-      }
-    );
-    builder.addCase(updateCarts.fulfilled, (state, actions) => {
-      const { cartid, cart } = actions.payload;
-      state.carts.forEach((c, index) => {
-        if (c.id === cartid) {
-          state.carts[index] = { ...c, ...cart };
-        }
-      });
-
-      Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
-    });
-    builder.addCase(deleteCart.fulfilled, (state, actions) => {
-      let product = state.carts.findIndex(
-        (cart) => cart.id === actions.payload.cartid
-      );
-      state.carts.splice(product, 1);
-      Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
-    });
-    builder.addCase(setAllCarts.fulfilled, (state, actions) => {
-      state.carts = actions.payload;
-      Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
-    });
+    // @reference react-toolkit async-thunk
+    CartBuilder(builder);
+    wishBuilder(builder);
   },
 });
 
-export const {
-  setCart,
-  removeCart,
-  setAllCart,
-  updateCart,
-  setWish,
-  removeWish,
-  setMode,
-  auth,
-} = Shop.actions;
+export const { setCart, removeCart, setAllCart, updateCart, setMode, auth } =
+  Shop.actions;
 
 export const cartLengths = (state: RootState) => state.shop.carts;
-export const wishLists = (state: RootState) => state.shop.wishlists;
 
 export default Shop.reducer;

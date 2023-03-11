@@ -1,4 +1,3 @@
-import { wishLists } from "./redux/reducer";
 import { sort } from "@comp/filter";
 
 export type FilterState = {
@@ -29,6 +28,8 @@ export type Product = {
   images: string;
   thumbnail?: string;
   sold: number;
+  sizes: { [x: string]: string | number };
+  colors: { [x: string]: string };
   createdAt: string;
 } & Omit<FormDataType, "frontImage" | "backImage" | "additionalImage">;
 
@@ -97,7 +98,8 @@ export type AppState = {
   mode: "light" | "dark";
   theme: "default" | "light" | "dark";
   carts: Partial<CartProduct>[];
-  wishlists: string[];
+  wishlist: string[];
+  device: "mobile" | "desktop";
   loggedIn: boolean;
   user?: {
     id: string;

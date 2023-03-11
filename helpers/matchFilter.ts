@@ -24,8 +24,8 @@ export default function matchFilter(
       value.pop();
 
       productKeyValue
-        ? (pass = JSON.parse(productKeyValue).some((d: string | number) =>
-            value.includes(d)
+        ? (pass = Object.keys(JSON.parse(productKeyValue)).some(
+            (d: string | number) => value.includes(d)
           ))
         : (pass = false);
       break;

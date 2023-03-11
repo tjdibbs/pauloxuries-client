@@ -16,12 +16,8 @@ import ProductContent from "@comp/productView/content";
 import RelatedProduct from "@comp/productView/related";
 
 import { AppState, CartProduct, Product } from "@lib/types";
-import client from "../../server/connection/db";
-import Cookies from "js-cookie";
-import { auth } from "@lib/redux/reducer";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import merge from "@utils/merge";
-import { setAllCarts } from "@lib/redux/cartSlice";
+
 import { useRouter } from "next/router";
 import { marked } from "marked";
 
@@ -36,55 +32,20 @@ import SEO from "@comp/seo";
 import View from "@comp/productView";
 import Viewed from "@comp/viewed";
 import { Icon } from "@iconify/react";
+import client from "@lib/client";
+import axios from "axios";
+import { BASE_URL } from "@lib/constants";
 
 type Props = Partial<{
   product: string;
   notfound: boolean;
   error: boolean;
-  user: AppState["user"];
 }>;
 
-const Products: NextPage<Props> = (props) => {
+const Product: NextPage<Props> = (props) => {
   const { carts } = useAppSelector((state) => state.shop);
-  const [loading, setLoading] = React.useState<boolean>(true);
   const dispatch = useAppDispatch();
   const router = useRouter();
-
-  React.useEffect(() => {
-    const FetchProductCarts = (userCarts?: CartProduct[]) => {
-      let merged = carts;
-
-      if (!userCarts?.length && !carts.length) {
-        setLoading(false);
-        return;
-      }
-
-      if (userCarts?.length) {
-        merged = merge<CartProduct>([...carts, ...userCarts!]);
-      }
-
-      dispatch(setAllCarts({ userid: props.user!?.id, carts: merged })).then(
-        () => {
-          setLoading(false);
-        }
-      );
-    };
-
-    dispatch(auth(props.user));
-    FetchProductCarts(
-      // @ts-ignore
-      JSON.parse(props.user!?.carts || "[]") as CartProduct[]
-    );
-
-    const viewed = JSON.parse(Cookies.get("viewed") ?? "[]") as Product[];
-    let product = JSON.parse(props.product as string) as Product;
-    let check = viewed.findIndex((d) => d.id === product.id) === -1;
-    if (check) {
-      Cookies.set("viewed", JSON.stringify([product, ...viewed]), {
-        expires: 7,
-      });
-    }
-  }, [dispatch, props.user]);
 
   React.useEffect(() => {
     document.body.scrollTo({ top: 0 });
@@ -106,22 +67,22 @@ const Products: NextPage<Props> = (props) => {
     );
   }
 
-  if (loading) {
-    return (
-      <Container
-        sx={{
-          py: 5,
-          px: 2,
-          display: "grid",
-          placeItems: "center",
-          height: "100%",
-        }}
-      >
-        <Typography mb={2}>Loading...</Typography>
-        <CircularProgress sx={{ height: 70, width: 70 }} />
-      </Container>
-    );
-  }
+  // if (loading) {
+  //   return (
+  //     <Container
+  //       sx={{
+  //         py: 5,
+  //         px: 2,
+  //         display: "grid",
+  //         placeItems: "center",
+  //         height: "100%",
+  //       }}
+  //     >
+  //       <Typography mb={2}>Loading...</Typography>
+  //       <CircularProgress sx={{ height: 70, width: 70 }} />
+  //     </Container>
+  //   );
+  // }
 
   const product = JSON.parse(props.product) as Product;
 
@@ -234,41 +195,61 @@ const Products: NextPage<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({
-  req,
-  res,
-  query,
-}) => {
+Product.getInitialProps = async (ctx) => {
+  let product = null;
+  let error = false;
+  let product_id = ctx.query.id as string;
+
   try {
-    // @ts-ignore
-    const user = req.session.user ?? null;
-    const { id } = query as unknown as { id: string };
-
-    if (!id) {
-      return {
-        props: {
-          user,
-          notfound: true,
-        },
-      };
-    }
-
-    let find_query = `SELECT * FROM Product WHERE id='${id}'`;
-    const product = (await client.query(find_query))[0] as Product[];
-
-    return {
-      props: {
-        user,
-        product: product ? JSON.stringify(product[0]) : null,
-      },
-    };
-  } catch (e) {
-    return {
-      props: {
-        error: true,
-      },
-    };
+    let getProduct = await axios.get(BASE_URL + "/products/" + product_id);
+    product = await getProduct.data;
+  } catch (error) {
+    console.log({ error });
+    error = true;
   }
+
+  return {
+    product,
+    error,
+  };
 };
 
-export default Products;
+// export const getServerSideProps: GetServerSideProps = async ({
+//   req,
+//   res,
+//   query,
+// }) => {
+//   try {
+//     // @ts-ignore
+//     const user = req.session.user ?? null;
+//     const { id } = query as unknown as { id: string };
+
+//     if (!id) {
+//       return {
+//         props: {
+//           user,
+//           notfound: true,
+//         },
+//       };
+//     }
+
+//     let find_query = `SELECT * FROM Product WHERE id='${id}'`;
+//     const product = (await client.query(find_query))[0] as Product[];
+
+//     return {
+//       props: {
+//         user,
+//         product: product ? JSON.stringify(product[0]) : null,
+//       },
+//     };
+//   } catch (e) {
+//     console.log({ e });
+//     return {
+//       props: {
+//         error: true,
+//       },
+//     };
+//   }
+// };
+
+export default Product;

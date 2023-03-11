@@ -16,8 +16,8 @@ import Grid from "@mui/material/Grid";
 
 // state management
 import { useAppSelector, useAppDispatch } from "@lib/redux/store";
-import { setWish, removeWish } from "@lib/redux/reducer";
 import { addToCarts, deleteCart } from "@lib/redux/cartSlice";
+import { addToWish, deleteWish } from "@lib/redux/wishSlice";
 
 // icons from material ui
 import AddShoppingCartIcon from "@mui/icons-material/AddShoppingCart";
@@ -32,16 +32,18 @@ type Props = {
   xs?: number | string;
   md?: number;
   component?: "div";
+  inCart: number;
+  inWishlist: boolean;
 };
 
-export default function ProductStyle2({ item, sm, xs, component, md }: Props) {
+function ProductStyle2(props: Props) {
+  const { inCart, inWishlist, item, sm, xs, component, md } = props;
   const dispatch = useAppDispatch();
   const { alertMessage } = useMessage();
-  const { carts, wishlists, user } = useAppSelector((state) => state.shop);
-  const [loading, setLoading] = React.useState<boolean>(false);
 
-  const inCart = carts.findIndex((cart) => cart.product!.id === item.id);
-  const inWishlist = wishlists.includes(item.id);
+  const [loading, setLoading] = React.useState<boolean>(false);
+  const user = useAppSelector((state) => state.shop.user);
+  const userid = user?.id as string;
 
   const handleAddCart = () => {
     setLoading(true);
@@ -61,7 +63,7 @@ export default function ProductStyle2({ item, sm, xs, component, md }: Props) {
 
   const handleRemoveCart = () => {
     setLoading(true);
-    dispatch(deleteCart({ userid: user?.id, cartid: item.id }))
+    dispatch(deleteCart({ userid, cart_id: item.id }))
       .then(() => {
         alertMessage(item.title + " removed from cart", "warning");
       })
@@ -69,7 +71,9 @@ export default function ProductStyle2({ item, sm, xs, component, md }: Props) {
   };
 
   const handleWish = () => {
-    dispatch(inWishlist ? removeWish(item.id) : setWish(item.id));
+    let params = { userid, wish: item.id };
+    if (inWishlist) dispatch(deleteWish(params));
+    else dispatch(addToWish(params));
   };
 
   let isOutOfStock = Boolean(item.stock - item.sold < 1);
@@ -197,3 +201,5 @@ export default function ProductStyle2({ item, sm, xs, component, md }: Props) {
     </Grid>
   );
 }
+
+export default React.memo(ProductStyle2);
