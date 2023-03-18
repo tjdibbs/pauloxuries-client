@@ -25,19 +25,14 @@ import "../styles/global.css";
 import { ConfigProvider } from "antd";
 import PageLoading from "@comp/PageLoading";
 import { Router } from "next/router";
+import GetUser from "@lib/getUser";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <Provider store={store}>
       <SnackbarProvider maxSnack={3}>
         <Layout>
-          {/* <NextNProgress
-            color="#997a00"
-            startPosition={0.3}
-            stopDelayMs={200}
-            height={3}
-            showOnShallow={true}
-          /> */}
+          <GetUser />
           <PageLoading />
           <ConfigProvider
             theme={{

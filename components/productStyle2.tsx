@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 import React from "react";
 import Link from "next/link";
-import { CartProduct, Product } from "@lib/types";
+import { CartInterface, Product } from "@lib/types";
 import useMessage from "hooks/useMessage";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -25,6 +25,9 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { Spin } from "antd";
 import { nanoid } from "nanoid";
+import useShop from "@hook/useShop";
+import ImageLoader from "./ImageLoader";
+import Image from "next/image";
 
 type Props = {
   item: Product;
@@ -34,47 +37,17 @@ type Props = {
   component?: "div";
   inCart: number;
   inWishlist: boolean;
+  children?: React.ReactNode;
 };
 
 function ProductStyle2(props: Props) {
   const { inCart, inWishlist, item, sm, xs, component, md } = props;
-  const dispatch = useAppDispatch();
-  const { alertMessage } = useMessage();
+  const { handleAddCart, handleRemoveCart, handleWish, loading } = useShop(
+    props.item
+  );
 
-  const [loading, setLoading] = React.useState<boolean>(false);
   const user = useAppSelector((state) => state.shop.user);
   const userid = user?.id as string;
-
-  const handleAddCart = () => {
-    setLoading(true);
-
-    const cartProduct: Partial<CartProduct> = {
-      user: user?.id,
-      product: { id: item.id },
-      quantity: 1,
-    };
-
-    dispatch(addToCarts({ user: user!?.id, cart: cartProduct }))
-      .then(() => {
-        alertMessage(item.title + " added to cart", "success");
-      })
-      .finally(() => setLoading(false));
-  };
-
-  const handleRemoveCart = () => {
-    setLoading(true);
-    dispatch(deleteCart({ userid, cart_id: item.id }))
-      .then(() => {
-        alertMessage(item.title + " removed from cart", "warning");
-      })
-      .finally(() => setLoading(false));
-  };
-
-  const handleWish = () => {
-    let params = { userid, wish: item.id };
-    if (inWishlist) dispatch(deleteWish(params));
-    else dispatch(addToWish(params));
-  };
 
   let isOutOfStock = Boolean(item.stock - item.sold < 1);
 
@@ -118,16 +91,20 @@ function ProductStyle2(props: Props) {
           className="!bg-primary-low text-white absolute top-2.5 right-2.5"
         />
       )}
-      <div>
-        <img
-          src={
-            "https://pauloxuries.com/images/products/" +
-            JSON.parse(item.images)[0]
-          }
-          alt={item.title}
-          className={`w-full object-fill h-[250px] md:h-[330px] pointer-events-none`}
-        />
-      </div>
+      {props.children ?? (
+        <div className="h-[250px] md:h-[330px] relative">
+          <Image
+            src={
+              "https://pauloxuries.com/images/products/" +
+              JSON.parse(item.images)[0]
+            }
+            loading="lazy"
+            alt={item.title}
+            fill
+            className={`w-full object-fill  pointer-events-none`}
+          />
+        </div>
+      )}
       <Box p={1}>
         <Box textAlign="left">
           <p className="whitespace-nowrap mb-2 capitalize font-semibold overflow-hidden text-ellipsis">
@@ -176,7 +153,9 @@ function ProductStyle2(props: Props) {
             <Tooltip title={inCart !== -1 ? "Remove from cart" : "Add to cart"}>
               <IconButton
                 color={inCart !== -1 ? "warning" : "default"}
-                onClick={inCart !== -1 ? handleRemoveCart : handleAddCart}
+                onClick={
+                  inCart !== -1 ? handleRemoveCart : () => handleAddCart()
+                }
               >
                 <AddShoppingCartIcon />
               </IconButton>

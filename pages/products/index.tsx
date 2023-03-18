@@ -1,49 +1,40 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
-import { GetServerSideProps, NextPage } from "next";
+import { NextPage } from "next";
+import Link from "next/link";
+import { Product } from "@lib/types";
+import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import { useRouter } from "next/router";
+
+// components
 import {
   Box,
   Breadcrumbs,
-  CircularProgress,
   Container,
   Divider,
   Typography,
-  IconButton,
-  Stack,
 } from "@mui/material";
-import Link from "next/link";
+import SEO from "@comp/seo";
 import ProductContent from "@comp/productView/content";
-import RelatedProduct from "@comp/productView/related";
-
-import { AppState, CartProduct, Product } from "@lib/types";
-import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-
-import { useRouter } from "next/router";
-import { marked } from "marked";
+import RelatedProduct from "@comp/productView/RelatedProducts";
+import View from "@comp/productView/Images";
+import Viewed from "@comp/viewed";
+import axios from "axios";
+import Share from "@comp/productView/Share";
+import Reviews from "@comp/productView/Reviews";
 
 // icons
 import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
-import FacebookRounded from "@mui/icons-material/FacebookRounded";
-import Twitter from "@mui/icons-material/Twitter";
-// import { WhatsappRounded } from "@mui/icons-material";
-
-// components
-import SEO from "@comp/seo";
-import View from "@comp/productView";
-import Viewed from "@comp/viewed";
-import { Icon } from "@iconify/react";
-import client from "@lib/client";
-import axios from "axios";
 import { BASE_URL } from "@lib/constants";
 
-type Props = Partial<{
-  product: string;
-  notfound: boolean;
+type Props = {
+  product: Product | null;
+  notfound?: boolean;
   error: boolean;
-}>;
+};
 
 const Product: NextPage<Props> = (props) => {
-  const { carts } = useAppSelector((state) => state.shop);
+  const { cart } = useAppSelector((state) => state.shop);
   const dispatch = useAppDispatch();
   const router = useRouter();
 
@@ -84,13 +75,14 @@ const Product: NextPage<Props> = (props) => {
   //   );
   // }
 
-  const product = JSON.parse(props.product) as Product;
-
+  const product = props.product as Product;
   const pageDescription = {
     title: product.title,
     description: product.description,
     url: "https://pauloxuries.com" + router.asPath,
-    image: "https://pauloxuries.com/images/products/" + product.images[0],
+    image:
+      "https://pauloxuries.com/images/products/" +
+      JSON.parse(product.images)[0],
   };
 
   return (
@@ -133,56 +125,31 @@ const Product: NextPage<Props> = (props) => {
         </div>
       </div>
       <Box>
-        <Box className={"description"} maxWidth={"100%"}>
-          <Typography variant={"subtitle1"} fontWeight={600} my={2}>
-            Product Description
-          </Typography>
-          <div
-            dangerouslySetInnerHTML={{
-              __html: marked.parse(product.description),
-            }}
-          />
-        </Box>
-        <Box className="share">
-          <p className="text-sm font-semibold">Share On Social Media</p>
-          <Stack direction={"row"}>
-            <a
-              title="pauloxuries facebook link"
-              target={"_blank"}
-              rel={"noreferrer"}
-              href={`https://www.facebook.com/sharer/sharer.php?u=https://pauloxuries.com${router.asPath};src=sdkpreparse`}
-            >
-              <IconButton>
-                <FacebookRounded />
-              </IconButton>
-            </a>
-            <a
-              title="pauloxuries twitter link"
-              href={
-                "https://twitter.com/intent/tweet?text=" +
-                "https://pauloxuries.com" +
-                router.asPath
-              }
-            >
-              <IconButton>
-                <Twitter />
-              </IconButton>
-            </a>
-            <a
-              title="pauloxuries whatsapp link"
-              href={
-                "whatsapp://send?text=" +
-                "https://pauloxuries.com" +
-                router.asPath
-              }
-            >
-              <IconButton>
-                <Icon icon={"ic:outline-whatsapp"} />
-              </IconButton>
-            </a>
-          </Stack>
+        <Share />
+        <Box className={"description my-4"} maxWidth={"100%"}>
+          <p className="font-extrabold text-lg mb-3">Information</p>
+          <div className="shipping-info-wrap">
+            <h1 className="font-bold">Shipping</h1>
+            <div className="text-xs">
+              <span>
+                Calculated at checkout{" "}
+                <Link
+                  href={"/shipping"}
+                  style={{ color: "#660132", textDecoration: "none" }}
+                  passHref
+                >
+                  Learn more
+                </Link>{" "}
+              </span>
+            </div>
+            <ul className="my-2">
+              <li className="text-sm">Lagos: 48 – 72working hours.</li>
+              <li className="text-sm ">Outside Lagos: 3-7 working days.</li>
+            </ul>
+          </div>
         </Box>
       </Box>
+      <Reviews product={product} />
       <Divider />
       <RelatedProduct
         brand={product.brand}
@@ -201,8 +168,14 @@ Product.getInitialProps = async (ctx) => {
   let product_id = ctx.query.id as string;
 
   try {
-    let getProduct = await axios.get(BASE_URL + "/products/" + product_id);
-    product = await getProduct.data;
+    let getProduct = await axios.get<{ product: Product; success: boolean }>(
+      BASE_URL + "/api/products/_/" + product_id
+    );
+
+    let response = getProduct.data;
+    product = response.product;
+
+    // --------------------------
   } catch (error) {
     console.log({ error });
     error = true;

@@ -12,7 +12,6 @@ import {
 import { GetServerSideProps } from "next";
 import Link from "next/link";
 import React from "react";
-import { getUser } from "../../server/routes/router";
 import axios from "axios";
 import { AppState } from "@lib/types";
 import { useSnackbar } from "notistack";
@@ -27,7 +26,7 @@ interface Props {
 
 export default function Orders(props: Props) {
   const [loading, setLoading] = React.useState<boolean>(true);
-  const { carts, user } = useAppSelector((state) => state.shop);
+  const { cart, user } = useAppSelector((state) => state.shop);
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useAppDispatch();
   const [orders, setOrders] = React.useState<OrderType[] | null>(null);
@@ -129,13 +128,13 @@ export default function Orders(props: Props) {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
-  //@ts-ignore
-  const user = req.session.user ?? null;
+// export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
+//   //@ts-ignore
+//   const user = req.session.user ?? null;
 
-  return {
-    props: {
-      user,
-    },
-  };
-};
+//   return {
+//     props: {
+//       user,
+//     },
+//   };
+// };

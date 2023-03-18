@@ -40,19 +40,24 @@ export type ProductProp = {
 export interface SavedAddress {
   city: string;
   state: string;
-  country_region: string;
+  country: string;
   address: string;
-  phone: number;
+  phone: string;
 }
-export interface OrderType extends SavedAddress {
-  paymentMethod: "pay-on-delivery" | "transfer";
-  transaction_id?: string;
-  bank_name?: string;
-  account_name?: string;
-  amount?: number;
-  save?: boolean;
-  checkout: Cart<CartProduct>;
-}
+export type OrderType = CheckoutInterface<CartInterface> &
+  SavedAddress & {
+    name: string;
+    email: string;
+    paymentMethod: "pay-on-delivery" | "transfer";
+    amount?: number;
+    update?: boolean;
+    subscribe: boolean;
+    create: boolean;
+    other: string;
+    agree: boolean;
+    additionalInformation: string;
+    order_number: number;
+  };
 
 export type FormDataType = {
   title: string;
@@ -97,7 +102,7 @@ export interface RouterQuery {
 export type AppState = {
   mode: "light" | "dark";
   theme: "default" | "light" | "dark";
-  carts: Partial<CartProduct>[];
+  cart: Partial<CartInterface>[];
   wishlist: string[];
   device: "mobile" | "desktop";
   loggedIn: boolean;
@@ -108,13 +113,13 @@ export type AppState = {
     lastname: string;
     image: string;
     admin: boolean;
-    carts: string[];
+    cart: string[];
     wishLists: string[];
     verified: boolean;
   } | null;
 };
 
-export type CartProduct = {
+export interface CartInterface {
   id: string;
   user: string;
   product: Partial<{
@@ -129,12 +134,11 @@ export type CartProduct = {
   quantity: number;
   sizes: (string | number)[];
   colors: string[];
-};
+}
 
-export type Cart<T> = {
-  products: T[];
+export interface CheckoutInterface<T> {
+  cart: T[];
+  subtotal: number;
+  discount: number;
   total: number;
-  discountedTotal: number;
-  totalPrice: number;
-  totalQuantity: number;
-};
+}

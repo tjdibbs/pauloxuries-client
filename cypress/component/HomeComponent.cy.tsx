@@ -13,7 +13,7 @@ const user = {
   lastname: "James",
   image: "",
   admin: false,
-  carts: [],
+  cart: [],
   wishLists: [],
   verified: true,
 };

@@ -44,7 +44,12 @@ export default function Viewed({ id }: { id?: string }) {
       >
         {viewed.map((product, index) => (
           <SwiperSlide key={product.id}>
-            <ProductStyle2 item={product} component="div" />
+            <ProductStyle2
+              item={product}
+              component="div"
+              inCart={0}
+              inWishlist={false}
+            />
           </SwiperSlide>
         ))}
       </Swiper>

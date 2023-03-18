@@ -18,6 +18,7 @@ import { useRouter } from "next/router";
 import { Product } from "@lib/types";
 import axios from "axios";
 import { useAppSelector } from "@lib/redux/store";
+import Image from "next/image";
 
 type Brand = { brand: string; image: string }[];
 
@@ -134,17 +135,16 @@ export const CardComponent = ({
   return (
     <React.Fragment>
       <CardActionArea
-        className="card-area"
+        className="card-area relative min-h-[200px]"
         sx={{ width: "100%", maxHeight: "200px", height: "100%" }}
-        onClick={() => router.push("/collections/brand/" + item!.brand)}
+        onClick={() => router.push("/collections" + item!.brand)}
       >
-        <CardMedia
-          component={"img"}
-          sx={{ height: "100%", minHeight: 200 }}
+        <Image
           src={"/images" + item.image}
-          srcSet={""}
-          alt={item.alt}
           loading="lazy"
+          alt={item.alt as string}
+          fill
+          className={`w-full object-fill  pointer-events-none min-h-[200px]`}
         />
       </CardActionArea>
       <CardContent
@@ -155,7 +155,9 @@ export const CardComponent = ({
           {item.brand ?? item.category}
         </Typography>
         <Button
-          onClick={() => router.push("/collections" + item.url)}
+          onClick={() =>
+            router.push("/collections?shop_by=brand&value=" + item.url)
+          }
           variant="outlined"
           size="small"
           color={mode === "light" ? "primary" : "warning"}
@@ -172,43 +174,43 @@ export const CardComponent = ({
 const brands = [
   {
     image: "/brands/adidas.jpg",
-    url: "/brand/adidas",
+    url: "adidas",
     alt: "Products from Adidas Brand",
     brand: "Adidas",
   },
   {
     image: "/brands/louis-vuitton.jpg",
-    url: "/brand/louis vuitton",
+    url: "louis vuitton",
     alt: "Products from Luis Vuitton Brand",
     brand: "Louis Vuitton",
   },
   {
     image: "/brands/nike.jpg",
-    url: "/brand/nike",
+    url: "nike",
     alt: "Products from Nike Brand",
     brand: "Nike",
   },
   {
     image: "/brands/prada.jpg",
-    url: "/brand/prada",
+    url: "prada",
     alt: "Products from Prada Brand",
     brand: "Prada",
   },
   // {
   //   image: "/brands/puma.jpg",
-  //   url: "/brand/puma",
+  //   url: "puma",
   //   alt: "Products from Puma Brand",
   //   brand: "Puma",
   // },
   {
     image: "/brands/versace.jpg",
-    url: "/brand/versace",
+    url: "versace",
     alt: "Products from Versace Brand",
     brand: "Versace",
   },
   {
     image: "/brands/gucci.jpg",
-    url: "/brand/gucci",
+    url: "gucci",
     alt: "Products from Gucci Brand",
     brand: "Gucci",
   },

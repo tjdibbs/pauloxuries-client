@@ -3,24 +3,20 @@ import {
   Avatar,
   Badge,
   Box,
-  Card,
-  CardHeader,
+  CardActionArea,
   Chip,
   Collapse,
-  IconButton,
-  Paper,
-  Stack,
-  Typography,
+  Divider,
 } from "@mui/material";
 import KeyboardArrowUpRoundedIcon from "@mui/icons-material/KeyboardArrowUpRounded";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
-import { Cart, CartProduct } from "@lib/types";
+import { CheckoutInterface, CartInterface } from "@lib/types";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 
 const ShippingSummary = ({
   checkout,
 }: {
-  checkout: Cart<CartProduct> | null;
+  checkout: CheckoutInterface<CartInterface> | null;
 }) => {
   const [width, setWidth] = React.useState<boolean>(false);
 
@@ -39,134 +35,104 @@ const ShippingSummary = ({
   if (!checkout) return <></>;
 
   return (
-    <Box
-      className={"summary"}
-      minWidth={{ sm: "100%", md: 400 }}
-      maxWidth={"100%"}
+    <div
+      className={
+        "summary bg-primary-low/10 sm:min-w-full md:min-w-[400px] max-w-full rounded-lg h-full shadow-lg overflow-hidden"
+      }
     >
-      <Paper sx={{ p: 1, mb: 1.5, borderRadius: "20px" }}>
-        <Stack
-          direction={"row"}
-          alignItems={"center"}
-          justifyContent={"space-between"}
-          flexWrap={"wrap"}
+      <div className="flex items-center justify-between p-3 bg-primary-low/20">
+        <CardActionArea
+          className={
+            "summary-toggle cursor-pointer flex gap-x-2 items-center w-max rounded-lg p-2"
+          }
+          onClick={() => setWidth(!width)}
         >
-          <Box
-            className={"summary-toggle"}
-            onClick={() => setWidth(!width)}
-            sx={{ cursor: "pointer" }}
-          >
-            <IconButton>
-              {width ? (
-                <KeyboardArrowUpRoundedIcon />
-              ) : (
-                <KeyboardArrowDownRoundedIcon color={"info"} />
-              )}
-            </IconButton>
-            <Typography
-              component={"span"}
-              variant={"subtitle2"}
-              color={"info.main"}
-            >
-              Show Order Summary
-            </Typography>
-          </Box>
-          <Box className={"order-total-price"}>
-            <Chip label={"#" + checkout.totalPrice.toLocaleString("en")} />
-          </Box>
-        </Stack>
-      </Paper>
+          {width ? (
+            <KeyboardArrowUpRoundedIcon />
+          ) : (
+            <KeyboardArrowDownRoundedIcon />
+          )}
+          <span className="font-bold">Show Order Summary</span>
+        </CardActionArea>
+        <Box className={"order-total-price"}>
+          <Chip
+            label={"₦" + checkout.total?.toLocaleString("en")}
+            className="font-bold bg-white shadow-lg"
+          />
+        </Box>
+      </div>
       <Collapse in={width}>
-        <Stack spacing={1}>
-          {checkout.products?.map((cart, i) => {
+        <div className="flex flex-col px-2 py-4 gap-y-3">
+          {checkout.cart?.map((cartProduct, i) => {
             return (
-              <Card key={i} sx={{ p: 1, borderRadius: "20px" }}>
-                <CardHeader
-                  avatar={
-                    <Badge badgeContent={cart.quantity} color={"info"}>
-                      <Avatar
-                        variant={"rounded"}
-                        src={
-                          cart.product!.image.indexOf("http") !== -1
-                            ? cart.product!.image
-                            : "/images/products/" + cart.product!.image
-                        }
-                      >
-                        <ShoppingCartCheckoutIcon />
-                      </Avatar>
-                    </Badge>
-                  }
-                  title={
-                    <Typography
-                      variant={"body1"}
-                      fontWeight={600}
-                      lineHeight={1.3}
-                    >
-                      {cart.product!.title}
-                    </Typography>
-                  }
-                  subheader={"Size - 40"}
-                  action={
-                    <Chip
-                      label={
-                        "#" +
-                        (
-                          (cart.product!.price as number) * cart.quantity
-                        ).toLocaleString("en")
+              <div
+                key={cartProduct.product.id}
+                className="bg-white p-2 rounded-lg shadow-lg"
+              >
+                <div className="flex gap-2 items-center">
+                  <Badge badgeContent={cartProduct.quantity} color={"info"}>
+                    <Avatar
+                      variant={"rounded"}
+                      className="shadow-lg"
+                      src={
+                        "https://pauloxuries.com/images/products/" +
+                        cartProduct.product!.image?.replaceAll('"', "")
                       }
-                    />
-                  }
-                />
-              </Card>
+                    >
+                      <ShoppingCartCheckoutIcon />
+                    </Avatar>
+                  </Badge>
+                  <div className="title ml-3 block whitespace-nowrap overflow-hidden text-ellipsis">
+                    <span className="font-semibold text-sm ">
+                      {cartProduct.product!.title} Lorem ipsum dolor sit amet.
+                    </span>
+                  </div>
+                  <Chip
+                    className="font-extrabold text-sm text-primary-low"
+                    label={
+                      "₦" +
+                      (
+                        (cartProduct.product!.price as number) *
+                        cartProduct.quantity
+                      ).toLocaleString()
+                    }
+                  />
+                </div>
+              </div>
             );
           })}
-        </Stack>
-        <Box role={"application"} p={2}>
-          <Box id={"total-price"}>
-            <Stack
-              direction={"row"}
-              justifyContent={"space-between"}
-              alignItems={"center"}
-            >
-              <Typography variant={"subtitle2"}>Total Price</Typography>
-              <Typography variant={"subtitle1"} fontWeight={600}>
-                #{checkout.total.toLocaleString("en")}
-              </Typography>
-            </Stack>
-          </Box>
-          <Box id={"discount"} width={"100%"}>
-            <Stack
-              direction={"row"}
-              justifyContent={"space-between"}
-              alignItems={"center"}
-            >
-              <Typography variant={"subtitle2"}>Discount</Typography>
-              <Typography variant={"subtitle1"} fontWeight={600}>
-                #{checkout.discountedTotal.toLocaleString("en")}
-              </Typography>
-            </Stack>
-          </Box>
-          <Box id={"total"} width={"100%"} my={1}>
-            <Stack
-              direction={"row"}
-              justifyContent={"space-between"}
-              alignItems={"center"}
-            >
-              <Typography
-                variant={"subtitle1"}
-                fontWeight={800}
-                color={"primary.light"}
-              >
-                Total:{" "}
-              </Typography>
-              <Typography variant={"subtitle1"} fontWeight={800}>
-                #{checkout.totalPrice.toLocaleString("en")}
-              </Typography>
-            </Stack>
-          </Box>
-        </Box>
+        </div>
+        <div className="totals my-5 px-4">
+          <div className="subtotal flex justify-between items-between p-2">
+            <div className="label">Subtotal:</div>
+            <div className="amount font-bold">
+              {"₦" + checkout.subtotal.toLocaleString()}
+            </div>
+          </div>
+          <div className="discount flex justify-between items-between p-2">
+            <div className="label">Discount:</div>
+            <div className="amount font-bold">
+              {"₦" + checkout.discount.toLocaleString()}
+            </div>
+          </div>
+          <div className="shipping flex justify-between items-between p-2">
+            <div className="label">Shipping:</div>
+            <div className="amount font-bold">
+              {"₦" + (3_500).toLocaleString()} via GIG park
+            </div>
+          </div>
+
+          <Divider />
+
+          <div className="total flex justify-between items-between p-2 mt-5">
+            <div className="label font-extrabold">Total:</div>
+            <div className="amount font-black text-xl text-primary-low">
+              {"₦" + checkout.total.toLocaleString()}
+            </div>
+          </div>
+        </div>
       </Collapse>
-    </Box>
+    </div>
   );
 };
 

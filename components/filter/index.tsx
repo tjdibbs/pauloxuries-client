@@ -170,7 +170,7 @@ function Filter(props: FilterProps) {
 }
 
 export const FilterComponentLoader: React.FC = () => {
-  return <div className="bg-gray-400 animate-pulse p-4 rounded-lg" />;
+  return <div className="bg-primary-low/10 animate-pulse p-4 rounded-lg" />;
 };
 
 export default Filter;

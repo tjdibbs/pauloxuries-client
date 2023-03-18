@@ -37,6 +37,8 @@ export default function NewArrivals() {
     axios
       .get<{ products: ProductType[] }>(BASE_URL + "/api/products/new")
       .then((response) => {
+        if (!response.data.products) return;
+
         setNewArrivals(response.data.products);
         setLoading(false);
       });

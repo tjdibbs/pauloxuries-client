@@ -14,7 +14,12 @@ import {
 } from "@mui/material";
 import KeyboardArrowDownRoundedIcon from "@mui/icons-material/KeyboardArrowDownRounded";
 import React from "react";
-import { Cart, CartProduct, OrderType, Product } from "@lib/types";
+import {
+  CheckoutInterface,
+  CartInterface,
+  OrderType,
+  Product,
+} from "@lib/types";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import axios from "axios";
 import { useSnackbar } from "notistack";
@@ -29,7 +34,9 @@ export interface Prop extends Omit<OrderType, "checkout"> {
 }
 
 export default function Order(prop: Prop) {
-  const checkouts = JSON.parse(prop.checkout) as Cart<CartProduct>;
+  const checkouts = JSON.parse(
+    prop.checkout
+  ) as CheckoutInterface<CartInterface>;
   const { mode, user } = useAppSelector((state) => state.shop);
   const [expand, setExpand] = React.useState<boolean>(false);
   const [revoked, setRevoked] = React.useState<string[]>(

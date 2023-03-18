@@ -1,4 +1,4 @@
-import { CartProduct } from "@lib/types";
+import { CartInterface } from "@lib/types";
 
 export default function merge<T extends { product_id: string }>(item: T[]) {
   let allKey: string[] = [];

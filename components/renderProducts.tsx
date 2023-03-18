@@ -20,7 +20,7 @@ const RenderProducts = (props: { products: Product[] }) => {
   const [page, setPage] = React.useState(1);
   const [sortValue, setSortValue] = React.useState<keyof typeof sort>("FE");
   const productsContainerRef = React.useRef<HTMLDivElement>(null);
-  const { carts, wishlist, user } = useAppSelector((state) => state.shop);
+  const { cart, wishlist, user } = useAppSelector((state) => state.shop);
 
   useCustomEventListener(
     Events.FILTERED,
@@ -60,7 +60,7 @@ const RenderProducts = (props: { products: Product[] }) => {
           {filterProducts
             .slice((page - 1) * 12, 12 * page)
             .map((product, index) => {
-              const inCart = carts.findIndex(
+              const inCart = cart.findIndex(
                 (cart) => cart.product!.id === product.id
               );
               const inWishlist = wishlist.includes(product.id);

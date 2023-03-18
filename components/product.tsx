@@ -14,6 +14,7 @@ import useStyles from "@lib/styles";
 import { Product } from "@lib/types";
 import { useRouter } from "next/router";
 import Link from "next/link";
+import Image from "next/image";
 
 type Props = {
   item: Product;
@@ -26,20 +27,18 @@ export default function ProductCard({ item }: Props) {
 
   return (
     <Card elevation={0} className={styles.cardArrival}>
-      <CardMedia
-        component={"img"}
-        src={
-          "https://pauloxuries.com/images/products/" +
-          JSON.parse(item.images)[0]
-        }
-        alt={item.title}
-        sx={{
-          objectFit: "initial",
-          height: { xs: 250, sm: 300 },
-          userSelect: "none",
-          WebkitUserDrag: "none",
-        }}
-      />
+      <div className="h-[250px] md:h-[330px] relative">
+        <Image
+          src={
+            "https://pauloxuries.com/images/products/" +
+            JSON.parse(item.images)[0]
+          }
+          loading="lazy"
+          alt={item.title}
+          fill
+          className={`w-full object-fill  pointer-events-none`}
+        />
+      </div>
       <CardContent className="content">
         <div className="product-title text-sm font-semibold whitespace-nowrap text-ellipsis overflow-hidden">
           {item.title}

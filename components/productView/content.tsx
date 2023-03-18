@@ -1,32 +1,27 @@
 import React from "react";
 import {
   Box,
-  Button,
-  CardActions,
   Chip,
   Divider,
-  FormControl,
   IconButton,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
   Stack,
+  TextField,
   Typography,
-  useTheme,
 } from "@mui/material";
 import Link from "next/link";
 import Add from "@mui/icons-material/Add";
 
 import { useForm } from "react-hook-form";
-import { Cart, CartProduct, Product } from "@lib/types";
+import { Product } from "@lib/types";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import { useSnackbar } from "notistack";
-import dynamic from "next/dynamic";
-import { addToCarts, deleteCart, updateCarts } from "@lib/redux/cartSlice";
-import Cookie from "js-cookie";
-import router from "next/router";
+import { updateCarts } from "@lib/redux/cartSlice";
+import { nanoid } from "nanoid";
+import ProductAction from "./ProductAction";
+import { useRouter } from "next/router";
+import { marked } from "marked";
+import useShop from "@hook/useShop";
 
-type State = {
+export type State = {
   quantity: string | number;
   size: number | string;
   color: string;
@@ -34,19 +29,20 @@ type State = {
 
 function ProductContent(props: { product: Product }) {
   const { product } = props;
-  const theme = useTheme();
-  const dispatch = useAppDispatch();
-  const { enqueueSnackbar } = useSnackbar();
-  const { carts, user } = useAppSelector((state) => state.shop);
+  const { cart, user } = useAppSelector((state) => state.shop);
+  const router = useRouter();
 
-  const inCart = carts.findIndex((cart) => cart.product_id === product.id);
+  const [showError, setShowError] = React.useState<boolean>(false);
 
-  const { register, watch, setValue, reset } = useForm<State>();
+  const { handleCartChange } = useShop(props.product);
+  const { register, watch, setValue, reset, getValues } = useForm<State>();
   const { quantity, size, color } = watch();
+
+  const inCart = cart.findIndex((cart) => cart.product?.id === product.id);
 
   React.useEffect(() => {
     reset({
-      quantity: inCart !== -1 ? carts[inCart].quantity : 1,
+      quantity: inCart !== -1 ? cart[inCart].quantity : 1,
       size: JSON.parse(product.sizes)[0],
       color: JSON.parse(product.colors)[0],
     });
@@ -56,105 +52,36 @@ function ProductContent(props: { product: Product }) {
   const handleState = (name: keyof State, n: number | string) => {
     switch (name) {
       case "quantity":
+        if (
+          (quantity == 1 && n == -1) ||
+          (quantity === product!.stock && n === 1)
+        ) {
+          setShowError(true);
+          return;
+        }
         setValue(name, parseInt(quantity as string) + (n as number));
         break;
       default:
         setValue(name, n);
     }
 
-    handleCartChange();
+    cartChange();
   };
 
-  const handleAddCart = () => {
-    const cartProduct: CartProduct = {
-      product_id: product.id,
-      quantity: 1,
-      color,
-      size: product.sizes?.length ? product.sizes[0] : "",
-      discountPercentage: product.discountPercentage,
-      totalPrice: product.price as number,
-    };
-
-    dispatch(addToCarts({ id: user!?.id, cart: cartProduct })).then(() => {
-      enqueueSnackbar("Added to cart", {
-        variant: "success",
-        anchorOrigin: {
-          vertical: "bottom",
-          horizontal: "center",
-        },
-        autoHideDuration: 2000,
-      });
-    });
-  };
-
-  const handleRemoveCart = () => {
-    dispatch(deleteCart({ userid: user?.id, cart_id: product.id })).then(() => {
-      enqueueSnackbar("Removed from cart", {
-        variant: "success",
-        anchorOrigin: {
-          vertical: "bottom",
-          horizontal: "center",
-        },
-        autoHideDuration: 2000,
-      });
-    });
-  };
-
-  const handleCheckout = () => {
-    let T = (product.price as number) * (quantity as number);
-    let checkout: Cart<CartProduct> = {
-      products: [
-        {
-          product_id: product.id,
-          product: {
-            ...product,
-            image: JSON.parse(product.images || "[]")[0],
-          },
-          quantity: quantity as number,
-          size,
-          color,
-          discountPercentage: product.discountPercentage,
-          totalPrice: T - (product.discountPercentage / 100) * T,
-        },
-      ],
-      total: (product.price as number) * (quantity as number),
-      discountedTotal:
-        (product.discountPercentage / 100) *
-        (product.price as number) *
-        parseInt(quantity as string),
-      totalQuantity: quantity as number,
-      totalPrice:
-        (product.price as number) * parseInt(quantity as string) -
-        (product.discountPercentage / 100) *
-          (product.price as number) *
-          parseInt(quantity as string),
-    };
-
-    //Set current checkout to cookie to get it in the checkout page
-    Cookie.set("checkout", JSON.stringify(checkout), { expires: 7 });
-    router.push("/checkout/");
-  };
-
-  const handleCartChange = () => {
+  const cartChange = () => {
     if (inCart === -1) return;
-    dispatch(
-      updateCarts({
-        cart_id: product.id,
-        userid: user?.id,
-        cart: {
-          size: size,
-          product_id: product.id,
-          color,
-          discountPercentage: product.discountPercentage,
-          totalPrice: (product.price as number) * (quantity as number),
-          quantity: parseInt(quantity as string),
-        },
-      })
-    );
+    handleCartChange({
+      sizes: [size],
+      colors: [color],
+      quantity: parseInt(quantity as string),
+    });
   };
+
+  const productColors = JSON.parse(product.colors) as { [x: string]: boolean };
+  const productSizes = JSON.parse(product.sizes) as { [x: string]: boolean };
 
   return (
-    <div className="product-content card sm:w-full rounded-lg sm:p-4 h-full">
+    <div className="product-content sm:shadow-lg sm:w-full rounded-lg sm:px-2 sm:p-4 relative">
       {product.discountPercentage ? (
         <Box>
           <Typography variant="subtitle1" fontWeight={700} color={"primary"}>
@@ -179,163 +106,138 @@ function ProductContent(props: { product: Product }) {
         <Stack direction="row" spacing={2}>
           {product.category.split(",").map((tag: string) => {
             return (
-              <a
-                title={tag}
-                style={{ textDecoration: "none", cursor: "pointer" }}
-                href={"/category/" + tag}
+              <Chip
+                label={tag}
                 key={tag}
-              >
-                <Chip label={tag} size="small" />
-              </a>
+                size="small"
+                onClick={() => router.push("/category/" + tag)}
+              />
             );
           })}
         </Stack>
       </Box>
-      <Typography variant={"subtitle2"} my={2}>
-        <Link
-          href={"/shipping"}
-          style={{ color: "#660132", textDecoration: "none" }}
-          passHref
-        >
-          <b>Shipping</b>
-        </Link>{" "}
-        Calculated at checkout
-      </Typography>
-      <Divider />
-      <Box className="colors" my={2}>
-        <Typography variant={"subtitle1"} fontWeight={500} my={2}>
-          Product Colors
-        </Typography>
-        <Stack direction={"row"} gap={1} flexWrap={"wrap"}>
-          {JSON.parse(product.colors)
-            ?.filter((p: string) => p)
-            .map((c: string) => {
-              return (
-                <Chip
-                  label={c}
-                  key={c}
-                  onClick={() => {
-                    handleState("color", c);
-                    handleCartChange();
-                  }}
-                  variant={color == c ? "filled" : "outlined"}
-                />
-              );
-            })}
-        </Stack>
-        {!JSON.parse(product.colors).filter((p: string) => p)?.length && (
+
+      <div className="description-wrap my-4">
+        <div
+          className="text-sm"
+          dangerouslySetInnerHTML={{
+            __html: marked.parse(product.description),
+          }}
+        />
+      </div>
+      <div className="colors my-3">
+        <p className="font-bold text-sm">Colors</p>
+        <div className="flex gap-3 flex-wrap">
+          {Object.keys(productColors).map((c: string) => {
+            return (
+              <Chip
+                label={c}
+                key={c}
+                style={{ background: color }}
+                onClick={() => {
+                  handleState("color", c);
+                  cartChange();
+                }}
+                variant={color == c ? "filled" : "outlined"}
+              />
+            );
+          })}
+        </div>
+        {!Object.keys(productColors).length && (
           <Typography variant="caption">
-            Find the only color from product pictures
+            Find available color from product images
           </Typography>
         )}
-      </Box>
-      <Divider />
+      </div>
       <Box className="sizes" my={2}>
-        <Typography variant={"subtitle1"} fontWeight={500} my={2}>
-          Sizes Available
-        </Typography>
+        <p className="font-bold text-sm mb-2">Sizes</p>
         <Stack direction={"row"} gap={1} flexWrap={"wrap"}>
-          {JSON.parse(product.sizes)
-            ?.filter((p: string) => p)
-            .map((siz: string) => {
-              return (
-                <Chip
-                  label={siz}
-                  key={siz}
-                  onClick={() => {
-                    handleState("size", siz);
-                    handleCartChange();
-                  }}
-                  variant={size === siz ? "filled" : "outlined"}
-                />
-              );
-            })}
+          {Object.keys(productSizes).map((_size) => {
+            return (
+              <Chip
+                label={_size}
+                key={_size}
+                size="small"
+                disabled={!productSizes[_size]}
+                className={
+                  size === _size
+                    ? "bg-slate-600 text-white hover:bg-slate-800"
+                    : ""
+                }
+                onClick={() => {
+                  handleState("size", _size);
+                  cartChange();
+                }}
+                variant={size === _size ? "filled" : "outlined"}
+              />
+            );
+          })}
         </Stack>
-        {!JSON.parse(product.sizes).filter((p: string) => p)?.length && (
+        {!Object.keys(productSizes).length && (
           <Typography variant="caption">
             This product does not have sizes
           </Typography>
         )}
       </Box>
-      <Divider />
-      <Box className="quantity">
-        <Typography variant={"subtitle1"} fontWeight={500} my={2}>
-          Product Quantity To Deliver
-        </Typography>
-        <FormControl
+      <Box className="quantity mt-10">
+        <TextField
           size={"small"}
           sx={{
-            m: 1,
-            width: 150,
+            width: 200,
             "& .MuiOutlinedInput-input": { textAlign: "center" },
           }}
-        >
-          <InputLabel htmlFor="quantity">Quantity</InputLabel>
-          <OutlinedInput
-            id="quantity"
-            {...register("quantity", {
-              required: true,
-              onChange: (e) => {
-                let value = e.target.value;
-                if (!/^\d+$/.test(value) || value.length > 2) {
-                  setValue("quantity", quantity);
-                  if (value) handleCartChange();
-                }
-              },
-            })}
-            autoComplete={"off"}
-            startAdornment={
-              <InputAdornment position="start">
-                <IconButton
-                  size={"small"}
-                  sx={{ width: "30px" }}
-                  onClick={() => handleState("quantity", -1)}
-                >
-                  &minus;
-                </IconButton>
-              </InputAdornment>
-            }
-            endAdornment={
-              <InputAdornment position={"end"}>
-                <IconButton
-                  size={"small"}
-                  onClick={() => handleState("quantity", 1)}
-                >
-                  <Add fontSize={"small"} />
-                </IconButton>
-              </InputAdornment>
-            }
-            label="Quantity"
-          />
-        </FormControl>
+          min={2}
+          id="quantity"
+          {...register("quantity", {
+            required: true,
+            onChange: (e) => {
+              let value = e.target.value;
+              if (!/^\d+$/.test(value) || value.length > 2) {
+                setValue("quantity", quantity);
+                if (value && value !== quantity) cartChange();
+              }
+            },
+          })}
+          autoComplete={"off"}
+          InputProps={{
+            startAdornment: (
+              <IconButton
+                size={"small"}
+                sx={{ width: "30px" }}
+                onClick={() => handleState("quantity", -1)}
+              >
+                &minus;
+              </IconButton>
+            ),
+            endAdornment: (
+              <IconButton
+                size={"small"}
+                onClick={() => handleState("quantity", 1)}
+              >
+                <Add fontSize={"small"} />
+              </IconButton>
+            ),
+          }}
+          label="Quantity"
+          helperText={
+            product.stock -
+            product.sold -
+            parseInt(quantity as string) +
+            " will remain in the store"
+          }
+        />
+        <div className="helper-text mt-2">
+          {showError && (
+            <small className="text-red-700">
+              Quantity ({product.stock - product.sold}) can not be more than
+              what is available in store, to get more; contact us.
+            </small>
+          )}
+        </div>
       </Box>
-      {product.stock - product.sold > 0 ? (
-        <CardActions className={"action-group"} sx={{ my: 2 }}>
-          <button
-            onClick={inCart === -1 ? handleAddCart : handleRemoveCart}
-            className={`text-sm ${
-              inCart === -1
-                ? "btn-outlined ring-slate-600 text-gray-600"
-                : "btn text-white bg-slate-600"
-            }`}
-          >
-            {inCart !== -1 ? "Remove from cart" : "Add to cart"}
-          </button>
-          <Button
-            onClick={handleCheckout}
-            variant={"outlined"}
-            sx={{ textTransform: "none" }}
-          >
-            Buy Now
-          </Button>
-        </CardActions>
-      ) : (
-        <Typography variant={"subtitle1"} color={"error"}>
-          Sorry: Products is out of stock
-        </Typography>
-      )}
+      <ProductAction {...{ product, getValues }} />
     </div>
   );
 }
 
-export default dynamic(async () => await ProductContent, { ssr: false });
+export default ProductContent;

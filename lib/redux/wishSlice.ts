@@ -5,7 +5,7 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit";
 import axios from "axios";
-import { AppState, CartProduct } from "@lib/types";
+import { AppState, CartInterface } from "@lib/types";
 import Cookie from "js-cookie";
 
 const WISH_URL = BASE_URL + "/api/wish/";

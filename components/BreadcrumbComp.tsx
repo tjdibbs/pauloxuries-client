@@ -13,7 +13,8 @@ function BreadcrumbComp(props: {
     <Box className={"breadcrumbs-wrapper"} my={3}>
       <Breadcrumbs separator={<ArrowForwardIosRounded sx={{ fontSize: 11 }} />}>
         {props.links.map((link, index, links) => {
-          if (index === links.length - 1) return <span>{link.label}</span>;
+          if (index === links.length - 1)
+            return <span key={link.label}>{link.label}</span>;
 
           return (
             <Chip

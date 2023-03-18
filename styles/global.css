@@ -27,3 +27,9 @@ body.dark {
     @apply ring-1 px-3 py-1.5 rounded-[5px] shadow-lg font-bold;
   }
 }
+
+@supports (font: -apple-system-body) and (-webkit-appearance: none) {
+  img[loading="lazy"] {
+    clip-path: inset(0.6px);
+  }
+}

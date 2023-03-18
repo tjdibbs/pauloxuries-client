@@ -8,14 +8,12 @@ import { AppState, Product } from "@lib/types";
 // components
 import BrandShopping from "@comp/LandingPage/brandShopping";
 import TopProducts from "@comp/LandingPage/topProducts";
-import Category from "@comp/LandingPage/category";
+import SportWears from "@comp/LandingPage/SportWears";
 import LandingPageSwiper from "@comp/LandingPage/landingSwiper";
 import Arrivals from "@comp/LandingPage/arrivals";
-import FetchCartsHook from "@comp/fetchCartsHook";
 import Collections from "@comp/LandingPage/collections";
 import SEO from "@comp/seo";
 import Viewed from "@comp/viewed";
-import dynamic from "next/dynamic";
 
 const pageDescription = {
   title: `Home`,
@@ -25,13 +23,7 @@ const pageDescription = {
   image: "https://pauloxuries.com/identity/dark-logo.png",
 };
 
-const Home: React.FC<{ user: AppState["user"]; jerseys: string }> = ({
-  user,
-  jerseys,
-}) => {
-  // FetchCartsHook({ user, loading: false, setLoading: () => null });
-
-
+const Home: React.FC<{ user: AppState["user"]; jerseys: string }> = () => {
   return (
     <React.Fragment>
       <SEO {...pageDescription} />
@@ -77,11 +69,10 @@ const Home: React.FC<{ user: AppState["user"]; jerseys: string }> = ({
 
           <Collections />
         </Box>
-        <Box className="category" mt={5}>
-          {/*<Category jerseys={jerseys} />*/}
+        <Box className="sport-wears" mt={5}>
+          <SportWears />
         </Box>
       </Box>
-      <Viewed />
     </React.Fragment>
   );
 };
@@ -104,4 +95,4 @@ const Home: React.FC<{ user: AppState["user"]; jerseys: string }> = ({
 //   };
 // };
 
-export default Home
+export default Home;

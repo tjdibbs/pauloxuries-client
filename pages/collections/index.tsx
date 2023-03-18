@@ -1,5 +1,5 @@
 import React from "react";
-import { GetServerSideProps, GetStaticProps, NextPage } from "next";
+import { NextPage } from "next";
 import { Box, Button, Container, Typography } from "@mui/material";
 import Link from "next/link";
 import Filter, { FilterComponentLoader } from "@comp/filter";
@@ -12,7 +12,7 @@ import axios from "axios";
 import { BASE_URL, Events } from "@lib/constants";
 import { useRouter } from "next/router";
 import useMessage from "@hook/useMessage";
-import BreadcrumbComp from "@comp/BreadcrumComp";
+import BreadcrumbComp from "@comp/BreadcrumbComp";
 import { emitCustomEvent } from "react-custom-events";
 
 type Props = Partial<{
@@ -65,12 +65,16 @@ const Collections: NextPage<Props> = (props) => {
   }, [alertMessage, shop_by, name, router]);
 
   React.useEffect(() => {
-    const handler = () => setLoading(true);
-    router.events.on("routeChangeStart", handler);
-    router.events.on("routeChangeComplete", () => setLoading(false));
+    const handler = (pathname: string, option: { shallow: boolean }) => {
+      if (pathname.includes("collections")) setLoading(true);
+    };
 
-    return () => router.events.off("routeChangeStart", handler);
-  });
+    router.events.on("beforeHistoryChange", handler);
+
+    return () => {
+      router.events.off("beforeHistoryChange", handler);
+    };
+  }, [router]);
 
   const links = [
     {

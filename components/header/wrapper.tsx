@@ -1,4 +1,3 @@
-/* eslint-disable @next/next/no-img-element */
 import {
   IconButton,
   Button,
@@ -25,6 +24,7 @@ import { useAppSelector } from "@lib/redux/store";
 import Navigation from "./menu";
 import SwitchButton from "./switch";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 
 type ShopMenu = Partial<{ brand: boolean; style: boolean; occasion: boolean }>;
 
@@ -89,10 +89,13 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
               </IconButton>
             )}
             <Link href={"/"} className="flex-grow md:flex-grow-0">
-              <img
+              <Image
                 src={`/identity/logo.png`}
-                alt="pauloxuries logo"
-                style={{ height: 60, cursor: "pointer" }}
+                loading="lazy"
+                alt={"Pauloxuries logo"}
+                width={180}
+                height={60}
+                className={`sm:w-full object-fill  pointer-events-none`}
               />
             </Link>
             <div
@@ -163,7 +166,7 @@ const CountCart = dynamic(
 
       return (
         <IconButton onClick={() => router.push("/cart")}>
-          <Badge color="primary" badgeContent={shop.carts.length} showZero>
+          <Badge color="primary" badgeContent={shop.cart.length} showZero>
             <ShoppingCartRounded fontSize="medium" />
           </Badge>
         </IconButton>

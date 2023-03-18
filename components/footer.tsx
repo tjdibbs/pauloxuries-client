@@ -20,6 +20,9 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { useSnackbar } from "notistack";
 import Image from "next/image";
+import LocationCityRounded from "@mui/icons-material/LocationOn";
+import Call from "@mui/icons-material/Call";
+import EmailRounded from "@mui/icons-material/EmailRounded";
 
 export default function Footer() {
   const theme = useTheme();
@@ -95,26 +98,53 @@ export default function Footer() {
         <Divider />
         <div className="my-4 flex flex-wrap gap-4 justify-between">
           <Box width={500}>
-            <Link href={"/"}>
-              <img
+            <Link href={"/"} className="block w-max -ml-3">
+              <Image
                 src={`/identity/logo.png`}
-                alt="pauloxuries logo"
-                style={{ height: 80 }}
+                loading="lazy"
+                alt={"Pauloxuries logo"}
+                width={180}
+                height={60}
+                className={`w-full object-fill  pointer-events-none`}
               />
             </Link>
-            <p className="mt-3">
+            <p className="mt-6">
               The premier e-commerce destination for men and women’s style
               combining the best brands that focus on craftsmanship and
               elegance.
             </p>
-            <div className={"social-icons flex gap-x-3 items-center"}>
-              <IconButton>
-                <FacebookRoundedIcon />
-              </IconButton>
-              <IconButton>
-                <TwitterIcon />
-              </IconButton>
-              <Link href="https://instagram.com/pauloxuries">
+
+            <div className="flex items-center gap-x-3 mt-10">
+              <LocationCityRounded />
+              <div className="address font-bold my-2">
+                70 Alhaji Masha Road, Surulere Lagos.
+              </div>
+            </div>
+
+            <div className="contact">
+              <div className="phone flex items-center gap-x-3 mb-2 font-semibold">
+                <Call />
+                <a href="tel:+2349031469068">+2349031469068</a>
+              </div>
+              <div className="email flex items-center gap-x-3 font-semibold">
+                <EmailRounded />
+                <a href="mailto:sales@pauloxuries.com">sales@pauloxuries.com</a>
+              </div>
+            </div>
+            <div
+              className={"social-icons flex gap-x-3 items-center mt-10 -ml-3"}
+            >
+              <Link target={"_blank"} href="https://twitter.com/pauloxuries">
+                <IconButton>
+                  <TwitterIcon />
+                </IconButton>
+              </Link>
+              <Link target={"_blank"} href="https://facebook.com/pauloxuries">
+                <IconButton>
+                  <FacebookRoundedIcon />
+                </IconButton>
+              </Link>
+              <Link target={"_blank"} href="https://instagram.com/pauloxuries">
                 <IconButton>
                   <InstagramIcon />
                 </IconButton>
@@ -160,7 +190,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="text-center p-4 bg-primary-low text-white">
-        <span>© 2022 PAULOXURIES</span>
+        <span>© {new Date().getFullYear()} PAULOXURIES</span>
       </div>
     </footer>
   );

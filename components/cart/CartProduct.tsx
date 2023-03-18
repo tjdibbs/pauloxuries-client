@@ -1,7 +1,7 @@
 import React from "react";
 import { useForm } from "react-hook-form";
-import { CartProduct, Product } from "@lib/types";
-import { motion } from "framer-motion";
+import { CartInterface, Product } from "@lib/types";
+import { AnimatePresence, motion } from "framer-motion";
 
 // components
 import {
@@ -17,69 +17,78 @@ import {
 import { useRouter } from "next/router";
 
 // state management
-import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import { setWish, removeWish } from "@lib/redux/reducer";
-import { deleteCart, updateCarts } from "@lib/redux/cartSlice";
+import { useAppSelector } from "@lib/redux/store";
 
 // icons
 import Add from "@mui/icons-material/Add";
 import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
+import useShop from "@hook/useShop";
+import Favorite from "@mui/icons-material/Favorite";
+import FavoriteBorderOutlined from "@mui/icons-material/FavoriteBorderOutlined";
 
 type State = { quantity: string | number; size: number };
 
-function Cart({ cart }: { cart: CartProduct }) {
+function CheckoutInterface({ cart }: { cart: CartInterface }) {
   const { register, watch, setValue } = useForm<State>({
     defaultValues: {
       quantity: cart.quantity,
     },
   });
-  const { quantity } = watch();
-  const { user, wishlists } = useAppSelector((state) => state.shop);
-  const dispatch = useAppDispatch();
-  const router = useRouter();
 
-  const inWishlist = wishlists.includes(cart.product!.id!);
+  const [message, setMessage] = React.useState<{ text: string; open: boolean }>(
+    { text: "", open: false }
+  );
+  const { quantity } = watch();
+  const { user, wishlist } = useAppSelector((state) => state.shop);
+
+  const { handleRemoveCart, handleWish, handleCartChange } = useShop(
+    cart["product"] as Product
+  );
+  const router = useRouter();
+  let timeout = React.useRef<NodeJS.Timeout>();
+
+  const inWishlist = wishlist.includes(cart.product!.id!);
 
   const handleState = (name: keyof State, n: number) => {
-    if (
-      (name === "quantity" && quantity === 1 && n === -1) ||
-      (quantity === cart.product!.stock && n === 1)
-    ) {
+    if (name === "quantity" && quantity === 1 && n === -1) {
+      clearTimeout(timeout.current);
+      setMessage({
+        text: "Quantity most be 1 or higher",
+        open: true,
+      });
+      return;
+    } else if (quantity === cart.product!.stock && n === 1) {
+      clearTimeout(timeout.current);
+      setMessage({
+        text: "Your quantity is higher than what is in store",
+        open: true,
+      });
       return;
     }
 
     setValue(name, parseInt(quantity as string) + n);
-    handleCartQuantity(parseInt(quantity as string) + n);
+    handleCartChange({
+      quantity: parseInt(quantity as string) + n,
+    });
   };
 
-  const handleCartQuantity = (value: string | number) => {
-    dispatch(
-      updateCarts({
-        cart_id: cart.id as string,
-        userid: user?.id,
-        cart: {
-          ...(cart as CartProduct),
-          quantity: parseInt(value as string),
-        },
-      })
-    );
-  };
+  React.useEffect(() => {
+    if (message.open) {
+      timeout.current = setTimeout(() => {
+        setMessage({ ...message, open: false });
+      }, 1500);
+    }
 
-  const handleRemoveCart = () => {
-    dispatch(deleteCart({ userid: user?.id, cart_id: cart.id as string }));
-  };
-
-  const AddToWishlist = () => dispatch(setWish(cart.id as string));
-  const RemoveWishlist = () => dispatch(removeWish(cart.id as string));
+    () => clearTimeout(timeout.current);
+  }, [message]);
 
   let { price, discountPercentage } = cart.product as Product;
-  console.log({ cart });
   const cartTotalPrice =
     (price as number) * cart.quantity! -
     (price as number) * (discountPercentage / 100);
 
   return (
-    <div className="card bg-white/70 backdrop-blur">
+    <div className="card bg-white/70 backdrop-blur relative">
       <div className="flex gap-2 items-center p-2">
         <Avatar
           variant={"rounded"}
@@ -104,7 +113,7 @@ function Cart({ cart }: { cart: CartProduct }) {
             {...register("quantity", {
               onChange: (e) => {
                 if (!e.target.value) setValue("quantity", 1);
-                handleCartQuantity(parseInt(e.target.value));
+                handleCartChange({ quantity: parseInt(e.target.value) });
               },
               max: cart.product!.stock,
               value: cart.quantity as unknown as string,
@@ -145,28 +154,19 @@ function Cart({ cart }: { cart: CartProduct }) {
           </Box>
         </div>
       </div>
-      <div className="flex gap-x-3 px-2">
+      <div className="flex gap-x-3 px-2 items-center">
         <motion.button
           whileTap={{ scale: 0.9 }}
           type="button"
           onClick={handleRemoveCart}
           className="btn text-sm bg-primary-low text-white"
         >
-          Remove from cart
+          Remove
         </motion.button>
         <Button
           size={"small"}
           color={"warning"}
-          variant={inWishlist ? "contained" : "outlined"}
-          sx={{ textTransform: "none" }}
-          onClick={inWishlist ? RemoveWishlist : AddToWishlist}
-        >
-          Add to wishlist
-        </Button>
-        <Button
-          size={"small"}
-          color={"warning"}
-          variant={inWishlist ? "contained" : "outlined"}
+          variant={"outlined"}
           sx={{ textTransform: "none" }}
           onClick={() =>
             router.push(
@@ -176,9 +176,30 @@ function Cart({ cart }: { cart: CartProduct }) {
         >
           View
         </Button>
+        <div className="wish flex-grow flex justify-end">
+          <IconButton className="bg-white shadow-lg" onClick={handleWish}>
+            {inWishlist ? (
+              <Favorite className="text-primary-low" />
+            ) : (
+              <FavoriteBorderOutlined className="text-primary-low" />
+            )}
+          </IconButton>
+        </div>
       </div>
+      <AnimatePresence>
+        {message.open && (
+          <motion.div
+            initial={{ bottom: -10, opacity: 0.6 }}
+            animate={{ bottom: 10, opacity: 1 }}
+            exit={{ bottom: -10, opacity: 0 }}
+            className="absolute left-1/2 transition-all -translate-x-1/2 text-sm w-max bg-red-700 px-4 py-2 text-white rounded-full shadow-lg"
+          >
+            {message.text}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
 
-export default Cart;
+export default React.memo(CheckoutInterface);

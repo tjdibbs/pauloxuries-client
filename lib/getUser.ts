@@ -5,12 +5,12 @@ import Cookie from "js-cookie";
 const GetUser = () => {
   const dispatch = useAppDispatch();
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     const user = Cookie.get("_u");
     console.log({ user });
   }, []);
 
-  return;
+  return null;
 };
 
 export default GetUser;

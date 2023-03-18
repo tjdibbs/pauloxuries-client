@@ -5,19 +5,19 @@ import {
   PayloadAction,
 } from "@reduxjs/toolkit";
 import axios from "axios";
-import { AppState, CartProduct } from "../types";
+import { AppState, CartInterface } from "../types";
 import Cookie from "js-cookie";
 
 type updateParams = {
   cart_id: string;
   userid?: string;
-  cart: CartProduct;
+  fields: Partial<CartInterface>;
 };
 
-const CART_URL = BASE_URL + "/api/carts/";
+const CART_URL = BASE_URL + "/api/cart/";
 
-type setParams = { userid?: string; carts: CartProduct[] };
-type addParams = { user?: string; cart: Partial<CartProduct> };
+type setParams = { userid?: string; cart: CartInterface[] };
+type addParams = { user?: string; cart: Partial<CartInterface> };
 type deleteParams = { userid?: string; cart_id: string };
 
 export const addToCarts = createAsyncThunk(
@@ -29,7 +29,7 @@ export const addToCarts = createAsyncThunk(
       if (!params.user) return params.cart;
 
       await axios.put(CART_URL + "/new", {
-        carts: [params.cart],
+        cart: [params.cart],
         user: params.user,
       });
 
@@ -54,13 +54,13 @@ export const deleteCart = createAsyncThunk(
 );
 
 export const updateCarts = createAsyncThunk(
-  "shop/carts/update",
+  "shop/cart/update",
   async (params: updateParams) => {
     try {
       if (!params.userid) return params;
       await axios.post(
-        BASE_URL + "/api/carts/" + params.userid + "/" + params.cart_id,
-        params.cart
+        BASE_URL + "/api/cart/" + params.userid + "/" + params.cart_id,
+        params.fields
       );
 
       return params;
@@ -74,15 +74,15 @@ export const setAllCarts = createAsyncThunk(
   "shop/cart/set",
   async (params: setParams) => {
     try {
-      if (!params.userid) return params.carts;
+      if (!params.userid) return params.cart;
       await axios.put<{ success: boolean }>(
         CART_URL + params.userid,
-        params.carts
+        params.cart
       );
 
-      return params.carts;
+      return params.cart;
     } catch (e: any) {
-      return params.carts;
+      return params.cart;
     }
   }
 );
@@ -91,42 +91,45 @@ export const CartBuilder = (builder: ActionReducerMapBuilder<AppState>) => {
   // add cart fulfilled callback
   builder.addCase(
     addToCarts.fulfilled,
-    (state, actions: PayloadAction<Partial<CartProduct>>) => {
-      state.carts.push(actions.payload);
+    (state, actions: PayloadAction<Partial<CartInterface>>) => {
+      state.cart.push(actions.payload);
 
       if (
         state.user &&
-        !state.user?.carts.includes(actions.payload.id as string)
+        !state.user?.cart.includes(actions.payload.id as string)
       ) {
-        state.user?.carts.push(actions.payload.id as string);
+        state.user?.cart.push(actions.payload.id as string);
       }
 
-      Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
+      Cookie.set("cart", JSON.stringify(state.cart), { expires: 30 });
     }
   );
 
   // cart update request fulfilled callback
   builder.addCase(updateCarts.fulfilled, (state, actions) => {
-    const { cart_id, cart: updatedCart } = actions.payload;
-    state.carts = state.carts.map((cart) => {
-      if (cart.id === cart_id) return { ...cart, ...updatedCart };
+    const { cart_id, fields } = actions.payload;
+
+    state.cart = state.cart.map((cart) => {
+      if (cart.id === cart_id) return { ...cart, ...fields };
       return cart;
     });
 
-    Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
+    console.log({ cart: state.cart });
+
+    Cookie.set("cart", JSON.stringify(state.cart), { expires: 30 });
   });
 
-  // carts delete request fulfilled callback
+  // cart delete request fulfilled callback
   builder.addCase(deleteCart.fulfilled, (state, actions) => {
-    state.carts = state.carts.filter(
+    state.cart = state.cart.filter(
       (cart) => cart.product?.id !== actions.payload.cart_id
     );
-    Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
+    Cookie.set("cart", JSON.stringify(state.cart), { expires: 30 });
   });
 
-  // set all user carts fulfilled callback
+  // set all user cart fulfilled callback
   builder.addCase(setAllCarts.fulfilled, (state, actions) => {
-    state.carts = actions.payload;
-    Cookie.set("carts", JSON.stringify(state.carts), { expires: 30 });
+    state.cart = actions.payload;
+    Cookie.set("cart", JSON.stringify(state.cart), { expires: 30 });
   });
 };

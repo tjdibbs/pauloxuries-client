@@ -26,7 +26,7 @@ export default function TopProducts() {
   const [loading, setLoading] = React.useState<boolean>(true);
   const { alertMessage } = useMessage();
 
-  const { carts, wishlist, user } = useAppSelector((state) => state.shop);
+  const { cart, wishlist, user } = useAppSelector((state) => state.shop);
 
   React.useEffect(() => {
     axios
@@ -66,7 +66,7 @@ export default function TopProducts() {
               </SwiperSlide>
             ))
           : topProducts.map((product) => {
-              const inCart = carts.findIndex(
+              const inCart = cart.findIndex(
                 (cart) => cart.product!.id === product.id
               );
               const inWishlist = wishlist.includes(product.id);

@@ -1192,7 +1192,7 @@ test\\_%|schema||&apos;&apos;||UPDATE|G</Grants>
       <Engine>InnoDB</Engine>
       <CollationName>latin1_swedish_ci</CollationName>
     </table>
-    <table id="340" parent="326" name="carts">
+    <table id="340" parent="326" name="cart">
       <Engine>InnoDB</Engine>
       <CollationName>utf8mb4_general_ci</CollationName>
     </table>
@@ -1471,7 +1471,7 @@ test\\_%|schema||&apos;&apos;||UPDATE|G</Grants>
       <NotNull>1</NotNull>
       <Position>5</Position>
     </column>
-    <column id="395" parent="338" name="carts">
+    <column id="395" parent="338" name="cart">
       <DasType>longtext|0s</DasType>
       <DefaultExpression>&apos;[]&apos;</DefaultExpression>
       <NotNull>1</NotNull>

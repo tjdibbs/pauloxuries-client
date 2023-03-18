@@ -9,6 +9,7 @@ import Footer from "@comp/footer";
 import Cookie from "js-cookie";
 import { setMode } from "@lib/redux/reducer";
 import CookieAlert from "@comp/cookie-alert";
+import Viewed from "@comp/viewed";
 
 type THEME = "default" | "dark" | "light";
 
@@ -38,6 +39,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Box minHeight={600} className={"main-container"}>
         {children}
       </Box>
+      <Viewed />
       <Footer />
       <CookieAlert />
     </ThemeProvider>

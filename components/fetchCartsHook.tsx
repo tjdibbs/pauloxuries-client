@@ -2,7 +2,7 @@ import axios from "axios";
 import { setAllCarts } from "lib/redux/cartSlice";
 import { auth } from "lib/redux/reducer";
 import { useAppDispatch, useAppSelector } from "lib/redux/store";
-import { AppState, CartProduct } from "lib/types";
+import { AppState, CartInterface } from "lib/types";
 import { useSnackbar } from "notistack";
 import React from "react";
 import merge from "utils/merge";
@@ -14,23 +14,23 @@ interface Props {
 }
 
 export default function FetchCartsHook(props: Props) {
-  const { carts } = useAppSelector((state) => state.shop);
+  const { cart } = useAppSelector((state) => state.shop);
   const { enqueueSnackbar } = useSnackbar();
   const dispatch = useAppDispatch();
   const { loading, setLoading } = props;
 
   React.useEffect(() => {
-    const FetchProductCarts = (userCarts?: CartProduct[]) => {
+    const FetchProductCarts = (userCarts?: CartInterface[]) => {
       let allIds;
-      let merged = carts;
+      let merged = cart;
 
-      if (!userCarts?.length && !carts?.length) {
+      if (!userCarts?.length && !cart?.length) {
         setLoading!(false);
         return;
       }
 
       if (userCarts?.length) {
-        merged = merge<CartProduct>([...carts, ...userCarts!]);
+        merged = merge<CartInterface>([...cart, ...userCarts!]);
         allIds = merged.reduce<string[]>((allIds, cart) => {
           allIds.push(cart.product_id);
           return allIds;
@@ -43,8 +43,8 @@ export default function FetchCartsHook(props: Props) {
       }
 
       axios
-        .post<{ success: boolean; products: CartProduct["product"][] }>(
-          "/api/carts/",
+        .post<{ success: boolean; products: CartInterface["product"][] }>(
+          "/api/cart/",
           allIds
         )
         .then(({ data }) => {
@@ -59,11 +59,11 @@ export default function FetchCartsHook(props: Props) {
             });
           }
 
-          dispatch(
-            setAllCarts({ userid: props.user!?.id, carts: merged })
-          ).then(() => {
-            setLoading!(false);
-          });
+          dispatch(setAllCarts({ userid: props.user!?.id, cart: merged })).then(
+            () => {
+              setLoading!(false);
+            }
+          );
         })
         .catch((e: any) => {
           enqueueSnackbar(e.message, {
@@ -79,7 +79,7 @@ export default function FetchCartsHook(props: Props) {
     dispatch(auth(props.user));
 
     // @ts-ignore
-    FetchProductCarts(JSON.parse(props.user!?.carts || "[]") as Product[]);
+    FetchProductCarts(JSON.parse(props.user!?.cart || "[]") as Product[]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.user]);
 

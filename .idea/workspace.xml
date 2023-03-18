@@ -10,7 +10,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/LandingPage/topProducts.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/LandingPage/topProducts.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/components/cart/CartProduct.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cart/CartProduct.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/components/cart/CartInterface.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/cart/CartInterface.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/filter/FilterComponent.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/filter/FilterComponent.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/header/sidebar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/header/sidebar.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/components/productStyle2.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/components/productStyle2.tsx" afterDir="false" />

@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from "./store";
-import { AppState, CartProduct, Product } from "../types";
+import { AppState, CartInterface, Product } from "../types";
 import Cookie from "js-cookie";
 import { CartBuilder } from "./cartSlice";
 import getCurrentTheme from "lib/getCurrentTheme";
 import { wishBuilder } from "./wishSlice";
 
-const carts = Cookie.get("carts");
+const cart = Cookie.get("cart");
 const wishlist = Cookie.get("wishlist");
 const theme = Cookie.get("theme") as "light" | "dark" | "default";
 const mode = "light";
@@ -14,7 +14,7 @@ const mode = "light";
 const initialState: AppState = {
   // @ts-ignore
   mode,
-  carts: JSON.parse(carts ?? "[]"),
+  cart: JSON.parse(cart ?? "[]"),
   theme: theme ?? "default",
   wishlist: JSON.parse(wishlist ?? "[]"),
   loggedIn: false,
@@ -25,21 +25,19 @@ const Shop = createSlice({
   name: "shop",
   initialState,
   reducers: {
-    setCart: (state: AppState, actions: PayloadAction<CartProduct>) => {
-      state.carts.push(actions.payload);
-      Cookie.set("carts", JSON.stringify(state.carts));
+    setCart: (state: AppState, actions: PayloadAction<CartInterface>) => {
+      state.cart.push(actions.payload);
+      Cookie.set("cart", JSON.stringify(state.cart));
     },
-    setAllCart: (state: AppState, actions: PayloadAction<CartProduct[]>) => {
-      state.carts = actions.payload;
-      Cookie.set("carts", JSON.stringify(state.carts));
+    setAllCart: (state: AppState, actions: PayloadAction<CartInterface[]>) => {
+      state.cart = actions.payload;
+      Cookie.set("cart", JSON.stringify(state.cart));
     },
 
     removeCart: (state: AppState, actions: PayloadAction<string>) => {
-      let product = state.carts.findIndex(
-        (cart) => cart.id === actions.payload
-      );
-      state.carts.splice(product, 1);
-      Cookie.set("carts", JSON.stringify(state.carts), { expires: 365 });
+      let product = state.cart.findIndex((cart) => cart.id === actions.payload);
+      state.cart.splice(product, 1);
+      Cookie.set("cart", JSON.stringify(state.cart), { expires: 365 });
     },
     updateCart: (
       state: AppState,
@@ -50,17 +48,17 @@ const Shop = createSlice({
       }>
     ) => {
       const { id, field, value } = actions.payload;
-      state.carts.forEach((cart, index) => {
+      state.cart.forEach((cart, index) => {
         if (cart.id === id) {
           (
-            state.carts[index] as {
-              [x: string]: string | number | CartProduct["product"];
+            state.cart[index] as {
+              [x: string]: string | number | CartInterface["product"];
             }
           )[field] = value;
         }
       });
 
-      Cookie.set("carts", JSON.stringify(state.carts), { expires: 365 });
+      Cookie.set("cart", JSON.stringify(state.cart), { expires: 365 });
     },
     setMode: (
       state: AppState,
@@ -79,7 +77,7 @@ const Shop = createSlice({
       if (actions.payload) {
         state.user = {
           ...actions.payload,
-          carts: JSON.parse(actions.payload.carts as unknown as string),
+          cart: JSON.parse(actions.payload.cart as unknown as string),
         };
         state.loggedIn = !state.loggedIn;
       } else {
@@ -97,6 +95,6 @@ const Shop = createSlice({
 export const { setCart, removeCart, setAllCart, updateCart, setMode, auth } =
   Shop.actions;
 
-export const cartLengths = (state: RootState) => state.shop.carts;
+export const cartLengths = (state: RootState) => state.shop.cart;
 
 export default Shop.reducer;

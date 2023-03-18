@@ -14,70 +14,75 @@ import {
 import Link from "next/link";
 import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
-import type { AppState, CartProduct, Product } from "@lib/types";
+import type { AppState, CartInterface, Product } from "@lib/types";
 import Checkout from "@comp/cart/checkout";
-import Nocart from "@comp/cart/nocart";
-import Cart from "@comp/cart/CartProduct";
+import NoCart from "@comp/cart/nocart";
+import CartProduct from "@comp/cart/CartProduct";
 import FetchCartsHook from "@comp/fetchCartsHook";
 import axios from "axios";
 import { BASE_URL } from "@lib/constants";
 import { setAllCarts } from "@lib/redux/cartSlice";
 import { setAllCart } from "@lib/redux/reducer";
 import useMessage from "@hook/useMessage";
+import BreadcrumbComp from "@comp/BreadcrumbComp";
+import ShopStepper from "@comp/ShopStepper";
 
 interface Props {
   user: AppState["user"];
 }
 
+type DynamicResponse = { products: Product[] } | { cart: CartInterface[] };
+
 export default function Carts(props: Props) {
-  const { carts, user } = useAppSelector((state) => state.shop);
+  const { cart, user } = useAppSelector((state) => state.shop);
   const [loading, setLoading] = React.useState<boolean>(true);
   const { alertMessage } = useMessage();
 
   const dispatch = useAppDispatch();
 
-  const updateCartFields = (products: CartProduct["product"][]) => {
-    // after getting the updated details of the cart product,
-    // we update the localCart with the detail we get from backend
-    // note: cart are updated by their cart id
-    let compiledCarts = products.map((productDetail) => {
-      let localCart = carts.find(
-        (cart) => cart.product?.id == productDetail.id
-      ) as CartProduct;
-      return {
-        ...localCart,
-        product: productDetail,
-      };
-    });
+  const updateCartFields = React.useCallback(
+    (products: CartInterface["product"][]) => {
+      // after getting the updated details of the cart product,
+      // we update the localCart with the detail we get from backend
+      // note: cart are updated by their cart id
+      let compiledCarts = products.map((productDetail) => {
+        let localCart = cart.find(
+          (cart) => cart.product?.id == productDetail.id
+        ) as CartInterface;
+        return {
+          ...localCart,
+          product: productDetail,
+        };
+      });
 
-    dispatch(setAllCart(compiledCarts));
-  };
+      dispatch(setAllCart(compiledCarts));
+    },
+    [cart, dispatch]
+  );
 
   React.useEffect(() => {
     // we need to send the local cart ids to get the updated cart product details
-    let localcart_ids = carts.map((cart) => cart.product?.id);
-    if (!localcart_ids?.length) return;
+    let local_cart_ids = cart.map(({ product }) => product?.id);
+    if (!local_cart_ids?.length) {
+      setLoading(false);
+      return;
+    }
 
     (async () => {
       try {
         // if user is signed in it made a get request while there is no user it made a post request
-        const req = await axios[user ? "get" : "post"]<
-          | { products: Product[] }
-          | {
-              carts: CartProduct[];
-            }
-        >(
-          BASE_URL + (user ? `/carts/` + user?.id : `/api/products/info`),
-          localcart_ids
+        const req = await axios[user ? "get" : "post"]<DynamicResponse>(
+          BASE_URL + (user ? `/cart/` + user?.id : `/api/products/info`),
+          local_cart_ids
         );
 
         const res = await req.data;
 
-        // if user is signed in, it means carts is coming from the server else if the user is not signed
-        // in then access the carts page the endpoint will return each cart product details which can be accessible by
+        // if user is signed in, it means cart is coming from the server else if the user is not signed
+        // in then access the cart page the endpoint will return each cart product details which can be accessible by
         // the cart product id
         user
-          ? dispatch(setAllCart((res as { carts: CartProduct[] }).carts))
+          ? dispatch(setAllCart((res as { cart: CartInterface[] }).cart))
           : updateCartFields((res as { products: Product[] }).products);
       } catch (e) {
         console.error({ e });
@@ -85,11 +90,12 @@ export default function Carts(props: Props) {
           "We are having issue communicating with the server",
           "error"
         );
-      } finally {
-        setLoading(false);
       }
+
+      setLoading(false);
     })();
-  }, [user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [alertMessage, user]);
 
   return (
     <Container maxWidth={"xl"} sx={{ p: 0 }} className="component-wrap">
@@ -97,41 +103,33 @@ export default function Carts(props: Props) {
       {/*  <title>Pauloxuries - {props.user!?.firstname ?? "User"} Carts</title>*/}
       {/*</Head>*/}
       <Box my={3}>
-        <Breadcrumbs
-          separator={<ArrowForwardIosRounded sx={{ fontSize: 11 }} />}
-        >
-          <Link href={"/"}>
-            <Typography sx={{ cursor: "pointer" }} variant={"subtitle2"}>
-              Home
-            </Typography>
-          </Link>
-          <Link href={"/collections"}>
-            <Typography variant={"subtitle2"}>Shop</Typography>
-          </Link>
-          <Typography variant={"subtitle2"}>Cart</Typography>
-        </Breadcrumbs>
+        <BreadcrumbComp links={links} />
       </Box>
       <section className={"main-content mt-5"}>
-        <h5 className="title font-bold text-lg bg-primary-low/10 px-4 py-2 rounded-lg mb-3 w-max">
+        {Boolean(cart.length) && <ShopStepper completed={[]} activeStep={0} />}
+        <h5 className="title font-extrabold text-xl mt-5 rounded-lg mb-3 w-max">
           Shopping Cart
         </h5>
+
         <div className="flex flex-wrap justify-end gap-3 my-5">
           {!loading ? (
             <React.Fragment>
               <div className="flex-grow flex flex-col gap-y-3">
-                {carts.map((cart, index) => {
-                  return <Cart key={index} cart={cart as CartProduct} />;
+                {cart.map((cart, index) => {
+                  return (
+                    <CartProduct key={index} cart={cart as CartInterface} />
+                  );
                 })}
               </div>
-              <Box sx={{ width: { xs: "100%", sm: 300 } }}>
-                {/*<Checkout carts={carts} />*/}
-              </Box>
+              <div className="w-full sm:w-[300px]">
+                <Checkout />
+              </div>
             </React.Fragment>
           ) : (
             <CartSkeleton />
           )}
         </div>
-        {!loading && <Nocart carts={carts} />}
+        {!loading && <NoCart cart={cart} />}
       </section>
     </Container>
   );
@@ -182,3 +180,14 @@ const CartSkeleton = () => (
     </div>
   </React.Fragment>
 );
+
+const links = [
+  {
+    label: "home",
+    path: "/",
+  },
+  {
+    label: "cart",
+    path: "/cart",
+  },
+];

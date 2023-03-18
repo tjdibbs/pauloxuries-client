@@ -10,6 +10,7 @@ import { useRouter } from "next/router";
 import React from "react";
 import Link from "next/link";
 import { Carousel } from "react-responsive-carousel";
+import Image from "next/image";
 
 const slide = [
   {
@@ -66,13 +67,15 @@ export default function LandingPageSwiper() {
     >
       {slide.map((slideData, index) => {
         return (
-          <SwiperSlide key={index}>
-            <img
+          <SwiperSlide className="relative" key={index}>
+            <Image
               src={"/images/slider/" + slideData.image + ".png"}
-              alt="Flowers"
-              style={{
-                width: "100%",
-              }}
+              // loading="lazy"
+              alt={slideData.title}
+              width={1000}
+              height={400}
+              priority
+              className={`w-full object-fill  pointer-events-none`}
             />
           </SwiperSlide>
         );
