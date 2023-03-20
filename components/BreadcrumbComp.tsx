@@ -14,7 +14,14 @@ function BreadcrumbComp(props: {
       <Breadcrumbs separator={<ArrowForwardIosRounded sx={{ fontSize: 11 }} />}>
         {props.links.map((link, index, links) => {
           if (index === links.length - 1)
-            return <span key={link.label}>{link.label}</span>;
+            return (
+              <span
+                className="capitalize font-semibold bg-primary-low text-white rounded-full text-sm py-1.5 px-3"
+                key={link.label}
+              >
+                {link.label}
+              </span>
+            );
 
           return (
             <Chip

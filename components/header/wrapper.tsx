@@ -30,7 +30,7 @@ type ShopMenu = Partial<{ brand: boolean; style: boolean; occasion: boolean }>;
 
 const Header: React.FC<HeaderProps> = (): JSX.Element => {
   const theme = useTheme();
-  const [width, setWidth] = React.useState<boolean>(true);
+  const [width, setWidth] = React.useState<boolean>(window.innerWidth < 600);
   const [open, setOpen] = React.useState<boolean>(false);
   const [openSearch, setOpenSearch] = React.useState<boolean>(false);
   const [openMenu, setOpenMenu] = React.useState<boolean>(false);
@@ -45,12 +45,7 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
       } else setWidth(false);
     };
 
-    setWidth(window.innerWidth < 600);
     window.addEventListener("resize", handleResize);
-
-    // fetch("/api/visitor", { method: "PUT" }).then((response) => {
-    //   return;
-    // });
 
     return () => {
       window.removeEventListener("resize", handleResize);
@@ -91,10 +86,10 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
             <Link href={"/"} className="flex-grow md:flex-grow-0">
               <Image
                 src={`/identity/logo.png`}
-                loading="lazy"
                 alt={"Pauloxuries logo"}
                 width={180}
                 height={60}
+                priority
                 className={`sm:w-full object-fill  pointer-events-none`}
               />
             </Link>
@@ -123,7 +118,9 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
                       <KeyboardArrowDownRoundedIcon sx={{ fontSize: "16px" }} />
                     </Link>
                   </ListItemButton>
-                  <DropDownMenu {...{ setOpenMenu, openMenu }} />
+                  <DropDownMenu
+                    {...{ setOpenMenu, openMenu, user: Boolean(user) }}
+                  />
                 </div>
               </div>
             </div>
@@ -189,11 +186,15 @@ const NotSignedInSwitch = () => {
 const DropDownMenu = (props: {
   setOpenMenu: (value: React.SetStateAction<boolean>) => void;
   openMenu: boolean;
+  user: boolean;
 }) => {
   return (
     <Collapse
       in={props.openMenu}
-      className="absolute top-[85%] transition-all left-1/2 z-[10000] -translate-x-1/2"
+      className={
+        "absolute transition-all left-1/2 z-[10000] -translate-x-1/2 " +
+        (props.user ? "top-[70%]" : "top-[85%]")
+      }
     >
       <div className="wrap bg-gray-300 mt-4 rounded-b-xl">
         <div className="card bg-primary/10 rounded-b-xl w-full md:w-[1100px] flex flex-wrap gap-4 max-w-[100vw] overflow-visible p-4">
@@ -230,4 +231,9 @@ const DropDownMenu = (props: {
   );
 };
 
-export default Header;
+export default dynamic(async () => Header, {
+  ssr: false,
+  loading: () => (
+    <div className="stick top-0 h-16 bg-primary-low animate-pulse" />
+  ),
+});

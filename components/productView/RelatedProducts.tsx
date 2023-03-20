@@ -4,7 +4,11 @@ import Grid from "@mui/material/Grid";
 import ProductStyle2 from "../productStyle2";
 import { Product } from "@lib/types";
 import axios from "axios";
-import { BASE_URL } from "@lib/constants";
+import { BASE_URL, breakpoints } from "@lib/constants";
+import Loading from "@comp/loading";
+import { SwiperSlide, Swiper } from "swiper/react";
+import { nanoid } from "nanoid";
+import { useAppSelector } from "@lib/redux/store";
 
 export default function RelatedProduct({
   brand,
@@ -18,6 +22,7 @@ export default function RelatedProduct({
   category: string;
 }) {
   const [related, setRelated] = React.useState<Product[]>([]);
+  const { cart, wishlist, user } = useAppSelector((state) => state.shop);
 
   React.useEffect(() => {
     axios
@@ -41,16 +46,32 @@ export default function RelatedProduct({
         Related Products
       </Typography>
       <Box sx={{ flexGrow: 1, my: 3 }}>
-        <Grid container spacing={{ xs: 1, md: 3 }}>
-          {related.map((item, index) => (
-            <ProductStyle2
-              key={index}
-              item={item}
-              inCart={-1}
-              inWishlist={false}
-            />
-          ))}
-        </Grid>
+        <Swiper
+          slidesPerView={1}
+          spaceBetween={10}
+          pagination={{
+            clickable: true,
+          }}
+          breakpoints={breakpoints}
+          className="px-2 py-6"
+        >
+          {related.map((product) => {
+            const inCart = cart.findIndex(
+              (cart) => cart.product!.id === product.id
+            );
+            const inWishlist = wishlist.includes(product.id);
+
+            return (
+              <SwiperSlide key={product.id}>
+                <ProductStyle2
+                  item={product}
+                  {...{ inCart, inWishlist }}
+                  component="div"
+                />
+              </SwiperSlide>
+            );
+          })}
+        </Swiper>
       </Box>
     </Box>
   );

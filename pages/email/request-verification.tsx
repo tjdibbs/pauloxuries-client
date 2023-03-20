@@ -5,8 +5,6 @@ import { GetServerSideProps } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useSnackbar } from "notistack";
-import Emailer from "server/emailer";
-import { domain, getUser } from "server/routes/router";
 
 export default function RequestEmailVerification({
   email,

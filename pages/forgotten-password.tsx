@@ -16,6 +16,8 @@ import {
 } from "@mui/material";
 import dynamic from "next/dynamic";
 import SEO from "@comp/seo";
+import { BASE_URL } from "@lib/constants";
+import useMessage from "@hook/useMessage";
 
 type Props = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -23,12 +25,6 @@ type Props = {
 
 function ForgottenPassword(props: Props) {
   const [loading, setLoading] = React.useState<boolean>(false);
-  const [response, setResponse] = React.useState<{
-    message: string;
-    done: boolean;
-    success: boolean;
-  }>();
-  const { enqueueSnackbar } = useSnackbar();
   const {
     handleSubmit,
     register,
@@ -37,22 +33,27 @@ function ForgottenPassword(props: Props) {
   } = useForm<{ email: string }>();
   const theme = useTheme();
 
+  const { alertMessage } = useMessage();
+
   const onSubmit = async (data: { email: string }) => {
     try {
       if (loading) return;
       setLoading(true);
 
-      const request = await axios.post("/api/request-password-change", {
-        email: data.email,
-      });
+      const request = await axios.post(
+        BASE_URL + "/api/auth/request-password-change",
+        {
+          email: data.email,
+        }
+      );
 
       const { success, message } = await request.data;
-      setResponse({ success, message, done: true });
-      setLoading(false);
+      alertMessage(message, success ? "success" : "error");
     } catch (e: any) {
-      setResponse({ success: false, message: e.message, done: true });
-      setLoading(false);
+      alertMessage("We are having sending verifying your email", "error");
     }
+
+    setLoading(false);
   };
 
   const pageDescription = {
@@ -64,18 +65,7 @@ function ForgottenPassword(props: Props) {
   };
 
   return (
-    <Paper
-    className="component-wrap"
-      component="form"
-      action="#"
-      onSubmit={handleSubmit(onSubmit)}
-      sx={{
-        [theme.breakpoints.down(400)]: { px: 1.5, py: 3 },
-        borderRadius: "20px",
-        bgcolor: `secondary.${theme.palette.mode}`,
-        p: 2,
-      }}
-    >
+    <div className="component-wrap card">
       <SEO {...pageDescription} />
       <Divider textAlign="left">
         <Typography
@@ -88,77 +78,36 @@ function ForgottenPassword(props: Props) {
           Forgotten Password
         </Typography>
       </Divider>
-      <Typography
-        id="transition-modal-title"
-        variant="subtitle1"
-        component="h2"
-        mt={3}
-        mb={1.5}
-      >
-        Enter your registered email address
-      </Typography>
-      <Box mb={2} maxWidth={400}>
-        <TextField
-          label={"Registered Email Address"}
-          {...register("email", { required: true })}
-          fullWidth
-          autoComplete="email"
-          disabled={loading}
-          variant="outlined"
-          size={"small"}
-          error={Boolean(errors.email)}
-          helperText={Boolean(errors.email) && "This field is required"}
-        />
-      </Box>
-      <Collapse in={response!?.done ?? false}>
-        <Box
-          sx={{
-            p: "1em",
-            background: response!?.success ? color["green"] : color["red"],
-            borderRadius: "20px",
-            maxWidth: "500px",
-            border: `2px solid grey`,
-            mb: "1em",
-          }}
-        >
-          <Typography
-            variant={"subtitle1"}
-            fontWeight={700}
-            color={response!?.success ? color["green_text"] : color["red_text"]}
-          >
-            {response!?.success
-              ? "Email Sent Successfully"
-              : response!?.message ?? "Unable To Verify The Email Entered"}
-          </Typography>
-
-          <Typography variant={"subtitle2"} color={"grey"}>
-            {response!?.success
-              ? "Check your email, if not found, Check your spam. The link will expired in 2hours."
-              : "We are having issue sending you an email"}
-          </Typography>
+      <form action="" onSubmit={handleSubmit(onSubmit)}>
+        <p className="font-bold text-sm my-2">
+          Enter your registered email address
+        </p>
+        <Box mb={2} maxWidth={400}>
+          <TextField
+            label={"Enter email"}
+            {...register("email", { required: true })}
+            fullWidth
+            autoComplete="email"
+            disabled={loading}
+            variant="outlined"
+            size={"small"}
+            error={Boolean(errors.email)}
+            helperText={Boolean(errors.email) && "This field is required"}
+          />
         </Box>
-      </Collapse>
-      <Box className={"action-group"} mb={3}>
-        <Button variant={"contained"} type={"submit"} disabled={loading}>
-          {loading && !response!?.done && (
-            <CircularProgress size={20} color={"inherit"} />
-          )}
-          <Typography
-            component={"span"}
-            ml={loading ? 2 : 0}
-            fontWeight={600}
-            variant={"subtitle1"}
-            textTransform={"none"}
+        <Box className={"action-group"} mb={3}>
+          <Button
+            variant={"contained"}
+            type={"submit"}
+            disabled={loading}
+            className="bg-primary-low capitalize"
           >
-            {loading
-              ? "Verifying..."
-              : response!?.done && response!?.success
-              ? "Resend Email"
-              : "Get Link"}
-          </Typography>
-        </Button>
-      </Box>
-    </Paper>
+            {loading && <CircularProgress size={20} color={"inherit"} />}
+            <span>{loading ? "Verifying..." : "Get Link"}</span>
+          </Button>
+        </Box>
+      </form>
+    </div>
   );
 }
 

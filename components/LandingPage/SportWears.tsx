@@ -24,7 +24,6 @@ export default function SportWears() {
     axios
       .get<{ products: ProductType[] }>(BASE_URL + "/api/products/sport")
       .then((response) => {
-        console.log({ response });
         if (!response.data.products) return;
 
         setSportWears(response.data.products);

@@ -86,33 +86,33 @@ export default function TopProducts() {
   );
 }
 
-export const itemData = [
-  {
-    _id: "1",
-    img: "/images/daco.png",
-    title: "Doco Image",
-    description: "from chicago",
-    price: 140300,
-  },
-  {
-    _id: "2",
-    img: "/images/female-shoe.png",
-    title: "Ladies Shoes",
-    description: "from chicago",
-    price: 140300,
-  },
-  {
-    _id: "3",
-    img: "/images/daco.png",
-    title: "Doco Image",
-    description: "from chicago",
-    price: 140300,
-  },
-  {
-    _id: "4",
-    img: "/images/daco.png",
-    title: "Ladies Shoes",
-    description: "from chicago",
-    price: 140300,
-  },
-];
+// export const itemData = [
+//   {
+//     _id: "1",
+//     img: "/images/daco.png",
+//     title: "Doco Image",
+//     description: "from chicago",
+//     price: 140300,
+//   },
+//   {
+//     _id: "2",
+//     img: "/images/female-shoe.png",
+//     title: "Ladies Shoes",
+//     description: "from chicago",
+//     price: 140300,
+//   },
+//   {
+//     _id: "3",
+//     img: "/images/daco.png",
+//     title: "Doco Image",
+//     description: "from chicago",
+//     price: 140300,
+//   },
+//   {
+//     _id: "4",
+//     img: "/images/daco.png",
+//     title: "Ladies Shoes",
+//     description: "from chicago",
+//     price: 140300,
+//   },
+// ];

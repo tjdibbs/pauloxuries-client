@@ -31,11 +31,12 @@ export default function ProductCard({ item }: Props) {
         <Image
           src={
             "https://pauloxuries.com/images/products/" +
-            JSON.parse(item.images)[0]
+            item.image?.replaceAll('"', "")
           }
           loading="lazy"
           alt={item.title}
           fill
+          sizes="(max-width: 528px) 250px, (max-width: 768px) 330px"
           className={`w-full object-fill  pointer-events-none`}
         />
       </div>

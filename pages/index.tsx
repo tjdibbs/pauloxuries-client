@@ -20,7 +20,7 @@ const pageDescription = {
   description:
     "Get quality wears from different brands, we provide fashion combination for you, you don't have to worry about what to wear. Get yours sneakers, oversized, trousers, rugged jeans and others, for both men and women. ",
   url: "https://pauloxuries.com/",
-  image: "https://pauloxuries.com/identity/dark-logo.png",
+  image: "/identity/logo.png",
 };
 
 const Home: React.FC<{ user: AppState["user"]; jerseys: string }> = () => {

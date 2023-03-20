@@ -46,6 +46,7 @@ function countDuplicates(
   pr: Product[],
   productField: "sizes" | "colors" | "category"
 ) {
+  console.log({ pr });
   return pr
     .reduce<string[]>((d, p) => {
       if (p[productField]) {

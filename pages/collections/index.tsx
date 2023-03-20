@@ -23,11 +23,11 @@ type Props = Partial<{
 }>;
 
 const pageDescription = {
-  title: "Fashion Wears Collections",
+  title: "Pauloxuries Wears Collection",
   description:
     "Having a collection of fashion wears from variety of brands. Find unique wears to make you stand out. We provide everything fashion",
-  url: "https://pauloxuries.com/collections",
-  image: "https://pauloxuries.com/images/metadata/collection.jpg",
+  url: "/collections",
+  image: "/identity/logo.png",
 };
 
 const Collections: NextPage<Props> = (props) => {

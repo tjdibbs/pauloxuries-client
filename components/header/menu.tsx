@@ -26,6 +26,9 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SwitchButton from "./switch";
 import Cookies from "js-cookie";
+import Favorite from "@mui/icons-material/Favorite";
+import stringToColor from "@lib/stringToColor";
+import { BASE_URL } from "@lib/constants";
 
 export default function Navigation({ user }: { user: AppState["user"] }) {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
@@ -41,14 +44,12 @@ export default function Navigation({ user }: { user: AppState["user"] }) {
     setIndex(0);
   };
 
-  console.log({ user });
-
   const logout = () => {
-    axios.get("/logout").then((response) => {
+    axios.get(BASE_URL + "/logout").then((response) => {
       if (response.data === "Done") {
         dispatch(auth());
-        Cookies.remove("user", { sameSite: "strict" });
-        if (router.pathname.indexOf("upload") !== -1) router.replace("/");
+        Cookies.remove("sid");
+        if (router.pathname.includes("upload")) router.replace("/");
       } else window.location.reload();
     });
   };
@@ -56,7 +57,7 @@ export default function Navigation({ user }: { user: AppState["user"] }) {
   return (
     <React.Fragment>
       <Box className={"menu-toggle"}>
-        <Tooltip title="Account settings">
+        <Tooltip title="Menu">
           <IconButton
             onClick={handleClick}
             size="small"
@@ -91,17 +92,27 @@ export default function Navigation({ user }: { user: AppState["user"] }) {
         anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
       >
         <div className="menu-header p-4 flex gap-x-4">
-          <Avatar src={user!.image} />
+          <Avatar
+            src={user!.image}
+            sx={{
+              textTransform: "uppercase",
+              fontWeight: 700,
+              bgcolor: stringToColor(user!.firstname + " " + user!.lastname),
+            }}
+          >
+            {user!.firstname.at(0)}
+            {user!.lastname.at(0)}
+          </Avatar>
           <div className="text">
-            <span className="name text-small capitalize">
+            <span className="name text-sm font-bold capitalize">
               {user!.firstname} {user!.lastname}
             </span>
-            <caption className="email text-xs">{user!.email}</caption>
+            <span className="email text-xs block">{user!.email}</span>
           </div>
         </div>
         <Divider />
         <SwipeableViews index={index} animateHeight>
-          <Box>
+          <div className="py-4">
             {/* <MenuItem onClick={() => setIndex(1)}>
               <ListItemIcon>
                 <ModelTrainingIcon fontSize={"small"} />
@@ -109,57 +120,42 @@ export default function Navigation({ user }: { user: AppState["user"] }) {
               Theme
             </MenuItem> */}
             {Boolean(user?.admin) && (
-              <Link href={"/products/upload"}>
-                <MenuItem onClick={handleClose}>
+              <Link href={"/products/upload"} onClick={handleClose}>
+                <MenuItem>
                   <ListItemIcon>
                     <UploadIcon fontSize="small" />
                   </ListItemIcon>
-                  Upload Products
+                  <span className="text-sm">Upload Products</span>
                 </MenuItem>
               </Link>
             )}
-            <Link href={"/orders/"}>
-              <MenuItem onClick={handleClose}>
-                <ListItemIcon>
-                  <ShareLocationIcon fontSize="small" />
-                </ListItemIcon>
-                Track Orders
-              </MenuItem>
-            </Link>
-            <MenuItem
-              onClick={() => {
-                alert("Settings page under construction");
-                handleClose();
-              }}
-            >
-              <ListItemIcon>
-                <Settings fontSize="small" />
-              </ListItemIcon>
-              Settings
-            </MenuItem>
+            {menuItems.map((item) => (
+              <Link href={item.url} key={item.label} onClick={handleClose}>
+                <MenuItem>
+                  <ListItemIcon>
+                    <item.icon fontSize="small" />
+                  </ListItemIcon>
+                  <span className="text-sm">{item.label}</span>
+                </MenuItem>
+              </Link>
+            ))}
             <MenuItem onClick={logout}>
               <ListItemIcon>
                 <Logout fontSize="small" />
               </ListItemIcon>
-              Logout
+              <span className="text-sm">Logout</span>
             </MenuItem>
-          </Box>
-          <Box>
-            <Box
-              px={1}
-              position={"sticky"}
-              top={0}
-              zIndex={10}
-              bgcolor={"secondary." + theme.palette.mode}
+          </div>
+          <div>
+            <div
+              className="px-4 sticky top-0 bg-primary-low/40"
               onClick={() => setIndex(0)}
             >
               <IconButton sx={{ mr: 2 }}>
                 <ArrowBackIosRoundedIcon fontSize={"small"} />
               </IconButton>
-              <Typography variant={"subtitle2"} p={2} component={"span"}>
-                Theme
-              </Typography>
-            </Box>
+              <span className="text-sm">Theme</span>
+            </div>
             <Box className="themes" role="list">
               {themes.map((theme, index) => {
                 return (
@@ -187,7 +183,7 @@ export default function Navigation({ user }: { user: AppState["user"] }) {
                 );
               })}
             </Box>
-          </Box>
+          </div>
         </SwipeableViews>
       </Menu>
     </React.Fragment>
@@ -209,5 +205,18 @@ export const themes = [
     name: "dark",
     label: "Dark theme",
     icon: DarkModeIcon,
+  },
+];
+
+export const menuItems = [
+  {
+    label: "Favorites",
+    url: "/wishlist",
+    icon: Favorite,
+  },
+  {
+    label: "Track Orders",
+    url: "/orders",
+    icon: ShareLocationIcon,
   },
 ];

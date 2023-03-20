@@ -19,6 +19,7 @@ import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import { auth } from "@lib/redux/reducer";
 import Order, { Prop as OrderType } from "@comp/order";
 import SEO from "@comp/seo";
+import BreadcrumbComp from "@comp/BreadcrumbComp";
 
 interface Props {
   user: AppState["user"];
@@ -65,22 +66,10 @@ export default function Orders(props: Props) {
     <Container maxWidth={"xl"} sx={{ p: 0 }} className="component-wrap">
       <SEO {...pageDescription} />
       <Box className={"breadcrumbs-wrapper"} my={3}>
-        <Breadcrumbs
-          separator={<ArrowForwardIosRounded sx={{ fontSize: 11 }} />}
-        >
-          <Link href={"/"}>
-            <Typography sx={{ cursor: "pointer" }} variant={"subtitle2"}>
-              Home
-            </Typography>
-          </Link>
-          <Typography variant={"subtitle2"}>Orders</Typography>
-          <Typography variant={"subtitle2"}>{props.user?.firstname}</Typography>
-        </Breadcrumbs>
+        <BreadcrumbComp links={links} />
       </Box>
       <Box className="orders-list">
-        <Typography variant="h6" component={"h6"} mb={2}>
-          Your orders
-        </Typography>
+        <div className="page-title font-bold text-lg">Your orders</div>
         <Box>
           {loading &&
             Array.from(new Array(3)).map((_, index) => {
@@ -96,26 +85,20 @@ export default function Orders(props: Props) {
             })}
 
           {!loading && !orders?.length && (
-            <Card
-              sx={{
-                p: 3,
-                borderRadius: "20px",
-                display: "grid",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <div className="card grid place-items-center">
               <Typography variant={"subtitle1"} mb={2}>
                 You have no order yet
               </Typography>
-              {!user && (
-                <Link href="/sign-in?redirect=/orders">
-                  <Button color="primary" variant="contained">
-                    Sign in
-                  </Button>
-                </Link>
-              )}
-            </Card>
+              <Link href="/collections">
+                <Button
+                  color="primary"
+                  variant="contained"
+                  className="bg-primary-low capitalize"
+                >
+                  Continue Shopping
+                </Button>
+              </Link>
+            </div>
           )}
 
           {!loading &&
@@ -127,6 +110,8 @@ export default function Orders(props: Props) {
     </Container>
   );
 }
+
+const links = [{ label: "home", path: "/" }, { label: "orders" }];
 
 // export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
 //   //@ts-ignore

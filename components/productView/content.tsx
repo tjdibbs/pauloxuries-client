@@ -43,8 +43,8 @@ function ProductContent(props: { product: Product }) {
   React.useEffect(() => {
     reset({
       quantity: inCart !== -1 ? cart[inCart].quantity : 1,
-      size: JSON.parse(product.sizes)[0],
-      color: JSON.parse(product.colors)[0],
+      // size: JSON.parse(product.sizes)[0],
+      // color: JSON.parse(product.colors)[0],
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [product]);

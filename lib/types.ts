@@ -25,11 +25,12 @@ export type Product = {
   userid: string;
   rating: number;
   reviews?: object[];
+  image: string;
   images: string;
   thumbnail?: string;
   sold: number;
-  sizes: { [x: string]: string | number };
-  colors: { [x: string]: string };
+  sizes: string;
+  colors: string;
   createdAt: string;
 } & Omit<FormDataType, "frontImage" | "backImage" | "additionalImage">;
 
@@ -64,14 +65,14 @@ export type FormDataType = {
   price: number | string;
   description: string;
   discountPercentage: number;
-  frontImage: FileList;
-  backImage: FileList;
-  additionalImage: FileList;
+  frontImage: File;
+  backImage: File;
+  additionalImages: File[];
   brand: string;
   stock: number;
   category: string;
-  sizes: string;
-  colors: string;
+  sizes: { [x: string]: string | number };
+  colors: { [x: string]: string | number };
 };
 
 export type FileType = {
@@ -114,7 +115,7 @@ export type AppState = {
     image: string;
     admin: boolean;
     cart: string[];
-    wishLists: string[];
+    wishlist: string[];
     verified: boolean;
   } | null;
 };

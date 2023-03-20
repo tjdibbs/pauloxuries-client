@@ -20,7 +20,7 @@ export const breakpoints: {
 
 export const BASE_URL =
   process.env.NODE_ENV === "production"
-    ? "https://api.pauloxuries.com"
+    ? "http://localhost:8000"
     : "http://localhost:8000";
 
 export enum Events {

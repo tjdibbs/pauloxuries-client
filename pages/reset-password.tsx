@@ -18,6 +18,8 @@ import { pink } from "@mui/material/colors";
 import { GetServerSideProps } from "next";
 import message from "lib/message";
 import JWT from "jsonwebtoken";
+import useMessage from "@hook/useMessage";
+import { BASE_URL } from "@lib/constants";
 
 type Props = { email: string; error?: string };
 type Inputs = { password: string; confirm: string };
@@ -26,7 +28,7 @@ export default function SignIn({ email, error }: Props): JSX.Element {
   const [loading, setLoading] = React.useState<boolean>(false);
 
   const theme = useTheme();
-  const { enqueueSnackbar } = useSnackbar();
+  const { alertMessage } = useMessage();
   const {
     handleSubmit,
     formState: { errors },
@@ -43,14 +45,13 @@ export default function SignIn({ email, error }: Props): JSX.Element {
 
       if (!(password === confirm)) throw new Error("Password doesn't match");
       const request = await axios.post(
-        "/api/reset-password",
+        BASE_URL + "/api/auth/reset-password",
         Object.assign(data, { email })
       );
 
       const { success, message: msg } = await request.data;
 
-      message(
-        enqueueSnackbar,
+      alertMessage(
         success
           ? "Password Changed Successfully"
           : msg ?? "Error changing password",
@@ -61,62 +62,35 @@ export default function SignIn({ email, error }: Props): JSX.Element {
       if (success) router.replace("/sign-in");
     } catch (e: any) {
       console.log({ e });
-      message(enqueueSnackbar, e.message, "error");
+      alertMessage(e.message, "error");
       setLoading(false);
     }
   };
 
   if (error) {
     return (
-      <Paper
-        sx={{
-          [theme.breakpoints.down(400)]: { px: 1.5, py: 3 },
-          borderRadius: "20px",
-          bgcolor: `secondary.${theme.palette.mode}`,
-          p: 2,
-        }}
-      >
-        <Typography
-          variant={"subtitle1"}
-          fontWeight={600}
-          color={"primary"}
-          textTransform={"uppercase"}
-        >
-          {error}
-        </Typography>
-        <Typography variant={"subtitle2"}>
-          The link looks like expired one.
-        </Typography>
-      </Paper>
+      <div className="card">
+        <p className="font-bold uppercase text-lg">{error}</p>
+        <p>The link looks like expired one.</p>
+      </div>
     );
   }
 
   return (
-    <Paper
-      sx={{
-        [theme.breakpoints.down(400)]: { px: 1.5, py: 3 },
-        borderRadius: "20px",
-        bgcolor: `secondary.${theme.palette.mode}`,
-        p: 2,
-      }}
-      className="reset-wrapper component-wrap"
-    >
-      <Divider textAlign="left">
-        <Typography
-          variant="h6"
-          component="h2"
-          my={1}
-          fontWeight={700}
-          color={"grey"}
-        >
-          Reset Password
-        </Typography>
+    <div className="reset-wrapper component-wrap card pt-10">
+      <Divider textAlign="center">
+        <span className="font-bold">Reset Password</span>
       </Divider>
-      <Box component="form" action="#" onSubmit={handleSubmit(onSubmit)}>
-        <Typography variant="caption">
+      <Box
+        className="grid place-items-center py-10"
+        component="form"
+        action="#"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <p className="mt-5 text-sm font-semibold">
           The reset password link will expire after 2hrs of creation.
-        </Typography>
-        <Box className={"form-body"} maxWidth={350} mt={3}>
+        </p>
+        <div className={"form-body w-[350px] max-w-full mt-4"}>
           <Box mb={2} className="form-group">
             <TextField
               label={"New Password"}
@@ -146,33 +120,25 @@ export default function SignIn({ email, error }: Props): JSX.Element {
           <Box className={"action-group"} mb={3}>
             <Button
               variant={"contained"}
-              size={"large"}
+              size={"small"}
               type={"submit"}
               color={"primary"}
               disabled={loading || !password || !confirm}
-              sx={{
-                color: "#fff",
-                p: 1.5,
-                bgcolor: `primary.${theme.palette.mode}`,
-                "&:hover": { bgcolor: pink[800] },
-              }}
-              fullWidth
+              className="bg-primary-low capitalize"
             >
-              {loading && <CircularProgress size={20} color={"inherit"} />}
-              <Typography
-                component={"span"}
-                ml={loading ? 2 : 0}
-                fontWeight={600}
-                variant={"subtitle1"}
-                textTransform={"none"}
-              >
-                Change Password
-              </Typography>
+              {loading && (
+                <CircularProgress
+                  className="mr-2"
+                  size={20}
+                  color={"inherit"}
+                />
+              )}
+              <span>Change Password</span>
             </Button>
           </Box>
-        </Box>
+        </div>
       </Box>
-    </Paper>
+    </div>
   );
 }
 

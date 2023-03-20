@@ -53,7 +53,9 @@ export default function SignIn(): JSX.Element {
       if (loading.pending) return;
       setLoading({ ...loading, pending: true });
 
-      const request = await axios.post(BASE_URL + "/api/auth/sign-in", state);
+      const request = await axios.post(BASE_URL + "/api/auth/sign-in", state, {
+        withCredentials: true,
+      });
       const { success, user } = await request.data;
 
       alertMessage(
@@ -63,6 +65,8 @@ export default function SignIn(): JSX.Element {
         success ? "success" : "error"
       );
 
+      console.log({ success, user });
+
       if (success) {
         setLoading({ ...loading, message: "Redirecting...." });
         dispatch(auth(user));
@@ -70,6 +74,7 @@ export default function SignIn(): JSX.Element {
         router.replace("/");
       }
     } catch (e: any) {
+      console.log({ e });
       alertMessage("Internal server error", "error");
     } finally {
       setLoading({ pending: false, message: null });

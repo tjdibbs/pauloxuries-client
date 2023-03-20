@@ -13,9 +13,9 @@ const user = {
   lastname: "James",
   image: "",
   admin: false,
-  cart: [],
-  wishLists: [],
+  wishlist: [],
   verified: true,
+  cart: [],
 };
 
 // jest.mock("next/router", () => require("next-router-mock"));

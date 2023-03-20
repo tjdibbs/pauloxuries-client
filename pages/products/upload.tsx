@@ -4,48 +4,38 @@ import {
   Alert,
   AlertTitle,
   Button,
-  Card,
-  CardMedia,
-  Chip,
   CircularProgress,
-  Collapse,
   Container,
   Divider,
   Grid,
   IconButton,
   InputAdornment,
   Snackbar,
-  Stack,
   TextField,
   Typography,
-  useTheme,
-  Zoom,
 } from "@mui/material";
 import axios from "axios";
 import { AppState, FormDataType, Response } from "@lib/types";
-import { useSnackbar } from "notistack";
 import { useForm } from "react-hook-form";
-import { useAppDispatch, useAppSelector } from "@lib/redux/store";
+import { useAppDispatch } from "@lib/redux/store";
 import { useRouter } from "next/router";
 import LinearProgress from "@mui/material/LinearProgress";
 import Cookie from "js-cookie";
-import { GetServerSideProps } from "next";
-import { auth } from "@lib/redux/reducer";
 import { marked } from "marked";
+import ProductSizes from "@comp/upload/ProductSizes";
+import SelectProductColors from "@comp/upload/SelectProductColors";
+import SelectImages, { ProductImages } from "@comp/upload/SelectImages";
+import useMessage from "@hook/useMessage";
+import { BASE_URL } from "@lib/constants";
+import { GetServerSideProps, NextPage } from "next";
+import JWT from "jsonwebtoken";
 
-const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
+const Upload: NextPage<{ user: AppState["user"] }> = function (props) {
   const [progress, setProgress] = React.useState<number>(0);
   const [response, setResponse] = React.useState<Response>({});
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const { enqueueSnackbar } = useSnackbar();
-  const [front_mage, set_front_image] = React.useState<string>();
-  const [back_image, set_back_image] = React.useState<string>();
-  const [additional_image, set_additional_image] = React.useState<string[]>([]);
-
-  const frontImageRef = React.useRef<HTMLInputElement>(null);
-  const backImageRef = React.useRef<HTMLInputElement>(null);
-  const additionalImageRef = React.useRef<HTMLInputElement>(null);
+  const { alertMessage } = useMessage();
 
   const {
     register,
@@ -56,41 +46,17 @@ const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
     watch,
   } = useForm<FormDataType>();
 
-  const { frontImage, backImage, additionalImage, description } = watch();
-
-  const frontRegister = register("frontImage", { required: true });
-  const backRegister = register("backImage", { required: true });
-  const additionalRegister = register("additionalImage");
+  const { description } = watch();
 
   React.useEffect(() => {
-    if (frontImage?.length) displayFileList("frontImage", frontImage);
-  }, [frontImage]);
-
-  React.useEffect(() => {
-    if (backImage?.length) displayFileList("backImage", backImage);
-  }, [backImage]);
-
-  React.useEffect(() => {
-    if (additionalImage?.length)
-      displayFileList("additionalImage", additionalImage);
-  }, [additionalImage]);
-
-  React.useEffect(() => {
-    if (props.user) {
-      dispatch(auth(props.user));
-    } else {
-      router.replace("/sign-in").then(() => {
-        enqueueSnackbar("You are not authorized to access that page", {
-          variant: "error",
-          autoHideDuration: 2000,
-          anchorOrigin: {
-            vertical: "top",
-            horizontal: "center",
-          },
-        });
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // if (props.user) {
+    //   dispatch(auth(props.user));
+    // } else {
+    //   router.replace("/sign-in").then(() => {
+    //     alertMessage("You are not authorized to access that page", "error");
+    //   });
+    // }
+    // // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
@@ -101,22 +67,59 @@ const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
 
   const onSubmit = React.useCallback(
     async (data: FormDataType): Promise<void> => {
+      // ---------- Validating Form Fields ---------
+      let form = {
+        userid: "12342",
+        ...data,
+        ...imagesRef.current?.getImages(),
+        sizes: sizesRef.current?.getSizes(),
+        colors: colorsRef.current?.getColors(),
+      };
+
+      let requiredFields: (keyof FormDataType)[] = [
+        "frontImage",
+        "backImage",
+        "title",
+        "price",
+        "stock",
+        "category",
+        "colors",
+        "sizes",
+      ];
+      let missingFields: (keyof FormDataType)[] = [];
+
+      requiredFields.forEach((field) => {
+        if (!form[field]) missingFields.push(field);
+      });
+
+      if (missingFields?.length || !form.sizes || !form.colors) {
+        return alertMessage(
+          "Some fields (" + String(missingFields) + ") are missing",
+          "error"
+        );
+      }
+
+      // --------- Passed Validation -----------
+
       try {
         setResponse({ loading: true, message: "Uploading..." });
 
         let formData: FormData = new FormData();
-        let allFormName = Object.keys(data) as [x: keyof FormDataType];
+        let allFormName = Object.keys(form) as [x: keyof FormDataType];
 
         allFormName.forEach((name) => {
-          if (name === "additionalImage") {
-            Array.from(data.additionalImage).forEach((file) => {
-              formData.append(name, file);
+          if (name === "additionalImages") {
+            form.additionalImages.forEach((file) => {
+              formData.append("additionalImage", file);
             });
-          } else if (data[name] instanceof FileList) {
-            formData.append(name, (data[name] as FileList)[0]);
-          } else formData.append(name, data[name] as string);
+          } else
+            formData.append(
+              name,
+              (["sizes", "colors"].includes(name)
+                ? JSON.stringify(form[name])
+                : form[name]) as string
+            );
         });
-        formData.append("userid", props.user!.id);
 
         const config = {
           headers: { "content-type": "multipart/form-data" },
@@ -127,14 +130,14 @@ const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
 
         const request = await axios.post<
           Pick<Response, "success" | "message" | "error">
-        >("/api/upload", formData, config);
+        >(BASE_URL + "/api/upload", formData, config);
 
         let res = await request.data;
-        if (res.error) {
-          Cookie.remove("session", { path: "/" });
-          await router.replace("/sign-in");
-          return;
-        }
+        // if (res.error) {
+        //   Cookie.remove("session", { path: "/" });
+        //   await router.replace("/sign-in");
+        //   return;
+        // }
 
         if (!res.success) throw new Error(res.message);
 
@@ -144,95 +147,25 @@ const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
         });
 
         if (res.success) {
+          // Clear all fields for new upload
           reset();
-          setResponse({});
-          setProgress(0);
-          set_front_image("");
-          set_back_image("");
-          set_additional_image([]);
-          enqueueSnackbar("Product Uploaded Successfully", {
-            variant: "success",
-            anchorOrigin: {
-              vertical: "bottom",
-              horizontal: "center",
-            },
-          });
+          imagesRef.current?.clear();
+          sizesRef.current?.clear();
+          colorsRef.current?.clear();
+
+          // alert success message
+          alertMessage("Product Uploaded Successfully", "success");
         }
       } catch (e: any) {
-        setProgress(0);
-        setResponse({});
-        enqueueSnackbar(e.message, {
-          variant: "error",
-        });
-      } finally {
-        setProgress(0);
-        setResponse({});
+        alertMessage(e.message, "error");
       }
+
+      setProgress(0);
+      setResponse({});
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [router]
   );
-
-  // const handleDrop = (ev: React.DragEvent<HTMLDivElement>) => {
-  //   ev.preventDefault();
-  // };
-
-  // const handleLeaveAndEnter = (ev: React.DragEvent) => {
-  //   (ev.target as HTMLInputElement).classList.toggle("active");
-  // };
-
-  const displayFileList = (name: keyof FormDataType, files: FileList) => {
-    const getBlobUrl = (file: File, cb: (filename: string) => void) => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const byteCharacters = window.atob(
-          String(
-            reader.result!.slice((reader.result as string).indexOf(",") + 1)
-          )
-        );
-        const byteNumbers = new Array(byteCharacters.length);
-
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteNumbers[i] = byteCharacters.charCodeAt(i);
-        }
-
-        const byteArray = new Uint8Array(byteNumbers);
-        const blob = new Blob([byteArray], { type: file.type });
-        const filename = URL.createObjectURL(blob);
-
-        return cb(filename);
-      };
-      reader.readAsDataURL(file);
-    };
-
-    let file = files[0];
-    switch (name) {
-      case "frontImage":
-        getBlobUrl(file, (filename: string) => {
-          set_front_image(filename);
-        });
-        break;
-      case "backImage":
-        getBlobUrl(file, (filename: string) => {
-          set_back_image(filename);
-        });
-        break;
-      case "additionalImage":
-        (() => {
-          let blobUrls: string[] = [];
-          for (let i = 0; i < files.length; i++) {
-            getBlobUrl(files[i], (filename) => {
-              blobUrls.push(filename);
-              setTimeout(() => {
-                if (i === files.length - 1) {
-                  set_additional_image(blobUrls);
-                }
-              }, 400);
-            });
-          }
-        })();
-    }
-  };
 
   const handleClose = (
     event?: React.SyntheticEvent | Event,
@@ -244,35 +177,24 @@ const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
     setResponse({});
   };
 
-  const data = [
-    {
-      name: "frontImage",
-      label: "Front Image",
-      required: true,
-      ref: frontImageRef,
-      filename: front_mage,
-      register: frontRegister,
-    },
-    {
-      name: "backImage",
-      label: "Back Image",
-      required: true,
-      ref: backImageRef,
-      register: backRegister,
-      filename: back_image,
-    },
-    {
-      name: "additionalImage",
-      label: "Additional Image",
-      required: false,
-      ref: additionalImageRef,
-      register: additionalRegister,
-      filename: additional_image,
-    },
-  ];
+  const sizesRef = React.useRef<{
+    getSizes(): { [x: string]: number };
+    clear(): void;
+  }>(null);
+  const colorsRef = React.useRef<{
+    getColors(): { [x: string]: number };
+    clear(): void;
+  }>(null);
+  const imagesRef = React.useRef<{ getImages(): ProductImages; clear(): void }>(
+    null
+  );
 
   return (
-    <Container maxWidth={"xl"} sx={{ p: 0 }} className="component-wrap uploader">
+    <Container
+      maxWidth={"xl"}
+      sx={{ p: 0 }}
+      className="component-wrap uploader"
+    >
       <Box
         component={"form"}
         onSubmit={handleSubmit(onSubmit)}
@@ -284,112 +206,7 @@ const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
             Upload Product
           </Typography>
         </Box>
-        <Box mb={3} className="form-group">
-          <Grid container spacing={3} className={"media-content"}>
-            {data.map((d, index) => {
-              let name = d.name as keyof FormDataType;
-              return (
-                <Grid item key={index} xs={12} sm={6} md={4}>
-                  <Box mb={2}>
-                    <Typography
-                      textAlign={"center"}
-                      variant={"subtitle1"}
-                      fontWeight={800}
-                    >
-                      {d.label}
-                    </Typography>
-                    <input
-                      type="file"
-                      style={{ display: "none" }}
-                      accept={".jpg,.png,.jpeg"}
-                      multiple={name === "additionalImage"}
-                      {...{
-                        ...d.register,
-                        ref: (instance) => {
-                          d.register.ref(instance);
-                          //@ts-ignore
-                          d.ref.current = instance;
-                        },
-                      }}
-                      id={name}
-                    />
-                  </Box>
-                  <Box
-                    sx={dropStyle}
-                    style={{
-                      borderColor: errors[name] ? "#d32f2f" : "grey",
-                      color: errors[name] ? "#d32f2f" : "inherit",
-                      borderRadius: "20px",
-                    }}
-                    // onDrop={handleDrop}
-                    // onDragOver={(e) => e.preventDefault()}
-                    // onDragLeave={handleLeaveAndEnter}
-                    // onDragEnter={handleLeaveAndEnter}
-                    onClick={() => d.ref.current!.click()}
-                  >
-                    <Typography
-                      variant={"subtitle2"}
-                      fontWeight={600}
-                      className="primary-text"
-                    >
-                      Drop image
-                    </Typography>
-                    <Divider sx={{ width: 100 }}>
-                      <Typography variant={"caption"} fontWeight={500}>
-                        OR
-                      </Typography>
-                    </Divider>
-                    <Typography
-                      className="secondary-text"
-                      color={errors[name] ? "inherit" : "text.secondary"}
-                      variant={"subtitle2"}
-                      fontWeight={500}
-                    >
-                      Click to select image
-                    </Typography>
-                  </Box>
-                  {Boolean(d.filename) && name !== "additionalImage" ? (
-                    <Zoom in={true}>
-                      <Card>
-                        <CardMedia
-                          alt={d.name}
-                          src={d.filename as string}
-                          component={"img"}
-                          sx={{
-                            maxWidth: "100%",
-                          }}
-                        />
-                      </Card>
-                    </Zoom>
-                  ) : (
-                    name === "additionalImage" && (
-                      <Grid spacing={2} container>
-                        {additional_image.map((filename) => {
-                          return (
-                            <Grid key={filename} item xs={6}>
-                              <Zoom in={true}>
-                                <Card>
-                                  <CardMedia
-                                    alt={d.name}
-                                    src={filename}
-                                    component={"img"}
-                                    sx={{
-                                      maxWidth: "100%",
-                                    }}
-                                  />
-                                </Card>
-                              </Zoom>
-                            </Grid>
-                          );
-                        })}
-                      </Grid>
-                    )
-                  )}
-                </Grid>
-              );
-            })}
-          </Grid>
-        </Box>
+        <SelectImages ref={imagesRef} />
         <Divider sx={{ mb: 4 }}> Product Details </Divider>
         <Box maxWidth={"100%"}>
           <div className="form-group" style={{ marginBottom: "1em" }}></div>
@@ -452,14 +269,16 @@ const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
                         </InputAdornment>
                       ),
                     }}
+                    error={Boolean(errors.price)}
                     helperText={Boolean(errors.price) && "Enter product price"}
                   />
                 </Grid>
                 <Grid item xs={6} sm={4}>
                   <TextField
                     fullWidth
-                    {...register("discountPercentage", { maxLength: 4 })}
+                    {...register("discountPercentage", { maxLength: 2 })}
                     label={"Discount"}
+                    type={"number"}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position={"end"}>
@@ -469,6 +288,7 @@ const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
                         </InputAdornment>
                       ),
                     }}
+                    error={Boolean(errors.discountPercentage)}
                     size={"small"}
                     autoComplete={"off"}
                   />
@@ -524,24 +344,10 @@ const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
             </Grid>
             <Grid item xs={12} md={4}>
               <Box className={"form-group sizes"}>
-                <TextField
-                  fullWidth
-                  label={"Sizes"}
-                  autoComplete={"off"}
-                  autoCorrect={"true"}
-                  {...register("sizes")}
-                  helperText={"Example 2xl, 3xl"}
-                />
+                <ProductSizes ref={sizesRef} />
               </Box>
               <Box className="colors form-group" mt={2}>
-                <TextField
-                  fullWidth
-                  label={"Colors"}
-                  autoComplete={"off"}
-                  autoCorrect={"true"}
-                  {...register("colors")}
-                  helperText={"Example: red, green, voilet"}
-                />
+                <SelectProductColors ref={colorsRef} />
               </Box>
             </Grid>
           </Grid>
@@ -615,51 +421,30 @@ const Upload: React.FC<{ user: AppState["user"] }> = function (props) {
 };
 
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const { req } = ctx;
   // @ts-ignore
-  const user = req.session.user ?? null;
+  // const user = req.session.user ?? null;
+  try {
+    const reqSessionUser = ctx.req.cookies;
+    let access_token = reqSessionUser.access_token;
 
-  // @ts-ignore
-  if (!user || !user.admin) {
+    if (!access_token) throw Error("Not Allowed");
+
+    let user = JWT.verify(access_token, process.env.SECRET_KEY as string);
+    if (!user) throw Error("Not Allowed");
+
+    return {
+      props: {
+        user,
+      },
+    };
+  } catch (error) {
     return {
       redirect: {
-        destination: "/sign-in",
+        destination: "/",
         permanent: true,
       },
     };
   }
-
-  return {
-    props: {
-      user,
-    },
-  };
 };
 
 export default Upload;
-
-const dropStyle = {
-  border: "1px dashed grey",
-  borderRadius: "5px",
-  width: "100%",
-  height: "200px",
-  mb: 2,
-  display: "grid",
-  placeItems: "center",
-  placeContent: "center",
-  cursor: "pointer",
-};
-
-const Colors = [
-  "blue",
-  "pink",
-  "green",
-  "yellow",
-  "orange",
-  "red",
-  "white",
-  "black",
-  "brown",
-];
-
-const stringSize = ["xs", "sm", "md", "lg", "xl", "xxl"];

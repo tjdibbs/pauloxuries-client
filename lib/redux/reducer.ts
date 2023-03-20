@@ -75,11 +75,8 @@ const Shop = createSlice({
     },
     auth: (state: AppState, actions: PayloadAction<AppState["user"]>) => {
       if (actions.payload) {
-        state.user = {
-          ...actions.payload,
-          cart: JSON.parse(actions.payload.cart as unknown as string),
-        };
-        state.loggedIn = !state.loggedIn;
+        state.user = actions.payload;
+        state.loggedIn = true;
       } else {
         state.user = null;
       }

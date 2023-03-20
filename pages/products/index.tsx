@@ -26,6 +26,7 @@ import Reviews from "@comp/productView/Reviews";
 // icons
 import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
 import { BASE_URL } from "@lib/constants";
+import BreadcrumbComp from "@comp/BreadcrumbComp";
 
 type Props = {
   product: Product | null;
@@ -58,23 +59,6 @@ const Product: NextPage<Props> = (props) => {
     );
   }
 
-  // if (loading) {
-  //   return (
-  //     <Container
-  //       sx={{
-  //         py: 5,
-  //         px: 2,
-  //         display: "grid",
-  //         placeItems: "center",
-  //         height: "100%",
-  //       }}
-  //     >
-  //       <Typography mb={2}>Loading...</Typography>
-  //       <CircularProgress sx={{ height: 70, width: 70 }} />
-  //     </Container>
-  //   );
-  // }
-
   const product = props.product as Product;
   const pageDescription = {
     title: product.title,
@@ -85,21 +69,26 @@ const Product: NextPage<Props> = (props) => {
       JSON.parse(product.images)[0],
   };
 
+  const links = [
+    {
+      path: "/",
+      label: "home",
+    },
+    {
+      path: "/collections",
+      label: "collections",
+    },
+    {
+      path: "/",
+      label: product.title,
+    },
+  ];
+
   return (
     <div className="component-wrap">
       <SEO {...pageDescription} />
       <Box className={"breadcrumbs-wrapper"} my={3}>
-        <Breadcrumbs
-          separator={<ArrowForwardIosRounded sx={{ fontSize: 11 }} />}
-        >
-          <Link href={"/"} passHref>
-            <span>Home</span>
-          </Link>
-          <Link href={"/collections"} passHref>
-            <span>Collections</span>
-          </Link>
-          <Typography variant={"subtitle2"}>{product.title}</Typography>
-        </Breadcrumbs>
+        <BreadcrumbComp links={links} />
       </Box>
       <div className="main-content">
         <Box className="title" mt={2}>

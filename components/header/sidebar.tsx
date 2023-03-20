@@ -2,20 +2,13 @@ import React from "react";
 import { useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
-import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import SwitchButton from "./switch";
-import {
-  Button,
-  CardActions,
-  CardHeader,
-  Stack,
-  SwipeableDrawer,
-} from "@mui/material";
+import { Button, SwipeableDrawer } from "@mui/material";
 import Link from "next/link";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import useStyles from "@lib/styles";
@@ -24,7 +17,7 @@ import Avatar from "@mui/material/Avatar";
 import Logout from "@mui/icons-material/Logout";
 import { auth } from "@lib/redux/reducer";
 import { useRouter } from "next/router";
-import { themes } from "./menu";
+import { menuItems, themes } from "./menu";
 import axios from "axios";
 import Cookies from "js-cookie";
 
@@ -38,6 +31,9 @@ import FacebookRoundedIcon from "@mui/icons-material/FacebookRounded";
 import ArrowForwardIosRoundedIcon from "@mui/icons-material/ArrowForwardIosRounded";
 import ModelTrainingIcon from "@mui/icons-material/ModelTraining";
 import ShopRoundedIcon from "@mui/icons-material/ShopRounded";
+import MenuItem from "@mui/material/MenuItem";
+import stringToColor from "@lib/stringToColor";
+import { BASE_URL } from "@lib/constants";
 
 interface SideBarProps {
   open: boolean;
@@ -80,9 +76,9 @@ export default function Sidebar(props: SideBarProps) {
   const router = useRouter();
 
   const logout = () => {
-    axios.get("/logout").then(() => {
+    axios.get(BASE_URL + "/logout").then(() => {
       dispatch(auth());
-      Cookies.remove("user");
+      Cookies.remove("sid");
       if (router.pathname.indexOf("upload") !== -1) router.replace("/");
     });
   };
@@ -112,15 +108,25 @@ export default function Sidebar(props: SideBarProps) {
     >
       <div className="w-[300px] min-h-screen max-w-screen bg-primary-low/20">
         {user && (
-          <CardHeader
-            avatar={<Avatar src={user!.image} />}
-            title={
-              <Typography variant="subtitle1" textTransform="capitalize">
+          <div className="menu-header p-4 flex gap-x-4">
+            <Avatar
+              src={user!.image}
+              sx={{
+                textTransform: "uppercase",
+                fontWeight: 700,
+                bgcolor: stringToColor(user!.firstname + " " + user!.lastname),
+              }}
+            >
+              {user!.firstname.at(0)}
+              {user!.lastname.at(0)}
+            </Avatar>
+            <div className="text">
+              <span className="name text-sm font-bold capitalize">
                 {user!.firstname} {user!.lastname}
-              </Typography>
-            }
-            subheader={user!.email}
-          />
+              </span>
+              <span className="email text-xs">{user!.email}</span>
+            </div>
+          </div>
         )}
         <Divider />
         <Box className={"navigation"}>
@@ -130,40 +136,40 @@ export default function Sidebar(props: SideBarProps) {
                 {user && (
                   <React.Fragment>
                     {Boolean(user?.admin) && (
-                      <Link href={"/products/upload"}>
-                        <ListItemButton onClick={handleClick}>
+                      <Link href={"/products/upload"} onClick={handleClick}>
+                        <ListItemButton>
                           <ListItemIcon>
                             <UploadIcon fontSize="small" />
                           </ListItemIcon>
-                          Upload Products
+                          <span className="text-sm">Upload Products</span>
                         </ListItemButton>
                       </Link>
                     )}
-                    <ListItemButton
-                      onClick={() => {
-                        handleClick();
-                        router.push("/orders/");
-                      }}
-                    >
-                      <ListItemIcon>
-                        <ShareLocationIcon fontSize="small" />
-                      </ListItemIcon>
-                      Track Orders
-                    </ListItemButton>
                   </React.Fragment>
                 )}
-                <ListItemButton
+
+                {menuItems.map((item) => (
+                  <Link href={item.url} key={item.label} onClick={handleClick}>
+                    <MenuItem>
+                      <ListItemIcon>
+                        <item.icon fontSize="small" />
+                      </ListItemIcon>
+                      <span className="text-sm">{item.label}</span>
+                    </MenuItem>
+                  </Link>
+                ))}
+                {/* <MenuItem
                   onClick={() => setValue({ title: "theme", index: 1 })}
                 >
                   <ListItemIcon>
                     <ModelTrainingIcon fontSize={"small"} />
                   </ListItemIcon>
-                  <ListItemText primary={"Theme"} />
+                  <span className="text-sm">Theme</span>
                   <IconButton>
                     <ArrowForwardIosRoundedIcon fontSize={"small"} />
                   </IconButton>
-                </ListItemButton>
-                <ListItemButton>
+                </MenuItem> */}
+                <MenuItem>
                   <Link
                     href={"/collections"}
                     className={"flex gap-x-1 items-center flex-grow"}
@@ -172,16 +178,16 @@ export default function Sidebar(props: SideBarProps) {
                     <ListItemIcon>
                       <ShopRoundedIcon fontSize={"small"} />
                     </ListItemIcon>
-                    <ListItemText primary={"Shop By"} />
+                    <span className="text-sm"> Shop By</span>
                   </Link>
                   <IconButton
                     onClick={() => setValue({ title: "shop_by", index: 1 })}
                   >
                     <ArrowForwardIosRoundedIcon fontSize={"small"} />
                   </IconButton>
-                </ListItemButton>
+                </MenuItem>
                 {user && (
-                  <ListItemButton
+                  <MenuItem
                     onClick={() => {
                       handleClick();
                       logout();
@@ -190,8 +196,8 @@ export default function Sidebar(props: SideBarProps) {
                     <ListItemIcon>
                       <Logout fontSize="small" />
                     </ListItemIcon>
-                    Logout
-                  </ListItemButton>
+                    <span className="text-sm"> Logout</span>
+                  </MenuItem>
                 )}
               </List>
             </Box>
@@ -239,13 +245,7 @@ export default function Sidebar(props: SideBarProps) {
                                 sx={{ alignItems: "center", display: "flex" }}
                               >
                                 <theme.icon />
-                                <Typography
-                                  component="span"
-                                  variant="subtitle2"
-                                  marginLeft={2}
-                                >
-                                  {theme.label}
-                                </Typography>
+                                <span>{theme.label}</span>
                               </Box>
                               <SwitchButton
                                 name={
@@ -329,7 +329,7 @@ export default function Sidebar(props: SideBarProps) {
             </Link>
             <Link href="https://twitter.com/pauloxuries">
               <IconButton>
-                <InstagramIcon />
+                <TwitterIcon />
               </IconButton>
             </Link>
             <Link href="https://facebook.com/pauloxuries">

@@ -1,7 +1,6 @@
 import { Box, Button, Card, Divider, Stack, Typography } from "@mui/material";
 import { GetServerSideProps } from "next";
 import JWT from "jsonwebtoken";
-import Pool from "server/connection/db";
 import React from "react";
 import axios from "axios";
 import { useSnackbar } from "notistack";
@@ -76,7 +75,12 @@ const Verified: React.FC<Props> = (props) => {
   }
 
   return (
-    <Box textAlign={"center"} py={"5em"} sx={{ width: 600, mx: "auto" }} className="component-wrap">
+    <Box
+      textAlign={"center"}
+      py={"5em"}
+      sx={{ width: 600, mx: "auto" }}
+      className="component-wrap"
+    >
       <Card sx={{ p: 2 }}>
         <Stack spacing={3}>
           <Divider>
@@ -106,29 +110,29 @@ const Verified: React.FC<Props> = (props) => {
   );
 };
 
-export const getServerSideProps: GetServerSideProps = async ({ query }) => {
-  try {
-    const user = JWT.verify(
-      query.token as string,
-      process.env.SECRET_KEY as string
-    ) as { email: string };
+// export const getServerSideProps: GetServerSideProps = async ({ query }) => {
+//   try {
+//     const user = JWT.verify(
+//       query.token as string,
+//       process.env.SECRET_KEY as string
+//     ) as { email: string };
 
-    const updateQuery = `UPDATE Users SET verified=1 WHERE email='${user.email}'`;
-    await Pool.query(updateQuery);
+//     const updateQuery = `UPDATE Users SET verified=1 WHERE email='${user.email}'`;
+//     await Pool.query(updateQuery);
 
-    return {
-      props: {
-        success: true,
-        ...user,
-      },
-    };
-  } catch (error) {
-    return {
-      props: {
-        error: "Token Expired",
-      },
-    };
-  }
-};
+//     return {
+//       props: {
+//         success: true,
+//         ...user,
+//       },
+//     };
+//   } catch (error) {
+//     return {
+//       props: {
+//         error: "Token Expired",
+//       },
+//     };
+//   }
+// };
 
 export default Verified;

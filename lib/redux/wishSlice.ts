@@ -71,8 +71,8 @@ export const wishBuilder = (builder: ActionReducerMapBuilder<AppState>) => {
     (state, actions: PayloadAction<string>) => {
       state.wishlist.push(actions.payload);
 
-      if (state.user && !state.user?.wishLists.includes(actions.payload)) {
-        state.user?.wishLists.push(actions.payload);
+      if (state.user && !state.user?.wishlist.includes(actions.payload)) {
+        state.user?.wishlist.push(actions.payload);
       }
 
       Cookie.set("wishlist", JSON.stringify(state.wishlist), { expires: 30 });
@@ -84,6 +84,17 @@ export const wishBuilder = (builder: ActionReducerMapBuilder<AppState>) => {
     state.wishlist = state.wishlist.filter(
       (wish) => wish !== actions.payload.wish
     );
+
+    if (state.user) {
+      // remove from user wishlist object
+      state.user = {
+        ...state.user,
+        wishlist: state.user.wishlist.filter(
+          (wish) => wish != actions.payload.wish
+        ),
+      };
+    }
+
     Cookie.set("wishlist", JSON.stringify(state.wishlist), { expires: 30 });
   });
 

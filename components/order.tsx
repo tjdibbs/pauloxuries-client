@@ -52,7 +52,7 @@ export default function Order(prop: Prop) {
         avatar={
           <Tooltip title={"quantity of products ordered"}>
             <Avatar sx={{ fontWeight: 700, bgcolor: "primary.main" }}>
-              {checkouts.products.length}
+              {checkouts.cart.length}
             </Avatar>
           </Tooltip>
         }
@@ -68,7 +68,7 @@ export default function Order(prop: Prop) {
         }
       />
       <Collapse in={expand}>
-        {checkouts.products.map((checked, index) => {
+        {checkouts.cart.map((checked, index) => {
           return (
             <Card
               key={index}
@@ -108,7 +108,9 @@ export default function Order(prop: Prop) {
                   justifyContent={"space-between"}
                 >
                   <Stack direction={"row"}>
-                    <Chip label={checked.discountPercentage + "% discount"} />
+                    <Chip
+                      label={checked.product.discountPercentage + "% discount"}
+                    />
                   </Stack>
                   <Box>
                     <Typography
@@ -122,10 +124,11 @@ export default function Order(prop: Prop) {
                       ).toLocaleString("en")}
                     </Typography>
                     <Typography variant={"caption"} color={"text.secondary"}>
-                      #{checked.product!.price.toLocaleString("en")} per 1 item
+                      #{checked.product?.price!.toLocaleString("en")} per 1 item
                     </Typography>
                   </Box>
-                  {!revoked?.includes(checked.product_id) && !cancelled ? (
+                  {!revoked?.includes(checked.product.id as string) &&
+                  !cancelled ? (
                     <Button
                       size="small"
                       color="warning"
@@ -134,7 +137,7 @@ export default function Order(prop: Prop) {
                         let req = await axios.delete("/api/order/cancel", {
                           data: {
                             order_id: prop.id,
-                            revoked: [checked.product_id],
+                            revoked: [checked.product.id],
                             products: [checked],
                             user: {
                               firstname: user!.firstname,
@@ -147,7 +150,10 @@ export default function Order(prop: Prop) {
 
                         let res = await req.data;
                         if (res.success) {
-                          setRevoked([...revoked, checked.product_id]);
+                          setRevoked([
+                            ...revoked,
+                            checked.product.id as string,
+                          ]);
                         } else {
                           enqueueSnackbar(
                             "Unable to cancel order, contact support",
@@ -196,7 +202,7 @@ export default function Order(prop: Prop) {
                     lastname: user!.lastname,
                     id: user!.id,
                   },
-                  products: checkouts.products,
+                  products: checkouts.cart,
                 },
               });
 

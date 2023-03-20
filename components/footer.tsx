@@ -6,12 +6,9 @@ import {
   List,
   ListItemButton,
   TextField,
-  Typography,
   useTheme,
   Box,
-  Container,
 } from "@mui/material";
-import { grey, pink } from "@mui/material/colors";
 import React from "react";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import TwitterIcon from "@mui/icons-material/Twitter";
@@ -23,6 +20,7 @@ import Image from "next/image";
 import LocationCityRounded from "@mui/icons-material/LocationOn";
 import Call from "@mui/icons-material/Call";
 import EmailRounded from "@mui/icons-material/EmailRounded";
+import { BASE_URL } from "@lib/constants";
 
 export default function Footer() {
   const theme = useTheme();
@@ -35,7 +33,7 @@ export default function Footer() {
   const { enqueueSnackbar } = useSnackbar();
 
   const onSubmit = (data: { email: string }) => {
-    fetch("/api/subscribe", {
+    fetch(BASE_URL + "/api/subscribe", {
       method: "PUT",
       body: JSON.stringify(data),
       headers: {

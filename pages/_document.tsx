@@ -10,27 +10,23 @@ export default class MyDocument extends Document {
     return (
       <Html lang="en">
         <Head>
-          <link href={`/identity/dark-favicon.png`} rel="shortcut icon" />
-          <link
-            rel="icon"
-            type="image/x-icon"
-            href={`/identity/dark-favicon.png`}
-          />
+          <link href={`/identity/favicon.png`} rel="shortcut icon" />
+          <link rel="icon" type="image/x-icon" href={`/identity/favicon.png`} />
           <meta content="#ed017f" name="theme-color" />
           <meta content="#ed017f" name="msapplication-TileColor" />
           <meta content="#ed017f" name="msapplication-TileColor" />
           <meta content="yes" name="mobile-web-app-capable" />
-          <meta content="Pauloxuries" name="application-name" />
-          <link href="/identity/dark-logo.png" rel="icon" sizes="192x80" />
+          <meta content="pauloxuries" name="application-name" />
+          <link href="/identity/logo.png" rel="icon" sizes="192x80" />
           <meta content="yes" name="apple-mobile-web-app-capable" />
           <meta
             content="#ed017f"
             name="apple-mobile-web-app-status-bar-style"
           />
           <meta content="Pauloxuries" name="apple-mobile-web-app-title" />
-          <link href="/identity/dark-favicon.png" rel="apple-touch-icon" />
+          <link href="/identity/favicon.png" rel="apple-touch-icon" />
           <meta content="summary_large_image" name="twitter:card" />
-          <meta content="@Pauloxuries" name="twitter:site" />
+          <meta content="@pauloxuries" name="twitter:site" />
           <meta content="website" property="og:type" />
           <meta content="en-US" property="og:locale" />
           <meta content="image/png" property="og:image:type" />
@@ -45,7 +41,7 @@ export default class MyDocument extends Document {
           <link
             rel="preconnect"
             href="https://fonts.gstatic.com"
-            crossOrigin={"true"}
+            crossOrigin="anonymous"
           />
           <link
             href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700;800;900&display=swap"

@@ -141,9 +141,10 @@ export const CardComponent = ({
       >
         <Image
           src={"/images" + item.image}
-          loading="lazy"
+          priority
           alt={item.alt as string}
           fill
+          sizes="(max-width: 528px) 100px, 120px"
           className={`w-full object-fill  pointer-events-none min-h-[200px]`}
         />
       </CardActionArea>
