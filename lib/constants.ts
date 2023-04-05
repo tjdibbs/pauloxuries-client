@@ -19,7 +19,7 @@ export const breakpoints: {
 };
 
 export const BASE_URL = process.env.NODE_ENV === "production"
-  ? "http://api.frutiv.com"
+  ? "https://api.frutiv.com"
   : "http://localhost:8000";
 
 export enum Events {
