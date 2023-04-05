@@ -12,6 +12,7 @@ export default class MyDocument extends Document {
         <Head>
           <link href={`/identity/favicon.png`} rel="shortcut icon" />
           <link rel="icon" type="image/x-icon" href={`/identity/favicon.png`} />
+          <meta httpEquiv="Content-Security-Policy" content="upgrade-insecure-requests"></meta>
           <meta content="#ed017f" name="theme-color" />
           <meta content="#ed017f" name="msapplication-TileColor" />
           <meta content="#ed017f" name="msapplication-TileColor" />
@@ -19,6 +20,7 @@ export default class MyDocument extends Document {
           <meta content="pauloxuries" name="application-name" />
           <link href="/identity/logo.png" rel="icon" sizes="192x80" />
           <meta content="yes" name="apple-mobile-web-app-capable" />
+
           <meta
             content="#ed017f"
             name="apple-mobile-web-app-status-bar-style"
