@@ -95,7 +95,7 @@ function ProductStyle2(props: Props) {
         <div className="h-[250px] md:h-[330px] relative">
           <Image
             src={
-              "https://api.frutiv.com/images/products/" +
+              "http://api.frutiv.com/images/products/" +
               item.image?.replaceAll('"', "")
             }
             loading="lazy"

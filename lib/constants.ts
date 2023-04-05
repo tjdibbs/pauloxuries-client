@@ -18,10 +18,9 @@ export const breakpoints: {
   },
 };
 
-export const BASE_URL = "http://api.frutiv.com";
-// process.env.NODE_ENV === "production"
-//   ? "http://api.frutiv.com"
-//   : "http://localhost:8000";
+export const BASE_URL = process.env.NODE_ENV === "production"
+  ? "http://api.frutiv.com"
+  : "http://localhost:8000";
 
 export enum Events {
   FILTERED = "FilteredProductsEvent",

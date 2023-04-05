@@ -3,7 +3,7 @@ const nextConfig = {
   reactStrictMode: false,
   experimental: { esmExternals: true },
   images: {
-    domains: ["pauloxuries.com"],
+    domains: ["pauloxuries.com", "http://api.frutiv.com"],
   },
 };
 
