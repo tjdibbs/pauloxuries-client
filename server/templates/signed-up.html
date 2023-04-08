@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body
+    style="
+      text-align: center;
+      background: #efefef;
+      padding: 2em 1em;
+      border-radius: 20px;
+    "
+  >
+    <div class="greeting">
+      <h3>Hi {{firstname}}!</h3>
+    </div>
+    <hr />
+    <div class="confirm">
+      <h5 style="font-size: 1.2em">
+        Thank you for signing up for Pauloxuries store
+      </h5>
+      <p>
+        To get you started, please click on the button below to verify your
+        email address.
+      </p>
+      <div class="link-wrap" style="margin: 2em auto">
+        <a
+          href="{{verify_url}}"
+          style="
+            text-decoration: none;
+            background: #54373c;
+            color: #fff;
+            width: max-content;
+            margin: auto;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            white-space: wrap;
+            word-break: break-all;
+          "
+          >Confirm Email</a
+        >
+      </div>
+    </div>
+
+    <div class="alternate">
+      <p>
+        If that doesn't work, copy and paste the following link in your browser:
+      </p>
+      <div class="link-wrap">
+        <a href="{{verify_url}}" style="color: #54373c; text-decoration: none"
+          >{{verify_url}}</a
+        >
+      </div>
+    </div>
+    <footer style="padding: 1em; margin-top: 2em">
+      <div>
+        <div>
+          <a href="https://pauloxuries.com">
+            <img
+              src="https://pauloxuries.com/identity/logo.png"
+              alt="pauloxuries logo"
+              style="width: 180px; height: 50px"
+            />
+          </a>
+        </div>
+        <p>
+          The premier e-commerce destination for men and women’s style combining
+          the best brands that focus on craftsmanship and elegance.
+        </p>
+      </div>
+      <p>
+        You received this email because you just signed up for a new account. If
+        it looks weird,
+        <a href="{{verify_url}}" style="color: #d6909b; text-decoration: none">
+          view it in your browser.</a
+        >
+      </p>
+    </footer>
+  </body>
+</html>

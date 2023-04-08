@@ -92,30 +92,6 @@ function Filter(props: FilterProps) {
     };
   }, [props]);
 
-  React.useEffect(() => {
-    const query = router.query as unknown as RouterQuery;
-    const queryKeys = Object.keys(query) as [x: keyof RouterQuery];
-
-    if (isFirstRender.current || !router.isReady) {
-      isFirstRender.current = false;
-      return;
-    }
-
-    // filter product based on the query in the url
-    let filteredProducts = products.filter((product) =>
-      checkProduct(query, product)
-    );
-
-    emitCustomEvent(Events.FILTERED, filteredProducts);
-
-    // alertMessage(
-    //   queryKeys.length
-    //     ? `Filtered Products by ${queryKeys.join(",")}`
-    //     : "Revoked filter",
-    //   "info"
-    // );
-  }, [router]);
-
   if (!products?.length) return <></>;
 
   return (

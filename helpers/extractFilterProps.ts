@@ -21,9 +21,9 @@ export default function ExtractProps(products: Product[]) {
           lowest: product.price as number,
           highest: product.price as number,
         };
-      } else if (product.price > priceRange.highest)
+      } else if ((product.price as number) > priceRange.highest)
         priceRange.highest = product.price as number;
-      else if (product.price < priceRange.lowest)
+      else if ((product.price as number) < priceRange.lowest)
         priceRange.lowest = product.price as number;
 
       return priceRange;
@@ -46,7 +46,6 @@ function countDuplicates(
   pr: Product[],
   productField: "sizes" | "colors" | "category"
 ) {
-  console.log({ pr });
   return pr
     .reduce<string[]>((d, p) => {
       if (p[productField]) {

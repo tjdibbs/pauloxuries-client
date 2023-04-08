@@ -5,7 +5,7 @@ import { Typography, Box, Divider } from "@mui/material";
 import type { Product as ProductType } from "@lib/types";
 import ProductStyle2 from "@comp/productStyle2";
 import Loading from "@comp/loading";
-import { SwiperSlide, Swiper } from "swiper/react";
+import { Splide, SplideSlide } from '@splidejs/react-splide';
 import { breakpoints, BASE_URL } from "@lib/constants";
 import { nanoid } from "nanoid";
 import axios from "axios";
@@ -37,32 +37,31 @@ export default function SportWears() {
     <React.Fragment>
       <Divider className="font-bold text-xl"> Sports </Divider>
       <Box sx={{ flexGrow: 1 }}>
-        <Swiper
-          slidesPerView={1}
-          spaceBetween={10}
-          pagination={{
-            clickable: true,
+        <Splide
+          options={{
+            perMove: 1,
+            mediaQuery: "min",
+            breakpoints
           }}
-          breakpoints={breakpoints}
-          className="px-2 py-6"
+          className="max-lg:px-0 px-2 py-6"
         >
           {loading
             ? Array.from(new Array(4)).map((i) => (
-                <SwiperSlide
+                <SplideSlide
                   key={nanoid()}
                   className={"max-w-[50%] sm:max-w-[300px]"}
                 >
                   <Loading />
-                </SwiperSlide>
+                </SplideSlide>
               ))
             : sportWears.map((product) => {
                 return (
-                  <SwiperSlide key={product.id}>
+                  <SplideSlide key={product.id}>
                     <Product item={product} />
-                  </SwiperSlide>
+                  </SplideSlide>
                 );
               })}
-        </Swiper>
+        </Splide>
       </Box>
     </React.Fragment>
   );

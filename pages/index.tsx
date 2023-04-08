@@ -13,7 +13,10 @@ import LandingPageSwiper from "@comp/LandingPage/landingSwiper";
 import Arrivals from "@comp/LandingPage/arrivals";
 import Collections from "@comp/LandingPage/collections";
 import SEO from "@comp/seo";
-import Viewed from "@comp/viewed";
+// import Viewed from "@comp/viewed";
+import dynamic from "next/dynamic";
+
+
 
 const pageDescription = {
   title: `Home`,
@@ -95,4 +98,4 @@ const Home: React.FC<{ user: AppState["user"]; jerseys: string }> = () => {
 //   };
 // };
 
-export default Home;
+export default dynamic(async () => Home, {ssr: false});

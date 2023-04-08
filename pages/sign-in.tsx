@@ -74,7 +74,6 @@ export default function SignIn(): JSX.Element {
         router.replace("/");
       }
     } catch (e: any) {
-      console.log({ e });
       alertMessage("Internal server error", "error");
     } finally {
       setLoading({ pending: false, message: null });
@@ -167,7 +166,6 @@ export default function SignIn(): JSX.Element {
 export const getServerSideProps: GetServerSideProps = async ({ req, res }) => {
   //@ts-ignore
   const token = req.cookies?._u;
-  console.log({ token });
 
   // if (userid) {
   //   return {

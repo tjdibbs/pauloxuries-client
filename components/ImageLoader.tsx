@@ -18,8 +18,6 @@ function ImageLoader(props: { url: string; className: string; alt?: string }) {
 
     const imageSource = await req.data;
     const image = new Blob(imageSource);
-
-    console.log({ imageSource });
   };
 
   React.useEffect(() => {

@@ -207,7 +207,6 @@ export default function Order(prop: Prop) {
               });
 
               let res = await req.data;
-              console.log({ res });
               if (res.success) {
                 setCancelled(true);
               } else {

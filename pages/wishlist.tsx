@@ -4,7 +4,7 @@ import ProductStyle2 from "@comp/productStyle2";
 import { Product } from "@lib/types";
 import axios from "axios";
 import Loading from "@comp/loading";
-import { SwiperSlide, Swiper } from "swiper/react";
+// import { SwiperSlide, Swiper } from "swiper/react";
 import { BASE_URL, breakpoints } from "@lib/constants";
 import useMessage from "@hook/useMessage";
 import { nanoid } from "nanoid";
@@ -28,8 +28,6 @@ function Wishlist() {
     url: "https://pauloxuries.com/",
     image: "https://pauloxuries.com/identity/dark-logo.png",
   };
-
-  console.log({ wishlist });
 
   React.useEffect(() => {
     if (!wishlist?.length) {
@@ -69,7 +67,7 @@ function Wishlist() {
       <BreadcrumbComp links={links} />
       <div className="page-title text-xl font-bold">Wishlist</div>
       <SEO {...pageDescription} />
-      <Swiper
+      {/* <Swiper
         slidesPerView={1}
         spaceBetween={10}
         pagination={{
@@ -118,7 +116,7 @@ function Wishlist() {
             </Link>
           </div>
         )}
-      </Swiper>
+      </Swiper> */}
     </Box>
   );
 }

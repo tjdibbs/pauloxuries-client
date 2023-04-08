@@ -6,7 +6,7 @@ import { Product } from "@lib/types";
 import axios from "axios";
 import { BASE_URL, breakpoints } from "@lib/constants";
 import Loading from "@comp/loading";
-import { SwiperSlide, Swiper } from "swiper/react";
+import { Splide, SplideSlide } from '@splidejs/react-splide';
 import { nanoid } from "nanoid";
 import { useAppSelector } from "@lib/redux/store";
 
@@ -46,13 +46,12 @@ export default function RelatedProduct({
         Related Products
       </Typography>
       <Box sx={{ flexGrow: 1, my: 3 }}>
-        <Swiper
-          slidesPerView={1}
-          spaceBetween={10}
-          pagination={{
-            clickable: true,
+        <Splide
+          options={{
+            mediaQuery: "min",
+            breakpoints,
+            perMove: 1
           }}
-          breakpoints={breakpoints}
           className="px-2 py-6"
         >
           {related.map((product) => {
@@ -62,16 +61,16 @@ export default function RelatedProduct({
             const inWishlist = wishlist.includes(product.id);
 
             return (
-              <SwiperSlide key={product.id}>
+              <SplideSlide key={product.id}>
                 <ProductStyle2
                   item={product}
                   {...{ inCart, inWishlist }}
                   component="div"
                 />
-              </SwiperSlide>
+              </SplideSlide>
             );
           })}
-        </Swiper>
+        </Splide>
       </Box>
     </Box>
   );

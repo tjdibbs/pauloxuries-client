@@ -1,10 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
-  experimental: { esmExternals: true },
+  // experimental: { esmExternals: true },
   images: {
-    domains: ["pauloxuries.com", "http://api.frutiv.com"],
-  },
-};
+    domains: ["pauloxuries.com", "api.frutiv.com"],
+  }}
 
 module.exports = nextConfig;

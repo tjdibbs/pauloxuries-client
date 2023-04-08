@@ -1,14 +1,7 @@
 import React from "react";
 import Product from "../product";
-import { Swiper, SwiperSlide } from "swiper/react";
-import {
-  A11y,
-  Autoplay,
-  EffectCoverflow,
-  Navigation,
-  Pagination,
-  Scrollbar,
-} from "swiper";
+// import { Swiper, SwiperSlide } from "swiper/react";
+import { Splide, SplideSlide } from '@splidejs/react-splide';
 import useStyles from "@lib/styles";
 import { Button, Typography, useTheme } from "@mui/material";
 import axios from "axios";
@@ -44,32 +37,34 @@ export default function NewArrivals() {
       });
   }, []);
 
+
   return (
-    <Swiper
-      slidesPerView={1}
-      spaceBetween={10}
-      pagination={{
-        clickable: true,
-      }}
-      breakpoints={breakpoints}
-      className="px-2 py-6"
+    <Splide
+    options={{
+      perMove: 1,
+      gap: 10,
+      mediaQuery: "min",
+      breakpoints,
+      pagination: false
+    }}
+      className="max-xs:px-0 px-2 py-6"
     >
       {loading
         ? Array.from(new Array(4)).map((i) => (
-            <SwiperSlide
+            <SplideSlide
               key={nanoid()}
               className={"max-w-[50%] sm:max-w-[300px]"}
             >
               <Loading />
-            </SwiperSlide>
+            </SplideSlide>
           ))
         : newArrivals.map((item, index) => {
             return (
-              <SwiperSlide key={item.id}>
+              <SplideSlide key={item.id}>
                 <Product item={item} />
-              </SwiperSlide>
+              </SplideSlide>
             );
           })}
-    </Swiper>
+    </Splide>
   );
 }

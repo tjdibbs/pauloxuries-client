@@ -106,12 +106,13 @@ function ProductContent(props: { product: Product }) {
         <Stack direction="row" spacing={2}>
           {product.category.split(",").map((tag: string) => {
             return (
+              <Link key={tag} href={`/collections?shop_by=category&name=${tag.toLowerCase()}`}>
               <Chip
                 label={tag}
                 key={tag}
                 size="small"
-                onClick={() => router.push("/category/" + tag)}
-              />
+                className="cursor-pointer"
+              /></Link>
             );
           })}
         </Stack>

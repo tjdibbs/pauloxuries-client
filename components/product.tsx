@@ -27,7 +27,7 @@ export default function ProductCard({ item }: Props) {
 
   return (
     <Card elevation={0} className={styles.cardArrival}>
-      <div className="h-[250px] md:h-[330px] relative">
+      <div className="max-xs:h-[200px] h-[250px] md:h-[330px] relative">
         <Image
           src={
             "http://api.frutiv.com/images/products/" +

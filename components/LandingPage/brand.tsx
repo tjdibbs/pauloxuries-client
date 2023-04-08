@@ -1,6 +1,5 @@
 import React from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, FreeMode, Navigation, Pagination } from "swiper";
+import { Splide, SplideSlide } from '@splidejs/react-splide';
 import useStyles from "@lib/styles";
 import Product from "../product";
 import { Product as ProductType } from "@lib/types";
@@ -42,39 +41,28 @@ export default function App() {
   }, [enqueueSnackbar]);
 
   return hotBrand?.length ? (
-    <Swiper
-      slidesPerView={"auto"}
-      loop={true}
-      pagination={{ clickable: true }}
-      spaceBetween={10}
-      freeMode={true}
-      autoplay={{
-        delay: 5000,
-        disableOnInteraction: false,
-      }}
-      breakpoints={{
-        400: {
-          spaceBetween: 10,
-        },
-      }}
-      modules={[Pagination, Autoplay, Navigation, FreeMode]}
-      className="mySwiper"
+    <Splide
+      className="mySplide"
       style={{ paddingBottom: 50 }}
+      options={{
+        perMove: 1,
+        mediaQuery: "min",
+      }}
     >
       {loading
         ? Array(4).map((i) => (
-            <SwiperSlide key={i}>
+            <SplideSlide key={i}>
               <Loading />
-            </SwiperSlide>
+            </SplideSlide>
           ))
         : hotBrand.map((item, index) => {
             return (
-              <SwiperSlide className={styles.swiper_slide} key={index}>
+              <SplideSlide className={styles.swiper_slide} key={index}>
                 <Product item={item} />
-              </SwiperSlide>
+              </SplideSlide>
             );
           })}
-    </Swiper>
+    </Splide>
   ) : (
     <Typography variant={"subtitle2"}>There is new product</Typography>
   );

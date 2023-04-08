@@ -6,16 +6,16 @@ import "react-inner-image-zoom/lib/InnerImageZoom/styles.min.css";
 import { Provider } from "react-redux";
 import store from "@lib/redux/store";
 import { SnackbarProvider } from "notistack";
-import NextNProgress from "nextjs-progressbar";
 
 // Import Swiper styles
-import "swiper/css";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "swiper/css/scrollbar";
-import "swiper/css/effect-coverflow";
-import "swiper/css/thumbs";
-import "swiper/css/free-mode";
+// import "swiper/css";
+// import "swiper/css/navigation";
+// import "swiper/css/pagination";
+// import "swiper/css/scrollbar";
+// import "swiper/css/effect-coverflow";
+// import "swiper/css/thumbs";
+// import "swiper/css/free-mode";
+import '@splidejs/react-splide/css';
 import "react-alice-carousel/lib/alice-carousel.css";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
@@ -24,8 +24,10 @@ import "../styles/error.css";
 import "../styles/global.css";
 import { ConfigProvider } from "antd";
 import PageLoading from "@comp/PageLoading";
-import { Router } from "next/router";
 import GetUser from "@lib/getUser";
+import axios from "axios";
+
+// axios.defaults.httpAgent = ""
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -56,3 +58,4 @@ export function reportWebVitals(metric: any) {
 }
 
 export default MyApp;
+     

@@ -35,7 +35,9 @@ export default function matchFilter(
         .filter((e) => e)
         .map((e) => Number(e.replaceAll(",", "")));
 
-      pass = product["price"] >= prices[0] && product["price"] <= prices[1];
+      pass =
+        (product["price"] as number) >= prices[0] &&
+        (product["price"] as number) <= prices[1];
       break;
     case "availability":
       let availability = keyValue.split(";").filter((e) => e);
@@ -43,6 +45,7 @@ export default function matchFilter(
       pass = availability.includes("InStock")
         ? product.stock - product.sold > 0
         : product.stock - product.sold <= 0;
+
       break;
     default:
       pass = false;

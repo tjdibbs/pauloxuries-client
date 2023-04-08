@@ -1,5 +1,6 @@
 import React from "react";
 import { Step, StepButton, Stepper } from "@mui/material";
+import dynamic from "next/dynamic";
 
 const steps = ["Shopping Bag", "Checkout", "Order Complete"];
 
@@ -15,4 +16,4 @@ function ShopStepper(props: { completed: number[]; activeStep: number }) {
   );
 }
 
-export default ShopStepper;
+export default dynamic(async () => ShopStepper, {ssr: false});

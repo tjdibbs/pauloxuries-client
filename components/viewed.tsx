@@ -10,7 +10,8 @@ import Loading from "./loading";
 import AliceCarousel from "react-alice-carousel";
 import { Divider, Typography } from "@mui/material";
 import { breakpoints } from "@lib/constants";
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Splide, SplideSlide } from '@splidejs/react-splide';
+
 
 const responsive = {
   0: { items: 2 },
@@ -33,26 +34,25 @@ export default function Viewed({ id }: { id?: string }) {
           <Typography variant="h6">What you recently view</Typography>
         </Divider>
       </Box>
-      <Swiper
-        slidesPerView={1}
-        spaceBetween={10}
-        pagination={{
-          clickable: true,
+      <Splide
+        options={{
+          mediaQuery: "min",
+          breakpoints,
+          pagination: false
         }}
-        breakpoints={breakpoints}
         className="px-2 py-6"
       >
         {viewed.map((product, index) => (
-          <SwiperSlide key={product.id}>
+          <SplideSlide key={product.id}>
             <ProductStyle2
               item={product}
               component="div"
               inCart={0}
               inWishlist={false}
             />
-          </SwiperSlide>
+          </SplideSlide>
         ))}
-      </Swiper>
+      </Splide>
     </Box>
   );
 }

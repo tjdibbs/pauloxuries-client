@@ -33,8 +33,6 @@ function ProductColors(
     setColors(_.omit(colors, key));
   };
 
-  console.log({ color });
-
   return (
     <div className="product-colors">
       <div className="label font-bold">Select Colors</div>

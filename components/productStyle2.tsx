@@ -49,7 +49,7 @@ function ProductStyle2(props: Props) {
   const user = useAppSelector((state) => state.shop.user);
   const userid = user?.id as string;
 
-  let isOutOfStock = Boolean(item.stock - item.sold < 1);
+  let isOutOfStock = Boolean((item.stock - item.sold) < 1);
 
   const ProductItem = (
     <motion.div
@@ -81,18 +81,18 @@ function ProductStyle2(props: Props) {
           <Chip
             label={item.discountPercentage + "% discount"}
             size={"small"}
-            className="!bg-primary-low text-white absolute top-2.5 right-2.5"
+            className="!bg-primary-low text-white absolute top-2.5 right-2.5 z-10"
           />
         )}
       {isOutOfStock && (
         <Chip
           label={"Out of stock"}
           size={"small"}
-          className="!bg-primary-low text-white absolute top-2.5 right-2.5"
+          className="!bg-primary-low text-white absolute top-2.5 right-2.5 z-10"
         />
       )}
       {props.children ?? (
-        <div className="h-[250px] md:h-[330px] relative">
+        <div className="max-xs:h-[200px] h-[250px] md:h-[330px] relative">
           <Image
             src={
               "http://api.frutiv.com/images/products/" +

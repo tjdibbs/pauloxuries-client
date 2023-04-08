@@ -19,7 +19,7 @@ import Checkout from "@comp/cart/checkout";
 import NoCart from "@comp/cart/nocart";
 import CartProduct from "@comp/cart/CartProduct";
 import FetchCartsHook from "@comp/fetchCartsHook";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { BASE_URL } from "@lib/constants";
 import { setAllCarts } from "@lib/redux/cartSlice";
 import { setAllCart } from "@lib/redux/reducer";
@@ -63,27 +63,35 @@ export default function Carts(props: Props) {
   React.useEffect(() => {
     // we need to send the local cart ids to get the updated cart product details
     let local_cart_ids = cart.map(({ product }) => product?.id);
-    if (!local_cart_ids?.length) {
-      setLoading(false);
-      return;
-    }
+    // if (!local_cart_ids?.length) {
+    //   setLoading(false);
+    //   return;
+    // }
 
     (async () => {
       try {
+        let req, res;
         // if user is signed in it made a get request while there is no user it made a post request
-        const req = await axios[user ? "get" : "post"]<DynamicResponse>(
-          BASE_URL + (user ? `/cart/` + user?.id : `/api/products/info`),
-          local_cart_ids
-        );
+        if(user){
+          req = await axios.get<{carts: CartInterface[], products: Product[]}>(BASE_URL+`/api/carts/` + user?.id)
+        }
 
-        const res = await req.data;
+        else if(local_cart_ids?.length) {
+          req = await axios.post(`/api/products/info`, local_cart_ids)
+        }
 
+
+        if(!req) return setLoading(false)
+        let { carts, products } = (await req.data) as {carts: CartInterface[], products: Product[]};
+
+        console.log({carts, products})
+        if(!carts && !products) return setLoading(false)
         // if user is signed in, it means cart is coming from the server else if the user is not signed
         // in then access the cart page the endpoint will return each cart product details which can be accessible by
         // the cart product id
         user
-          ? dispatch(setAllCart((res as { cart: CartInterface[] }).cart))
-          : updateCartFields((res as { products: Product[] }).products);
+          ? dispatch(setAllCart(carts))
+          : updateCartFields(products);
       } catch (e) {
         console.error({ e });
         alertMessage(

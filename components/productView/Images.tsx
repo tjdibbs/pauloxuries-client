@@ -1,7 +1,6 @@
 import React from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
 // import required modules
-import SwiperType, { FreeMode, Navigation, Thumbs } from "swiper";
+// import SwiperType, { FreeMode, Navigation, Thumbs } from "swiper";
 import { CardActionArea, CardMedia } from "@mui/material";
 import { Image } from "antd";
 import { Carousel } from "react-responsive-carousel";
@@ -13,15 +12,15 @@ export default function ProductView({
   images: string[];
   alt: string;
 }) {
-  const [thumbsSwiper, setThumbsSwiper] = React.useState<SwiperType | null>(
-    null
-  );
+  // const [thumbsSwiper, setThumbsSwiper] = React.useState<SwiperType | null>(
+  //   null
+  // );
 
-  React.useEffect(() => {
-    if (thumbsSwiper) {
-      thumbsSwiper.slideTo(1);
-    }
-  });
+  // React.useEffect(() => {
+  //   if (thumbsSwiper) {
+  //     thumbsSwiper.slideTo(1);
+  //   }
+  // });
 
   return (
     <>

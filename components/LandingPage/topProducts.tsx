@@ -4,11 +4,10 @@ import Grid from "@mui/material/Grid";
 import ProductStyle2 from "../productStyle2";
 import { Product } from "@lib/types";
 import axios from "axios";
-import { useSnackbar } from "notistack";
 import Loading from "../loading";
-import AliceCarousel from "react-alice-carousel";
-import { Pagination } from "swiper";
-import { SwiperSlide, Swiper } from "swiper/react";
+// import { Pagination } from "swiper";
+// import { SwiperSlide, Swiper } from "swiper/react";
+import { Splide, SplideSlide } from '@splidejs/react-splide';
 import { BASE_URL, breakpoints } from "@lib/constants";
 import useMessage from "@hook/useMessage";
 import { nanoid } from "nanoid";
@@ -46,24 +45,24 @@ export default function TopProducts() {
   }, [alertMessage]);
 
   return (
-    <Box sx={{ flexGrow: 1, my: 5 }}>
-      <Swiper
-        slidesPerView={1}
-        spaceBetween={10}
-        pagination={{
-          clickable: true,
-        }}
-        breakpoints={breakpoints}
-        className="px-2 py-6"
+    <div className="flex-grow mb-10">
+      <Splide
+      options={{
+        perMove: 1,
+        mediaQuery: "min",
+        breakpoints,
+        pagination: false,
+      }}
+        className="px-2"
       >
         {loading
           ? Array.from(new Array(4)).map((i) => (
-              <SwiperSlide
+              <SplideSlide
                 key={nanoid()}
                 className={"max-w-[50%] sm:max-w-[300px]"}
               >
                 <Loading />
-              </SwiperSlide>
+              </SplideSlide>
             ))
           : topProducts.map((product) => {
               const inCart = cart.findIndex(
@@ -72,17 +71,17 @@ export default function TopProducts() {
               const inWishlist = wishlist.includes(product.id);
 
               return (
-                <SwiperSlide key={product.id}>
+                <SplideSlide key={product.id}>
                   <ProductStyle2
                     item={product}
                     {...{ inCart, inWishlist }}
                     component="div"
                   />
-                </SwiperSlide>
+                </SplideSlide>
               );
             })}
-      </Swiper>
-    </Box>
+      </Splide>
+    </div>
   );
 }
 

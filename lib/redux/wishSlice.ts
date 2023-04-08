@@ -22,8 +22,8 @@ export const addToWish = createAsyncThunk(
       //   return the wish to be added to user local wish
       if (!params.userid) return params.wish;
 
-      await axios.put(WISH_URL + "/new", {
-        wishes: [params.wish],
+      await axios.put(WISH_URL + "new", {
+        product: params.wish,
         user: params.userid,
       });
 

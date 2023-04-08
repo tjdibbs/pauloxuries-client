@@ -61,7 +61,7 @@ export default function SignIn({ email, error }: Props): JSX.Element {
       setLoading(false);
       if (success) router.replace("/sign-in");
     } catch (e: any) {
-      console.log({ e });
+      console.error({ e });
       alertMessage(e.message, "error");
       setLoading(false);
     }

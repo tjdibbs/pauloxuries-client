@@ -74,7 +74,7 @@ function ProductAction(props: {
             key={inCart}
             animate={{ scale: 1, opacity: 1 }}
             onClick={inCart === -1 ? addCart : handleRemoveCart}
-            className={`text-sm ${className} disabled:animate-pulse scale-75 opacity-50`}
+            className={`btn text-sm ${className} disabled:animate-pulse opacity-50`}
             disabled={loading}
           >
             {loading

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+  <body style="padding: 2em 1em; border-radius: 20px; line-height: 1.6">
+    <div class="greeting">
+      <p>userid: {{userid}}</p>
+      <h5>Order from a user - {{firstname}} {{lastname}}</h5>
+    </div>
+
+    <hr />
+
+    <!-- User Details/information -->
+    <div class="user-details">
+      <h4 style="margin-bottom: 20px">User Details</h4>
+      <ul style="list-style: none; margin: 0; padding: 0">
+        <li>
+          <span><b>User name: </b> {{firstname}} {{lastname}}</span>
+        </li>
+        <li>
+          <span><b>Email: </b> {{email}}</span>
+        </li>
+      </ul>
+    </div>
+    <!-- ****************************** -->
+
+    <!-- Ordered Products: below contains the products the user order -->
+    <div
+      class="products"
+      style="width: 600px; max-width: 100%; margin-bottom: 20px"
+    >
+      <h4>Ordered Products</h4>
+      {{#each products}}
+      <div
+        style="
+          box-shadow: 1px 0 10px rgba(0, 0, 0, 0.4);
+          padding: 10px;
+          border-radius: 20px;
+          width: 100%;
+          margin-bottom: 10px;
+          margin-top: 10px;
+        "
+      >
+        <div style="display: flex; gap: 1em; align-items: center">
+          <div style="position: relative; margin-left: 16px">
+            <a href="https://puloxuries.com/products/{{product.id}}">
+              <span>
+                <div>
+                  <img
+                    style="width: 35px; height: 35px; border-radius: 50%"
+                    alt="{{product.title}}"
+                    src="https://pauloxuries.com/images/products/{{#if
+                product.image}}{{product.image}}{{else}}frontImage_1661212785779-d6gu0Uyi9w5SOpUCoZTQH.jpeg{{/if}}"
+                  />
+                </div>
+              </span>
+            </a>
+          </div>
+          <div style="flex-grow: 1; text-align: left; margin-left: 20px">
+            <span style="font-weight: 500; display: block"
+              >{{product.title}}</span
+            >
+          </div>
+          <div>
+            <span
+              style="
+                font-size: 0.8125rem;
+                color: #424242;
+                background-color: rgba(0, 0, 0, 0.08);
+                border-radius: 16px;
+                white-space: nowrap;
+                padding: 5px 10px;
+                text-decoration: none;
+              "
+              >#{{totalPrice}}</span
+            >
+          </div>
+        </div>
+
+        <div bgcolor="#54373c" style="color: #54373c">
+          Quantity - {{quantity}}
+        </div>
+        <hr />
+      </div>
+      {{/each}}
+    </div>
+
+    <!-- Product Carts Calculation -->
+    <div class="product-total">
+      <div>
+        <span><b>Total Price: </b> {{total}} naira </span>
+      </div>
+      <div>
+        <span><b>Total Discount: </b> {{discountedTotal}}</span>
+      </div>
+      <div>
+        <span><b>Accumulated Price: </b> {{totalPrice}}</span>
+      </div>
+    </div>
+    <!-- End of Product Cart Calculation -->
+
+    <hr style="margin: 2em auto" />
+
+    <!-- Product details -->
+    <div class="order-detail">
+      <h4 style="margin-bottom: 20px">Order Details</h4>
+      <ul style="list-style: none; margin: 0; padding: 0">
+        <li>
+          <span><b>Location: </b> {{address}} </span>
+        </li>
+        <li>
+          <span><b>Country: </b> {{country_region}} </span>
+        </li>
+        <li>
+          <span><b>City: </b> {{city}} </span>
+        </li>
+        <li>
+          <span><b>State: </b> {{state}} </span>
+        </li>
+        <li>
+          <span><b>Phone number: </b> {{phone}} </span>
+        </li>
+      </ul>
+    </div>
+    <!-- End of Product Detials -->
+
+    <!-- Email Footer -->
+    <footer style="padding: 1em; margin-top: 30px; border-radius: 20px">
+      <div>
+        <div>
+          <a href="https://pauloxuries.com">
+            <img
+              src="https://pauloxuries.com/identity/logo.png"
+              alt="pauloxuries logo"
+              style="width: 180px; height: 50px"
+            />
+          </a>
+        </div>
+        <p>
+          The premier e-commerce destination for men and women’s style combining
+          the best brands that focus on craftsmanship and elegance.
+        </p>
+      </div>
+      <p>
+        You received this email because you ordered some product from our store.
+        If it looks weird,
+        <a
+          href="https://pauloxuries.com/orders"
+          style="color: #d6909b; text-decoration: none"
+        >
+          view it in your browser.</a
+        >
+      </p>
+    </footer>
+  </body>
+</html>

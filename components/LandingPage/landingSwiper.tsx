@@ -1,8 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 // import Swiper core and required modules
-import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from "swiper";
+// import { Navigation, Pagination, Scrollbar, A11y, Autoplay } from "swiper";
+import { Splide, SplideSlide } from '@splidejs/react-splide';
 
-import { Swiper, SwiperSlide } from "swiper/react";
+// import { Swiper, SwiperSlide } from "swiper/react";
 
 import { useTheme } from "@mui/material";
 import { grey, pink } from "@mui/material/colors";
@@ -11,6 +12,7 @@ import React from "react";
 import Link from "next/link";
 import { Carousel } from "react-responsive-carousel";
 import Image from "next/image";
+import dynamic from "next/dynamic";
 
 const slide = [
   {
@@ -33,7 +35,7 @@ const slide = [
   },
 ];
 
-export default function LandingPageSwiper() {
+function LandingPageSwiper() {
   const theme = useTheme();
   const router = useRouter();
   const [width, setWidth] = React.useState(true);
@@ -54,20 +56,17 @@ export default function LandingPageSwiper() {
   }, []);
 
   return (
-    <Swiper
-      modules={[Scrollbar, A11y, Autoplay]}
-      spaceBetween={10}
-      slidesPerView={1}
-      autoplay={{
-        delay: 10000,
-        disableOnInteraction: false,
-      }}
-      loop={true}
-      scrollbar={{ draggable: true }}
+    <Splide
+    options={{
+      autoplay: true,
+      lazyLoad: true,
+      type: "loop",
+      rewind: true,
+    }}
     >
       {slide.map((slideData, index) => {
         return (
-          <SwiperSlide className="relative" key={index}>
+          <SplideSlide className="relative" key={index}>
             <Image
               src={"/images/slider/" + slideData.image + ".png"}
               // loading="lazy"
@@ -77,9 +76,12 @@ export default function LandingPageSwiper() {
               priority
               className={`w-full object-fill  pointer-events-none`}
             />
-          </SwiperSlide>
+          </SplideSlide>
         );
       })}
-    </Swiper>
+    </Splide>
   );
 }
+
+
+export default LandingPageSwiper

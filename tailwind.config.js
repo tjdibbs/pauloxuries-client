@@ -13,6 +13,7 @@ module.exports = {
         md: "768px",
         lg: "976px",
         xl: "1440px",
+        "max-xs": {max: "300px"}
       },
       colors: {
         primary: "#ffcc00",

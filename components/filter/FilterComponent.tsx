@@ -11,8 +11,6 @@ function FilterComponent(props: { name: string; products: Product[] }) {
   const { name, products } = props;
   const productProps = ExtractProps(products);
 
-  console.log({ productProps: "" });
-
   return (
     <div className="relative">
       <CardActionArea

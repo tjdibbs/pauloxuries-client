@@ -17,7 +17,7 @@ function useShop(item: Product) {
     setLoading(true);
 
     const cartProduct: Partial<CartInterface> = product ?? {
-      id: nanoid(),
+      id: item.id + user?.id,
       user: user?.id,
       product: { id: item.id },
       quantity: 1,

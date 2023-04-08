@@ -280,7 +280,7 @@ const OrderedProduct = (props: { cartProduct: CartInterface }) => {
             <div className="sizes-wrap flex gap-x-4 items-center">
               <div className="label text-sm">Sizes:</div>
               <ul className="sizes-selected flex gap-2">
-                {cartProduct.sizes?.map((size) => (
+                {(JSON.parse(cartProduct.sizes as unknown as string ?? '[]') as string[])?.map((size) => (
                   <div
                     key={size}
                     className="bg-black/10 uppercase h-6 w-6 grid place-items-center shadow-lg rounded-lg font-bold text-[10px]"
@@ -295,7 +295,7 @@ const OrderedProduct = (props: { cartProduct: CartInterface }) => {
             <div className="colors-wrap flex gap-x-4 items-center">
               <div className="label text-sm">Colors:</div>
               <ul className="colors-selected flex gap-2">
-                {cartProduct.colors?.map((color) => (
+                {(JSON.parse((cartProduct.colors as unknown as string) ?? '[]') as string[])?.map((color) => (
                   <div
                     key={color}
                     style={{ background: color }}

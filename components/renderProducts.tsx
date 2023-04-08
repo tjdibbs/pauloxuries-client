@@ -1,5 +1,5 @@
 import { useCustomEventListener } from "react-custom-events";
-import { Product } from "@lib/types";
+import { Product, RouterQuery } from "@lib/types";
 import React from "react";
 import { Box, Grid, Pagination } from "@mui/material";
 import ProductStyle2 from "./productStyle2";
@@ -10,6 +10,7 @@ import Loading from "@comp/loading";
 import SortFunc from "@helper/sort";
 import { Events } from "@lib/constants";
 import { useRouter } from "next/router";
+import checkProduct from "@helper/checkProduct";
 
 const RenderProducts = (props: { products: Product[] }) => {
   const router = useRouter();
@@ -22,14 +23,14 @@ const RenderProducts = (props: { products: Product[] }) => {
   const productsContainerRef = React.useRef<HTMLDivElement>(null);
   const { cart, wishlist, user } = useAppSelector((state) => state.shop);
 
-  useCustomEventListener(
-    Events.FILTERED,
-    (products: Product[]) => {
-      setFilterProducts(products);
-      setPage(1);
-    },
-    []
-  );
+  // useCustomEventListener(
+  //   Events.FILTERED,
+  //   (products: Product[]) => {
+  //     setFilterProducts(() => products);
+  //     setPage(1);
+  //   },
+  //   []
+  // );
 
   useCustomEventListener(Events.SORT, setSortValue, []);
   useCustomEventListener(Events.NEW_PRODUCTS, setFilterProducts, []);
@@ -37,6 +38,30 @@ const RenderProducts = (props: { products: Product[] }) => {
   React.useEffect(() => {
     setFilterProducts(SortFunc.bind({ sortValue }));
   }, [sortValue]);
+
+    React.useEffect(() => {
+    const query = router.query as unknown as RouterQuery;
+    const queryKeys = Object.keys(query) as [x: keyof RouterQuery];
+  
+    // if (isFirstRender.current) {
+    //   isFirstRender.current = false;
+    //   return;
+    // }
+
+    // filter product based on the query in the url
+    let filteredProducts = props.products.filter((product) =>
+      checkProduct(query, product)
+    );
+
+    setFilterProducts(filteredProducts);
+    // alertMessage(
+    //   queryKeys.length
+    //     ? `Filtered Products by ${queryKeys.join(",")}`
+    //     : "Revoked filter",
+    //   "info"
+    // );
+  }, [props.products, router]);
+
 
   const handleChange = (event: React.ChangeEvent<unknown>, value: number) => {
     productsContainerRef.current?.scrollIntoView({

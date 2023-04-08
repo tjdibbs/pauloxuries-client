@@ -17,11 +17,12 @@ const GetUser = () => {
       });
       const { user } = await getUserReq.data;
 
+      console.log({user})
       if (user) {
         dispatch(auth({ ...user, wishlist: JSON.parse(user.wishlist) }));
       }
     } catch (error) {
-      console.error({ error });
+      console.error({ error }, "from getUser");
       alertMessage(
         "We are having issue communicating with the server",
         "error"
