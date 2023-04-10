@@ -14,7 +14,7 @@ type updateParams = {
   fields: Partial<CartInterface>;
 };
 
-const CART_URL = BASE_URL + "/api/carts/";
+const CART_URL = "/api/carts/";
 
 type setParams = { userid?: string; cart: CartInterface[] };
 type addParams = { user?: string; cart: Partial<CartInterface> };
@@ -59,7 +59,7 @@ export const updateCarts = createAsyncThunk(
     try {
       if (!params.userid) return params;
       await axios.post(
-        BASE_URL + CART_URL + params.userid + "/" + params.cart_id,
+        CART_URL + params.userid + "/" + params.cart_id,
         params.fields
       );
 
@@ -98,7 +98,6 @@ export const CartBuilder = (builder: ActionReducerMapBuilder<AppState>) => {
         state.user &&
         !state.user?.cart.includes(actions.payload.id as string)
       ) {
-        
         state.user?.cart.push(actions.payload.id as string);
       }
 

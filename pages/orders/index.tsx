@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ArrowForwardIosRounded } from "@mui/icons-material";
+import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
 import {
   Container,
   Typography,

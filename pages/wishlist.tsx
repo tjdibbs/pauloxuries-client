@@ -5,13 +5,14 @@ import { Product } from "@lib/types";
 import axios from "axios";
 import Loading from "@comp/loading";
 // import { SwiperSlide, Swiper } from "swiper/react";
+import { Splide, SplideSlide } from "@splidejs/react-splide";
 import { BASE_URL, breakpoints } from "@lib/constants";
 import useMessage from "@hook/useMessage";
 import { nanoid } from "nanoid";
 import { useAppSelector } from "@lib/redux/store";
 import SEO from "@comp/seo";
 import BreadcrumbComp from "@comp/BreadcrumbComp";
-import { Button } from "@mui/material";
+import { Button, Grid } from "@mui/material";
 import Link from "next/link";
 
 function Wishlist() {
@@ -37,7 +38,7 @@ function Wishlist() {
 
     axios
       .post<{ success: boolean; products: Product[] }>(
-        BASE_URL + "/api/products/info",
+        "/api/products/info",
         wishlist
       )
       .then((response) => {
@@ -67,56 +68,42 @@ function Wishlist() {
       <BreadcrumbComp links={links} />
       <div className="page-title text-xl font-bold">Wishlist</div>
       <SEO {...pageDescription} />
-      {/* <Swiper
-        slidesPerView={1}
-        spaceBetween={10}
-        pagination={{
-          clickable: true,
-        }}
-        breakpoints={breakpoints}
-        className="px-2 py-6"
-      >
-        {loading
-          ? Array.from(new Array(4)).map((i) => (
-              <SwiperSlide
-                key={nanoid()}
-                className={"max-w-[50%] sm:max-w-[300px]"}
-              >
-                <Loading />
-              </SwiperSlide>
-            ))
-          : !!products?.length &&
-            products.map((product) => {
-              const inCart = cart.findIndex(
-                (cart) => cart.product!.id === product.id
-              );
-              const inWishlist = wishlist.includes(product.id);
 
-              return (
-                <SwiperSlide key={product.id}>
+      <div className="wish-products-wrapper py-6">
+        <Grid container spacing={1}>
+          {loading
+            ? Array.from(new Array(4)).map((i) => <Loading key={i} />)
+            : !!products?.length &&
+              products.map((product) => {
+                const inCart = cart.findIndex(
+                  (cart) => cart.product!.id === product.id
+                );
+                const inWishlist = wishlist.includes(product.id);
+
+                return (
                   <ProductStyle2
+                    key={product.id}
                     item={product}
                     {...{ inCart, inWishlist }}
-                    component="div"
                   />
-                </SwiperSlide>
-              );
-            })}
-        {!loading && !wishlist?.length && (
-          <div className="card grid place-items-center w-full mt-5">
-            <p className="text-sm mb-3 font-bold">There is nothing here</p>
-            <Link href={"/collections"}>
-              <Button
-                variant={"contained"}
-                className="bg-primary-low"
-                sx={{ textTransform: "none" }}
-              >
-                Go to shop
-              </Button>
-            </Link>
-          </div>
-        )}
-      </Swiper> */}
+                );
+              })}
+        </Grid>
+      </div>
+      {!loading && !wishlist?.length && (
+        <div className="card grid place-items-center w-full mt-5">
+          <p className="text-sm mb-3 font-bold">There is nothing here</p>
+          <Link href={"/collections"}>
+            <Button
+              variant={"contained"}
+              className="bg-primary-low"
+              sx={{ textTransform: "none" }}
+            >
+              Go to shop
+            </Button>
+          </Link>
+        </div>
+      )}
     </Box>
   );
 }

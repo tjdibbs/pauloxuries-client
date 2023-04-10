@@ -5,8 +5,8 @@ export const breakpoints = {
     perPage: 2,
     gap: 5,
   },
-  768: {
-    perPage: 4,
+  600: {
+    perPage: 3,
     gap: 10,
   },
   1024: {

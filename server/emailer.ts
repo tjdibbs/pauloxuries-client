@@ -30,37 +30,37 @@ export default async function Emailer(email: string, type: Email, data?: any) {
 
   switch (type) {
     case Email.REGISTER:
-      path = __dirname + "/server/templates/signed-up.html";
+      path = __dirname + "/templates/signed-up.html";
       mailOptions.subject = "Pauloxuries User Registration";
       mailOptions.html = await addHtml(path);
       break;
     case Email.CHECKOUT:
-      path = __dirname + "/server/templates/checkout.html";
+      path = __dirname + "/templates/checkout.html";
       mailOptions.subject = "Products Order from Pauloxuries Store";
       mailOptions.html = await addHtml(path);
       break;
     case Email.SUBSCRIBE:
-      path = __dirname + "/server/templates/subscribe.html";
+      path = __dirname + "/templates/subscribe.html";
       mailOptions.subject = "Pauloxuries Community";
       mailOptions.html = await addHtml(path);
       break;
     case Email.CHANGE:
-      path = __dirname + "/server/templates/change-password.html";
+      path = __dirname + "/templates/change-password.html";
       mailOptions.subject = "Request For Change Of Password";
       mailOptions.html = await addHtml(path);
       break;
     case Email.CHANGES:
-      path = __dirname + "/server/templates/password-changed.html";
+      path = __dirname + "/templates/password-changed.html";
       mailOptions.subject = "Password Changed";
       mailOptions.html = await addHtml(path);
       break;
     case Email.ORDER:
-      path = __dirname + "/server/templates/order-alert.html";
+      path = __dirname + "/templates/order-alert.html";
       mailOptions.subject = "New Order Alert From " + data.firstname;
       mailOptions.html = await addHtml(path);
       break;
     case Email.CANCEL:
-      path = __dirname + "/server/templates/cancel-alert.html";
+      path = __dirname + "/templates/cancel-alert.html";
       mailOptions.subject = "Order Cancelled Alert From " + data.firstname;
       mailOptions.html = await addHtml(path);
       break;

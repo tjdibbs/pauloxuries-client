@@ -29,7 +29,7 @@ function Reviews(props: { product: Product }) {
   const [add, setAdd] = React.useState<boolean>(false);
 
   const getReviews = React.useCallback(async () => {
-    let endpoint = BASE_URL + "/api/reviews/_/" + props.product.id;
+    let endpoint =  "/api/reviews/_/" + props.product.id;
     const req = await axios.get(endpoint);
 
     const { success, reviews } = await req.data;

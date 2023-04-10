@@ -3,7 +3,7 @@ import { NextPage } from "next";
 import { Box, Button, Container, Typography } from "@mui/material";
 import Link from "next/link";
 import Filter, { FilterComponentLoader } from "@comp/filter";
-import { ArrowForwardIosRounded } from "@mui/icons-material";
+import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
 import { AppState, Product } from "@lib/types";
 import RenderProducts, { ProductsLoader } from "@comp/renderProducts";
 import SEO from "@comp/seo";
@@ -45,7 +45,7 @@ const Collections: NextPage<Props> = (props) => {
       try {
         let endpoint =
           "/api/products" + (shop_by && name ? `/${shop_by}/${name}` : "");
-        const getProducts = await axios.get(BASE_URL + endpoint);
+        const getProducts = await axios.get( endpoint);
         const { success, products } = await getProducts.data;
 
         if (success && products) setProducts(products);

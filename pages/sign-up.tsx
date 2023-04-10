@@ -44,7 +44,7 @@ function SignUp(): JSX.Element {
       }
 
       setLoading({ pending: true, message: null });
-      const request = await axios.post(BASE_URL + "/api/sign-up", state);
+      const request = await axios.post( "/api/sign-up", state);
       const response = await request.data;
 
       enqueueSnackbar(

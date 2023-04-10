@@ -45,7 +45,7 @@ export default function SignIn({ email, error }: Props): JSX.Element {
 
       if (!(password === confirm)) throw new Error("Password doesn't match");
       const request = await axios.post(
-        BASE_URL + "/api/auth/reset-password",
+         "/api/auth/reset-password",
         Object.assign(data, { email })
       );
 

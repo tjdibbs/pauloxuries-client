@@ -36,18 +36,21 @@ export default function ProductView({
           return (
             <div
               key={image}
-              className="max-w-full w-[600px] h-[500px] max-h-[500px] grid place-items-center"
+              className="max-w-full w-[600px] grid place-items-center [&>img]:hidden"
             >
-              <Image
-                alt="Pauloxuries banner"
-                rootClassName="w-max h-full max-h-[500px]"
-                className="w-max max-h-full"
-                src={"https://pauloxuries.com/images/products/" + image}
-              />
+              <div className="bg-white p-2 rounded-lg">
+                <Image
+                  alt="Pauloxuries banner"
+                  rootClassName="max-h-[500px] "
+                  className="w-max max-h-[500px]"
+                  src={"https://pauloxuries.com/images/products/" + image}
+                />
+              </div>
+
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 alt={alt}
-                hidden
+                className="dummy"
                 src={"https://pauloxuries.com/images/products/" + image}
               />
             </div>

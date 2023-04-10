@@ -158,7 +158,7 @@ Product.getInitialProps = async (ctx) => {
 
   try {
     let getProduct = await axios.get<{ product: Product; success: boolean }>(
-      BASE_URL + "/api/products/_/" + product_id
+       "/api/products/_/" + product_id
     );
 
     let response = getProduct.data;

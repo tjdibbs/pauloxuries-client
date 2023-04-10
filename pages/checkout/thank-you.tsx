@@ -195,7 +195,7 @@ ThankYou.getInitialProps = async (ctx) => {
       };
     }
 
-    const reqOrder = await axios.get(BASE_URL + "/api/order/" + orderId);
+    const reqOrder = await axios.get( "/api/order/" + orderId);
 
     const {
       success,

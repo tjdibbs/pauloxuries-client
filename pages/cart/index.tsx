@@ -72,26 +72,24 @@ export default function Carts(props: Props) {
       try {
         let req, res;
         // if user is signed in it made a get request while there is no user it made a post request
-        if(user){
-          req = await axios.get<{carts: CartInterface[], products: Product[]}>(BASE_URL+`/api/carts/` + user?.id)
+        if (user) {
+          req = await axios.get(`/api/carts/` + user?.id);
+        } else if (local_cart_ids?.length) {
+          req = await axios.post(`/api/products/info`, local_cart_ids);
         }
 
-        else if(local_cart_ids?.length) {
-          req = await axios.post(`/api/products/info`, local_cart_ids)
-        }
+        if (!req) return setLoading(false);
+        let { carts, products } = (await req.data) as {
+          carts: CartInterface[];
+          products: Product[];
+        };
 
-
-        if(!req) return setLoading(false)
-        let { carts, products } = (await req.data) as {carts: CartInterface[], products: Product[]};
-
-        console.log({carts, products})
-        if(!carts && !products) return setLoading(false)
+        console.log({ carts, products });
+        if (!carts && !products) return setLoading(false);
         // if user is signed in, it means cart is coming from the server else if the user is not signed
         // in then access the cart page the endpoint will return each cart product details which can be accessible by
         // the cart product id
-        user
-          ? dispatch(setAllCart(carts))
-          : updateCartFields(products);
+        user ? dispatch(setAllCart(carts)) : updateCartFields(products);
       } catch (e) {
         console.error({ e });
         alertMessage(

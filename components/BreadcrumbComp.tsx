@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Breadcrumbs, Chip, Typography } from "@mui/material";
-import { ArrowForwardIosRounded } from "@mui/icons-material";
+import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
 import Link from "next/link";
 import { useRouter } from "next/router";
 
@@ -11,12 +11,18 @@ function BreadcrumbComp(props: {
 
   return (
     <Box className={"breadcrumbs-wrapper"} my={3}>
-      <Breadcrumbs separator={<ArrowForwardIosRounded sx={{ fontSize: 11 }} />}>
+      <Breadcrumbs
+        maxItems={3}
+        classes={{
+          ol: "flex-nowrap min-w-max max-sm:py-1",
+        }}
+        separator={<ArrowForwardIosRounded sx={{ fontSize: 11 }} />}
+      >
         {props.links.map((link, index, links) => {
           if (index === links.length - 1)
             return (
               <span
-                className="capitalize font-semibold bg-primary-low text-white rounded-full text-sm py-1.5 px-3"
+                className="capitalize max-w-[120px] block whitespace-nowrap overflow-hidden text-ellipsis font-semibold bg-primary-low text-white rounded-full text-xs py-1.5 px-3"
                 key={link.label}
               >
                 {link.label}
@@ -26,7 +32,7 @@ function BreadcrumbComp(props: {
           return (
             <Chip
               key={link.label}
-              className="capitalize font-semibold bg-primary-low/10"
+              className="capitalize text-xs font-semibold bg-primary-low/10"
               size="small"
               disabled={link.disabled}
               onClick={() => router.push(link.path ?? "")}

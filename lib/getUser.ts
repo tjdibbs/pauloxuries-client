@@ -12,12 +12,11 @@ const GetUser = () => {
 
   const fetchUser = React.useCallback(async () => {
     try {
-      const getUserReq = await axios.get(BASE_URL + "/api/auth/getUser", {
+      const getUserReq = await axios.get("/api/auth/getUser", {
         withCredentials: true,
       });
       const { user } = await getUserReq.data;
 
-      console.log({user})
       if (user) {
         dispatch(auth({ ...user, wishlist: JSON.parse(user.wishlist) }));
       }

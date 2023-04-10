@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
 
   React.useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 600) {
+      if (window.innerWidth < 700) {
         setWidth(true);
       } else setWidth(false);
     };
@@ -56,7 +56,11 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
     <>
       <header className="page-header sticky top-0 z-50 bg-gray-300">
         {!user && (
-          <div className={"offer bg-primary-low dark:bg-[#2a271c] py-2 px-4"}>
+          <div
+            className={
+              "offer bg-primary-low dark:bg-[#2a271c] max-sm:py-1.5 py-2 px-4"
+            }
+          >
             {/* @ts-ignore */}
             <marquee className="text-sm font-semibold text-center leading-7">
               Limited Time Only: Get 10% off your first order when you{" "}
@@ -90,7 +94,7 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
                 width={180}
                 height={60}
                 priority
-                className={`sm:w-full object-fill  pointer-events-none`}
+                className={`max-w-[180px] sm:w-full object-fill  pointer-events-none`}
               />
             </Link>
             <div
@@ -162,7 +166,10 @@ const CountCart = dynamic(
       const router = useRouter();
 
       return (
-        <IconButton onClick={() => router.push("/cart")}>
+        <IconButton
+          onClick={() => router.push("/cart")}
+          className="max-xs:hidden"
+        >
           <Badge color="primary" badgeContent={shop.cart.length} showZero>
             <ShoppingCartRounded fontSize="medium" />
           </Badge>

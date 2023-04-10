@@ -41,7 +41,7 @@ function ForgottenPassword(props: Props) {
       setLoading(true);
 
       const request = await axios.post(
-        BASE_URL + "/api/auth/request-password-change",
+         "/api/auth/request-password-change",
         {
           email: data.email,
         }

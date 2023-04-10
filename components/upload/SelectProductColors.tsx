@@ -1,4 +1,4 @@
-import { Label } from "@mui/icons-material";
+import Label from "@mui/icons-material/Label";
 import { Badge, Button, Input, InputNumber } from "antd";
 import _ from "lodash";
 import dynamic from "next/dynamic";

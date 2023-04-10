@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, CardActionArea } from "@mui/material";
-import { ArrowDropDownOutlined } from "@mui/icons-material";
+import ArrowDropDownOutlined from "@mui/icons-material/ArrowDropDownOutlined";
 import { emitCustomEvent } from "react-custom-events";
 import Price from "@comp/filter/price";
 import FilterChunk from "@comp/filter/FilterChunk";

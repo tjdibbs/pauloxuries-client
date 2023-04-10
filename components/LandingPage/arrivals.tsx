@@ -1,7 +1,7 @@
 import React from "react";
 import Product from "../product";
 // import { Swiper, SwiperSlide } from "swiper/react";
-import { Splide, SplideSlide } from '@splidejs/react-splide';
+import { Splide, SplideSlide } from "@splidejs/react-splide";
 import useStyles from "@lib/styles";
 import { Button, Typography, useTheme } from "@mui/material";
 import axios from "axios";
@@ -15,12 +15,6 @@ import ProductStyle2 from "@comp/productStyle2";
 import Box from "@mui/material/Box";
 import { nanoid } from "nanoid";
 
-const responsive = {
-  0: { items: 2 },
-  800: { items: 3 },
-  1024: { items: 4 },
-};
-
 export default function NewArrivals() {
   const styles = useStyles();
   const [loading, setLoading] = React.useState<boolean>(true);
@@ -28,7 +22,7 @@ export default function NewArrivals() {
 
   React.useEffect(() => {
     axios
-      .get<{ products: ProductType[] }>(BASE_URL + "/api/products/new")
+      .get<{ products: ProductType[] }>("/api/products/new")
       .then((response) => {
         if (!response.data.products) return;
 
@@ -37,16 +31,15 @@ export default function NewArrivals() {
       });
   }, []);
 
-
   return (
     <Splide
-    options={{
-      perMove: 1,
-      gap: 10,
-      mediaQuery: "min",
-      breakpoints,
-      pagination: false
-    }}
+      options={{
+        perMove: 1,
+        gap: 10,
+        mediaQuery: "min",
+        breakpoints,
+        pagination: false,
+      }}
       className="max-xs:px-0 px-2 py-6"
     >
       {loading

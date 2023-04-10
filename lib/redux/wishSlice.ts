@@ -8,7 +8,7 @@ import axios from "axios";
 import { AppState, CartInterface } from "@lib/types";
 import Cookie from "js-cookie";
 
-const WISH_URL = BASE_URL + "/api/wish/";
+const WISH_URL = "/api/wish/";
 
 type setParams = { userid?: string; wishes: string[] };
 type addParams = { userid?: string; wish: string };

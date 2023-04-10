@@ -45,7 +45,7 @@ export default function Navigation({ user }: { user: AppState["user"] }) {
   };
 
   const logout = () => {
-    axios.get(BASE_URL + "/logout").then((response) => {
+    axios.get( "/logout").then((response) => {
       if (response.data === "Done") {
         dispatch(auth());
         Cookies.remove("sid");

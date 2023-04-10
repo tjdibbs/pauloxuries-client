@@ -30,7 +30,7 @@ export default function ProductCard({ item }: Props) {
       <div className="max-xs:h-[200px] h-[250px] md:h-[330px] relative">
         <Image
           src={
-            "http://api.frutiv.com/images/products/" +
+            "http://pauloxuries.com/images/products/" +
             item.image?.replaceAll('"', "")
           }
           loading="lazy"

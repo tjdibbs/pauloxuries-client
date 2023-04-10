@@ -46,7 +46,7 @@ const SearchBar: React.FC<{
       }
       setLoading(true);
       const req = await axios.get<{ success: boolean; products: Product[] }>(
-        BASE_URL + "/api/products/search?s=" + search
+        "/api/products/search?s=" + search
       );
       const { success, products } = await req.data;
       if (success) {
@@ -159,7 +159,7 @@ const SearchBar: React.FC<{
                                 <Image
                                   src={
                                     "https://pauloxuries.com/images/products/" +
-                                    JSON.parse(item.images)[0]
+                                    item.image.replaceAll('"', "")
                                   }
                                   loading="lazy"
                                   alt={item.title}

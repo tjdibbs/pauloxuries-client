@@ -22,7 +22,7 @@ export default function SportWears() {
 
   React.useEffect(() => {
     axios
-      .get<{ products: ProductType[] }>(BASE_URL + "/api/products/sport")
+      .get<{ products: ProductType[] }>( "/api/products/sport")
       .then((response) => {
         if (!response.data.products) return;
 

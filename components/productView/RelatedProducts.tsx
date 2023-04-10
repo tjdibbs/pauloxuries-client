@@ -27,7 +27,7 @@ export default function RelatedProduct({
   React.useEffect(() => {
     axios
       .get<{ success: boolean; products: Product[] }>(
-        BASE_URL + `/api/products/related?category=${category}`
+         `/api/products/related?category=${category}`
       )
       .then((response) => {
         let { success, products } = response.data;

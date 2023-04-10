@@ -98,4 +98,4 @@ const Home: React.FC<{ user: AppState["user"]; jerseys: string }> = () => {
 //   };
 // };
 
-export default dynamic(async () => Home, {ssr: false});
+export default Home;

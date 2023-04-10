@@ -23,6 +23,7 @@ import { CountryDropdown, RegionDropdown } from "react-country-region-selector";
 import { Input } from "antd";
 import { BASE_URL } from "@lib/constants";
 import useMessage from "@hook/useMessage";
+import { setAllCart } from "@lib/redux/reducer";
 
 interface InformationProps {
   checkout: CheckoutInterface<CartInterface> | null;
@@ -76,7 +77,7 @@ const Information = ({ checkout }: InformationProps) => {
     };
 
     try {
-      const req = await axios.post(BASE_URL + "/api/order/checkout", formData);
+      const req = await axios.post("/api/order/checkout", formData);
 
       const { success, orderId, token } = await req.data;
       if (success) {
@@ -89,22 +90,20 @@ const Information = ({ checkout }: InformationProps) => {
           return checkOrder === -1;
         });
 
-        dispatch(
-          setAllCarts({ userid: user?.id, cart: newCarts as CartInterface[] })
-        ).then(() => {
-          Cookie.remove("checkout");
-          Cookie.remove("formdata");
+        dispatch(setAllCart(newCarts as CartInterface[]));
 
-          if (!user) {
-            Cookie.set("previous_email", data.email);
-          }
+        Cookie.remove("checkout");
+        Cookie.remove("formdata");
 
-          router.replace(
-            `/checkout/thank-you?orderId=${orderId}&${
-              token ? `token=${token}` : ""
-            }`
-          );
-        });
+        if (!user) {
+          Cookie.set("previous_email", data.email);
+        }
+
+        router.replace(
+          `/checkout/thank-you?orderId=${orderId}&${
+            token ? `token=${token}` : ""
+          }`
+        );
       }
     } catch (error: any) {
       alertMessage(error.message, "error");
@@ -360,12 +359,18 @@ const Information = ({ checkout }: InformationProps) => {
         </div>
 
         <button
-          className="btn bg-primary-low text-white mt-4"
+          className="btn bg-primary-low text-white mt-4 disabled:bg-primary-low/40"
           type={"submit"}
           disabled={loading}
           ref={SubmitBtn}
         >
-          {loading && <CircularProgress size={18} className={"mr-4"} />}
+          {loading && (
+            <CircularProgress
+              color="info"
+              size={18}
+              className={"mr-4 text-white/60"}
+            />
+          )}
           <span>Submit Order</span>
         </button>
       </div>

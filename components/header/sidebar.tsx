@@ -68,7 +68,7 @@ export const navData = [
 export default function Sidebar(props: SideBarProps) {
   const theme = useTheme();
   const { open, setOpen } = props;
-  const user = useAppSelector((state) => state.shop.user);
+  const { user, cart } = useAppSelector((state) => state.shop);
   const styles = useStyles();
   const [value, setValue] = React.useState({ title: "shop_by", index: 0 });
   const [shopValue, setShopValue] = React.useState({ index: 0, value: 0 });
@@ -76,7 +76,7 @@ export default function Sidebar(props: SideBarProps) {
   const router = useRouter();
 
   const logout = () => {
-    axios.get(BASE_URL + "/logout").then(() => {
+    axios.get("/logout").then(() => {
       dispatch(auth());
       Cookies.remove("sid");
       if (router.pathname.indexOf("upload") !== -1) router.replace("/");
@@ -121,10 +121,10 @@ export default function Sidebar(props: SideBarProps) {
               {user!.lastname.at(0)}
             </Avatar>
             <div className="text">
-              <span className="name text-sm font-bold capitalize">
+              <h3 className="name text-sm font-bold capitalize">
                 {user!.firstname} {user!.lastname}
-              </span>
-              <span className="email text-xs">{user!.email}</span>
+              </h3>
+              <p className="email text-xs">{user!.email}</p>
             </div>
           </div>
         )}
@@ -133,19 +133,27 @@ export default function Sidebar(props: SideBarProps) {
           <SwipeableViews index={value.index} animateHeight disabled>
             <Box className={"nav-page"}>
               <List>
-                {user && (
-                  <React.Fragment>
-                    {Boolean(user?.admin) && (
-                      <Link href={"/products/upload"} onClick={handleClick}>
-                        <ListItemButton>
-                          <ListItemIcon>
-                            <UploadIcon fontSize="small" />
-                          </ListItemIcon>
-                          <span className="text-sm">Upload Products</span>
-                        </ListItemButton>
-                      </Link>
-                    )}
-                  </React.Fragment>
+                <Link href={"/carts"} onClick={handleClick}>
+                  <MenuItem>
+                    <ListItemIcon>
+                      <ShopRoundedIcon fontSize="small" />
+                    </ListItemIcon>
+                    <span className="text-sm flex-grow">Carts</span>
+
+                    <div className="carts-count bg-white rounded-full shadow-lg px-4 py-0.5 text-sm font-bold">
+                      {cart.length}
+                    </div>
+                  </MenuItem>
+                </Link>
+                {user && Boolean(user?.admin) && (
+                  <Link href={"/products/upload"} onClick={handleClick}>
+                    <ListItemButton>
+                      <ListItemIcon>
+                        <UploadIcon fontSize="small" />
+                      </ListItemIcon>
+                      <span className="text-sm">Upload Products</span>
+                    </ListItemButton>
+                  </Link>
                 )}
 
                 {menuItems.map((item) => (

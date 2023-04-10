@@ -1,16 +1,12 @@
-import { Container, Divider, Typography, useTheme } from "@mui/material";
+import { Container, Divider } from "@mui/material";
 import { Box } from "@mui/system";
 import React from "react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import { useSnackbar } from "notistack";
 import { useRouter } from "next/router";
 import { pink } from "@mui/material/colors";
 import { GetServerSideProps } from "next";
-import PasswordShowIcon from "@mui/icons-material/VisibilityRounded";
-import PasswordOffIcon from "@mui/icons-material/VisibilityOffRounded";
-import message from "lib/message";
 import { useAppDispatch } from "lib/redux/store";
 import Cookies from "js-cookie";
 import { auth } from "lib/redux/reducer";
@@ -53,7 +49,7 @@ export default function SignIn(): JSX.Element {
       if (loading.pending) return;
       setLoading({ ...loading, pending: true });
 
-      const request = await axios.post(BASE_URL + "/api/auth/sign-in", state, {
+      const request = await axios.post( "/api/auth/sign-in", state, {
         withCredentials: true,
       });
       const { success, user } = await request.data;
@@ -64,8 +60,6 @@ export default function SignIn(): JSX.Element {
           : "Email or Password Incorrect",
         success ? "success" : "error"
       );
-
-      console.log({ success, user });
 
       if (success) {
         setLoading({ ...loading, message: "Redirecting...." });

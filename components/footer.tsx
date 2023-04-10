@@ -33,7 +33,7 @@ export default function Footer() {
   const { enqueueSnackbar } = useSnackbar();
 
   const onSubmit = (data: { email: string }) => {
-    fetch(BASE_URL + "/api/subscribe", {
+    fetch( "/api/subscribe", {
       method: "PUT",
       body: JSON.stringify(data),
       headers: {

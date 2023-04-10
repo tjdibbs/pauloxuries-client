@@ -23,7 +23,7 @@ const AddReview: React.FC<{
     e.preventDefault(), setLoading(true);
 
     try {
-      let endpoint = BASE_URL + "/api/reviews/new";
+      let endpoint =  "/api/reviews/new";
 
       let formData = {
         product: props.product.id,

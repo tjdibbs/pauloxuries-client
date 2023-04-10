@@ -15,7 +15,7 @@ import { SnackbarProvider } from "notistack";
 // import "swiper/css/effect-coverflow";
 // import "swiper/css/thumbs";
 // import "swiper/css/free-mode";
-import '@splidejs/react-splide/css';
+import "@splidejs/react-splide/css";
 import "react-alice-carousel/lib/alice-carousel.css";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 
@@ -27,7 +27,7 @@ import PageLoading from "@comp/PageLoading";
 import GetUser from "@lib/getUser";
 import axios from "axios";
 
-// axios.defaults.httpAgent = ""
+axios.defaults.baseURL = "http://localhost:8000";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
@@ -58,4 +58,3 @@ export function reportWebVitals(metric: any) {
 }
 
 export default MyApp;
-     

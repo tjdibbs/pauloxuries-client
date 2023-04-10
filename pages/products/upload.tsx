@@ -130,7 +130,7 @@ const Upload: NextPage<{ user: AppState["user"] }> = function (props) {
 
         const request = await axios.post<
           Pick<Response, "success" | "message" | "error">
-        >(BASE_URL + "/api/upload", formData, config);
+        >( "/api/upload", formData, config);
 
         let res = await request.data;
         // if (res.error) {

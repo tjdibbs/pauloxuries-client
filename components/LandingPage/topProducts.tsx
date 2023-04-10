@@ -30,7 +30,7 @@ export default function TopProducts() {
   React.useEffect(() => {
     axios
       .get<{ success: boolean; products: Product[] }>(
-        BASE_URL + "/api/products/top"
+         "/api/products/top"
       )
       .then((response) => {
         const { success, products } = response.data;
