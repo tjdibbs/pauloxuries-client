@@ -10,8 +10,7 @@ import Loading from "./loading";
 import AliceCarousel from "react-alice-carousel";
 import { Divider, Typography } from "@mui/material";
 import { breakpoints } from "@lib/constants";
-import { Splide, SplideSlide } from '@splidejs/react-splide';
-
+import { Splide, SplideSlide } from "@splidejs/react-splide";
 
 const responsive = {
   0: { items: 2 },
@@ -38,7 +37,7 @@ export default function Viewed({ id }: { id?: string }) {
         options={{
           mediaQuery: "min",
           breakpoints,
-          pagination: false
+          pagination: false,
         }}
         className="px-2 py-6"
       >
@@ -48,6 +47,7 @@ export default function Viewed({ id }: { id?: string }) {
               item={product}
               component="div"
               inCart={0}
+              keyPrefix="wish"
               inWishlist={false}
             />
           </SplideSlide>

@@ -40,12 +40,14 @@ export default function Color(props: { t: { [x: string]: number }[] }) {
     >
       <div className="card">
         {props.t.map((d, i) => {
+          let key = Object.keys(d)[0];
           return (
             <Stack key={i} direction={"row"} gap={2} alignItems={"center"}>
-              <span className="font-bold flex-grow capitalize">
-                {Object.keys(d)[0]}
-              </span>
-              <span>{d[Object.keys(d)[0]]}</span>
+              <span
+                className="font-bold flex-grow capitalize"
+                style={{ background: key.toLowerCase() }}
+              />
+              <span>{d[key]}</span>
               <Checkbox
                 size={"small"}
                 name={Object.keys(d)[0]}

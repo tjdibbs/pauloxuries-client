@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React from "react";
-import { NextPage } from "next";
+import { GetServerSideProps, NextPage } from "next";
 import Link from "next/link";
 import { Product } from "@lib/types";
 import { useAppDispatch, useAppSelector } from "@lib/redux/store";
@@ -22,6 +22,7 @@ import Viewed from "@comp/viewed";
 import axios from "axios";
 import Share from "@comp/productView/Share";
 import Reviews from "@comp/productView/Reviews";
+import db from "@lib/connection/db";
 
 // icons
 import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
@@ -29,7 +30,7 @@ import { BASE_URL } from "@lib/constants";
 import BreadcrumbComp from "@comp/BreadcrumbComp";
 
 type Props = {
-  product: Product | null;
+  product: string | null;
   notfound?: boolean;
   error: boolean;
 };
@@ -59,7 +60,8 @@ const Product: NextPage<Props> = (props) => {
     );
   }
 
-  const product = props.product as Product;
+  const product = JSON.parse(props.product) as unknown as Product;
+
   const pageDescription = {
     title: product.title,
     description: product.description,
@@ -151,67 +153,57 @@ const Product: NextPage<Props> = (props) => {
   );
 };
 
-Product.getInitialProps = async (ctx) => {
-  let product = null;
-  let error = false;
-  let product_id = ctx.query.id as string;
+// Product.getInitialProps = async (ctx) => {
+//   let product = null;
+//   let error = false;
+//   let product_id = ctx.query.id as string;
 
-  try {
-    let getProduct = await axios.get<{ product: Product; success: boolean }>(
-       "/api/products/_/" + product_id
-    );
-
-    let response = getProduct.data;
-    product = response.product;
-
-    // --------------------------
-  } catch (error) {
-    console.log({ error });
-    error = true;
-  }
-
-  return {
-    product,
-    error,
-  };
-};
-
-// export const getServerSideProps: GetServerSideProps = async ({
-//   req,
-//   res,
-//   query,
-// }) => {
 //   try {
-//     // @ts-ignore
-//     const user = req.session.user ?? null;
-//     const { id } = query as unknown as { id: string };
+//     let getProduct = await axios.get<{ product: Product; success: boolean }>(
+//       "/api/products/_/" + product_id
+//     );
 
-//     if (!id) {
-//       return {
-//         props: {
-//           user,
-//           notfound: true,
-//         },
-//       };
-//     }
+//     let response = getProduct.data;
+//     product = response.product;
 
-//     let find_query = `SELECT * FROM Product WHERE id='${id}'`;
-//     const product = (await client.query(find_query))[0] as Product[];
-
-//     return {
-//       props: {
-//         user,
-//         product: product ? JSON.stringify(product[0]) : null,
-//       },
-//     };
-//   } catch (e) {
-//     console.log({ e });
-//     return {
-//       props: {
-//         error: true,
-//       },
-//     };
+//     // --------------------------
+//   } catch (error) {
+//     console.log({ error });
+//     error = true;
 //   }
+
+//   return {
+//     product,
+//     error,
+//   };
 // };
+
+export const getServerSideProps: GetServerSideProps = async ({
+  req,
+  res,
+  query,
+}) => {
+  try {
+    const { id } = query as unknown as { id: string };
+
+    if (!id) throw new Error("Invalid request");
+
+    let find_query = `SELECT * FROM Product WHERE id='${id}'`;
+    const [product] = (await db.query(find_query))[0] as Product[];
+
+    return {
+      props: {
+        product: product ? JSON.stringify(product) : null,
+      },
+    };
+  } catch (e) {
+    console.log({ e });
+    return {
+      props: {
+        error: true,
+      },
+    };
+  }
+};
 
 export default Product;

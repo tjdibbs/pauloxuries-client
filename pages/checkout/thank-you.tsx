@@ -1,30 +1,76 @@
 import React from "react";
-import {
-  Box,
-  Button,
-  Chip,
-  Divider,
-  Typography,
-  Avatar,
-  Badge,
-} from "@mui/material";
-import Link from "next/link";
+import { Box, Button, Divider } from "@mui/material";
 import BreadcrumbComp from "@comp/BreadcrumbComp";
-import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import { NextPage } from "next";
+import { OrderType } from "@lib/types";
+import Address from "@comp/checkout/Address";
+import BasicInfo from "@comp/checkout/BasicInfo";
+import OrderProduct from "@comp/checkout/OrderProduct";
+import NoOrder from "@comp/checkout/NoOrder";
+import { useRouter } from "next/router";
 import axios from "axios";
-import { BASE_URL } from "@lib/constants";
-import { CartInterface, OrderType } from "@lib/types";
-import { Router } from "next/router";
+import dynamic from "next/dynamic";
+import useMessage from "@hook/useMessage";
+import { useAppSelector } from "@lib/redux/store";
 
 const ThankYou: NextPage<{
   order: OrderType | null;
   token?: string;
   message?: string;
+  error?: boolean;
 }> = (props) => {
-  const { order, token, message } = props;
+  const user = useAppSelector((state) => state.shop.user);
+  const [fetching, setFetching] = React.useState<boolean>(true);
+  const [order, setOrder] = React.useState<OrderType>();
+  const router = useRouter();
 
-  if (!order) return <NoOrder message={message} />;
+  const { alertMessage } = useMessage();
+
+  const { orderId, token } = router.query;
+
+  const getOrder = React.useCallback(async () => {
+    try {
+      const reqOrder = await axios.get("/api/order/" + orderId);
+
+      const {
+        success,
+        orders: [order],
+      } = await reqOrder.data;
+
+      if (!order) throw new Error("Order not found");
+
+      setOrder({ ...order, cart: JSON.parse(order.cart) }), setFetching(false);
+    } catch (error) {
+      setFetching(false);
+    }
+  }, [orderId]);
+
+  const setDelivered = async () => {
+    try {
+      const req = await axios.put("/api/order/" + orderId);
+      const res = await req.status;
+
+      console.log({ res });
+      if (res === 200)
+        // @ts-ignore
+        setOrder((order) => ({ ...order, status: "delivered" }));
+    } catch (error) {
+      console.error(error);
+      alertMessage("We are having issue communicating to server", "error");
+    }
+  };
+
+  const cancelOrder = () => {
+    try {
+    } catch (error) {}
+  };
+
+  React.useEffect(() => {
+    getOrder();
+  }, [getOrder]);
+
+  if (fetching) return <Loading />;
+  if (!order) return <NoOrder message={"Unable to get order"} />;
 
   return (
     <div className="component-wrap">
@@ -75,7 +121,8 @@ const ThankYou: NextPage<{
             <ul className="products flex flex-col gap-y-4">
               {order.cart.map((cartProduct) => {
                 return (
-                  <OrderedProduct
+                  <OrderProduct
+                    setOrder={setOrder}
                     cartProduct={cartProduct}
                     key={cartProduct.id}
                   />
@@ -119,6 +166,29 @@ const ThankYou: NextPage<{
                 </div>
               </div>
             </div>
+
+            {user && (
+              <div className="actions">
+                <Button
+                  size="small"
+                  variant="outlined"
+                  className="capitalize text-sm"
+                  onClick={cancelOrder}
+                >
+                  Cancel All
+                </Button>
+                {user.admin && token && (
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    className="capitalize text-sm"
+                    onClick={setDelivered}
+                  >
+                    Delivered
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </section>
 
@@ -185,196 +255,6 @@ const ThankYou: NextPage<{
   );
 };
 
-ThankYou.getInitialProps = async (ctx) => {
-  try {
-    let { orderId, token } = ctx.query as { orderId: string; token: string };
-
-    if (!orderId) {
-      return {
-        order: null,
-      };
-    }
-
-    const reqOrder = await axios.get( "/api/order/" + orderId);
-
-    const {
-      success,
-      orders: [order],
-    } = await reqOrder.data;
-
-    return {
-      order: {
-        ...order,
-        cart: JSON.parse(order.cart),
-      },
-      token,
-    };
-  } catch (error) {
-    console.error({ error });
-    return {
-      order: null,
-      message: "Error fetching order",
-    };
-  }
-};
-
-const OrderedProduct = (props: { cartProduct: CartInterface }) => {
-  const { cartProduct } = props;
-
-  let discount =
-    ((cartProduct.product.discountPercentage as number) / 100) *
-    cartProduct.quantity;
-
-  let total =
-    (cartProduct.product?.price as number) * cartProduct.quantity - discount;
-
-  return (
-    <div className="ordered-product card bg-primary-low/10">
-      <div className="detail">
-        <div className="flex gap-2 items-center">
-          <Badge
-            badgeContent={cartProduct.quantity}
-            className="rounded-sm"
-            classes={{ badge: "rounded-lg bg-primary-low" }}
-            color={"info"}
-          >
-            <Avatar
-              variant={"rounded"}
-              className="p-1 bg-white shadow-lg"
-              src={
-                "https://pauloxuries.com/images/products/" +
-                cartProduct.product!.image?.replaceAll('"', "")
-              }
-            >
-              <ShoppingCartCheckoutIcon />
-            </Avatar>
-          </Badge>
-          <div className="title flex-grow ml-3">
-            <span className="font-semibold overflow-hidden text-ellipsis">
-              {cartProduct.product.title}
-            </span>
-            {cartProduct.product.discountPercentage && (
-              <>
-                <br />
-                <small>
-                  {cartProduct.product.discountPercentage}% discount each
-                </small>
-              </>
-            )}
-          </div>
-          <div className="price flex flex-col justify-end gap-y-2">
-            <Chip
-              className="font-extrabold text-lg text-primary-low"
-              label={"₦" + total.toLocaleString()}
-            />
-            <small>
-              {"₦" + (cartProduct.product.price as number).toLocaleString()} per
-              item
-            </small>
-          </div>
-        </div>
-      </div>
-      <div className="flex gap-x-6 gap-y-3 flex-wrap items-center mt-4">
-        <div className="wrap flex-wrap flex gap-x-6 gap-y-3 flex-grow">
-          {cartProduct.sizes && (
-            <div className="sizes-wrap flex gap-x-4 items-center">
-              <div className="label text-sm">Sizes:</div>
-              <ul className="sizes-selected flex gap-2">
-                {(JSON.parse(cartProduct.sizes as unknown as string ?? '[]') as string[])?.map((size) => (
-                  <div
-                    key={size}
-                    className="bg-black/10 uppercase h-6 w-6 grid place-items-center shadow-lg rounded-lg font-bold text-[10px]"
-                  >
-                    {size}
-                  </div>
-                ))}
-              </ul>
-            </div>
-          )}
-          {cartProduct.colors && (
-            <div className="colors-wrap flex gap-x-4 items-center">
-              <div className="label text-sm">Colors:</div>
-              <ul className="colors-selected flex gap-2">
-                {(JSON.parse((cartProduct.colors as unknown as string) ?? '[]') as string[])?.map((color) => (
-                  <div
-                    key={color}
-                    style={{ background: color }}
-                    className="bg-black/10 uppercase h-4 w-10 shadow-lg rounded-full font-bold text-xs"
-                  />
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-
-        <div className="actions">
-          <Button
-            size="small"
-            variant="outlined"
-            className="capitalize text-sm"
-          >
-            Delivered
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const Address = (props: {
-  title: string;
-  state: string;
-  country: string;
-  address: string;
-}) => (
-  <li className="flex-grow min-w-[45%]">
-    <span className="title">
-      <b>{props.title}</b>
-    </span>
-    <div className="address">{props.address}</div>
-    <div className="state">
-      State/County:{" "}
-      <i>
-        <b>{props.state}</b>
-      </i>
-    </div>
-    <div className="country">
-      Country/Region:{" "}
-      <i>
-        <b>{props.country}</b>
-      </i>
-    </div>
-  </li>
-);
-
-const BasicInfo = (props: { title: string; value: string }) => {
-  return (
-    <li className="flex-grow min-w-[45%]">
-      <div className="title">
-        <b>{props.title}</b>
-      </div>
-      <span>{props.value}</span>
-    </li>
-  );
-};
-
-const NoOrder = (props: { message?: string }) => (
-  <div className="card w-full p-4">
-    <Typography variant={"subtitle2"} my={2}>
-      {props.message ?? "Your request is not valid"}
-    </Typography>
-    <Link href={"/collections"}>
-      <Button
-        variant={"contained"}
-        className="bg-primary-low"
-        sx={{ textTransform: "none" }}
-      >
-        Go to shop
-      </Button>
-    </Link>
-  </div>
-);
-
 const links = [
   {
     label: "home",
@@ -390,4 +270,19 @@ const links = [
   },
 ];
 
-export default ThankYou;
+const Loading = () => (
+  <div className="fetching-wrapper p-4">
+    <div className="loading animate-pulse h-6 bg-primary-low/20 rounded-lg mb-4" />
+    <div className="loading animate-pulse h-10 bg-primary-low/30 rounded-lg" />
+
+    <div className="flex flex-wrap gap-10 mt-10">
+      <div className="min-w-[280px] shadow-lg flex-grow h-80 bg-primary-low/10 animate-pulse" />
+      <div className="min-w-[280px] shadow-lg flex-grow h-80 bg-primary-low/10 animate-pulse" />
+    </div>
+  </div>
+);
+
+export default dynamic(async () => ThankYou, {
+  ssr: false,
+  loading: () => <Loading />,
+});

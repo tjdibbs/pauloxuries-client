@@ -23,6 +23,7 @@ function ProductAction(props: {
   const { product, getValues } = props;
   const { handleCheckout } = useCheckout();
   const { cart, user, wishlist } = useAppSelector((state) => state.shop);
+  const { alertMessage } = useMessage();
 
   const inCart = cart.findIndex((cart) => cart.product?.id === product.id);
   const inWishlist = wishlist.includes(product.id);
@@ -31,6 +32,20 @@ function ProductAction(props: {
     useShop(product);
 
   const { size, color, quantity } = getValues();
+
+  const checkIfRequiredFieldsIsSelected = function (this: () => void) {
+    let colors = Object.keys(JSON.parse(product.colors ?? "{}"));
+    let sizes = Object.keys(JSON.parse(product.sizes ?? "{}"));
+
+    if ((colors?.length && color) || (sizes?.length && !size)) {
+      return alertMessage(
+        "It seems like you have not selected the color or size you want",
+        "error"
+      );
+    }
+
+    return this();
+  };
 
   const checkout = () => {
     handleCheckout([
@@ -42,8 +57,8 @@ function ProductAction(props: {
           image: JSON.parse(product.images || "[]")[0],
         },
         quantity: quantity as number,
-        sizes: [size],
-        colors: [color],
+        sizes: size ? [size] : [],
+        colors: color ? [color] : [],
       },
     ]);
   };
@@ -73,8 +88,12 @@ function ProductAction(props: {
           <motion.button
             key={inCart}
             animate={{ scale: 1, opacity: 1 }}
-            onClick={inCart === -1 ? addCart : handleRemoveCart}
-            className={`btn text-sm ${className} disabled:animate-pulse opacity-50`}
+            onClick={
+              inCart === -1
+                ? checkIfRequiredFieldsIsSelected.bind(addCart)
+                : handleRemoveCart
+            }
+            className={`btn text-sm ${className} disabled:animate-pulse`}
             disabled={loading}
           >
             {loading
@@ -85,7 +104,7 @@ function ProductAction(props: {
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.9 }}
-            onClick={checkout}
+            onClick={checkIfRequiredFieldsIsSelected.bind(checkout)}
             className={`text-sm btn bg-primary-low text-white`}
             disabled={loading}
           >

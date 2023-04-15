@@ -151,7 +151,7 @@ function SelectImages(props: {}, ref: React.ForwardedRef<{}>) {
                   <Image
                     alt={url}
                     src={url}
-                    className="!w-56 !h-40 max-w-full"
+                    className="!w-56 !h-60 max-w-full"
                   />
                   <div className="name w-max font-bold text-sm px-2 py-1 rounded-xl bg-primary-low/40">
                     {name}

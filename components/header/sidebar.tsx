@@ -147,12 +147,12 @@ export default function Sidebar(props: SideBarProps) {
                 </Link>
                 {user && Boolean(user?.admin) && (
                   <Link href={"/products/upload"} onClick={handleClick}>
-                    <ListItemButton>
+                    <MenuItem>
                       <ListItemIcon>
                         <UploadIcon fontSize="small" />
                       </ListItemIcon>
                       <span className="text-sm">Upload Products</span>
-                    </ListItemButton>
+                    </MenuItem>
                   </Link>
                 )}
 

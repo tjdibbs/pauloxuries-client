@@ -11,6 +11,7 @@ import {
   Chip,
   IconButton,
   TextField,
+  Badge,
 } from "@mui/material";
 
 // hooks
@@ -25,6 +26,7 @@ import ShoppingCartCheckoutIcon from "@mui/icons-material/ShoppingCartCheckout";
 import useShop from "@hook/useShop";
 import Favorite from "@mui/icons-material/Favorite";
 import FavoriteBorderOutlined from "@mui/icons-material/FavoriteBorderOutlined";
+import Image from "next/image";
 
 type State = { quantity: string | number; size: number };
 
@@ -90,15 +92,24 @@ function CheckoutInterface({ cart }: { cart: CartInterface }) {
   return (
     <div className="card bg-white/70 backdrop-blur relative">
       <div className="flex gap-2 items-center p-2">
-        <Avatar
-          variant={"rounded"}
-          src={
-            "https://pauloxuries.com/images/products/" +
-            cart.product!.image?.replaceAll('"', "")
-          }
+        <Badge
+          badgeContent={cart.quantity}
+          className="rounded-sm"
+          classes={{ badge: "rounded-lg bg-primary-low" }}
+          color={"info"}
         >
-          <ShoppingCartCheckoutIcon />
-        </Avatar>
+          <div className="image-wrap relative p-1 bg-white shadow-lg rounded-lg">
+            <Image
+              width={40}
+              height={50}
+              alt={cart.product.title as string}
+              src={
+                "https://pauloxuries.com/images/products/" +
+                cart.product!.image?.replaceAll('"', "")
+              }
+            />
+          </div>
+        </Badge>
         <span className="flex-grow font-semibold overflow-hidden text-ellipsis">
           {cart.product!.title}
         </span>

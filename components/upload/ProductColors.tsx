@@ -2,6 +2,7 @@ import Label from "@mui/icons-material/Label";
 import { Badge, Button, Input, InputNumber } from "antd";
 import _ from "lodash";
 import dynamic from "next/dynamic";
+import { RefObject } from "pages/products/upload";
 import React from "react";
 
 export type SIZE_COLOR_TYPE = {
@@ -9,16 +10,13 @@ export type SIZE_COLOR_TYPE = {
   count?: number;
 };
 
-function ProductColors(
-  props: {},
-  ref: React.ForwardedRef<{ getColors(): { [x: string]: number } }>
-) {
+function ProductColors(props: {}, ref: React.ForwardedRef<RefObject>) {
   const [color, setColor] = React.useState<SIZE_COLOR_TYPE>({});
 
   const [colors, setColors] = React.useState<{ [x: string]: number }>({});
   React.useImperativeHandle(
     ref,
-    () => ({ getColors: () => colors, clear: () => setColors({}) }),
+    () => ({ get: () => colors, clear: () => setColors({}) }),
     [colors]
   );
 
@@ -74,7 +72,4 @@ function ProductColors(
   );
 }
 
-export default dynamic(
-  async () => React.memo(React.forwardRef(ProductColors)),
-  { ssr: false }
-);
+export default React.forwardRef(ProductColors);

@@ -32,6 +32,8 @@ function ProductContent(props: { product: Product }) {
   const { cart, user } = useAppSelector((state) => state.shop);
   const router = useRouter();
 
+  console.log({ product });
+
   const [showError, setShowError] = React.useState<boolean>(false);
 
   const { handleCartChange } = useShop(props.product);
@@ -52,13 +54,13 @@ function ProductContent(props: { product: Product }) {
   const handleState = (name: keyof State, n: number | string) => {
     switch (name) {
       case "quantity":
-        if (
-          (quantity == 1 && n == -1) ||
-          (quantity === product!.stock && n === 1)
-        ) {
+        if (quantity == 1 && n == -1) return;
+        else if (quantity === product!.stock && n === 1) {
           setShowError(true);
           return;
         }
+
+        setShowError(false);
         setValue(name, parseInt(quantity as string) + (n as number));
         break;
       default:
@@ -77,47 +79,52 @@ function ProductContent(props: { product: Product }) {
     });
   };
 
-  const productColors = JSON.parse(product.colors) as { [x: string]: boolean };
+  const productColors = JSON.parse(product.colors) as {
+    [x: string]: boolean;
+  };
   const productSizes = JSON.parse(product.sizes) as { [x: string]: boolean };
+  const price = product.discountPercentage
+    ? Math.floor(
+        product.price - (product.price * product.discountPercentage) / 100
+      )
+    : product.price;
 
   return (
-    <div className="product-content sm:shadow-lg sm:w-full rounded-lg sm:px-2 sm:p-4 relative">
-      {product.discountPercentage ? (
-        <Box>
-          <Typography variant="subtitle1" fontWeight={700} color={"primary"}>
-            <b style={{ fontSize: "1.17em" }}>₦</b>
-            {Math.floor(
-              (product.price as number) -
-                ((product.price as number) * product.discountPercentage) / 100
-            ).toLocaleString("en")}
-          </Typography>
-          <Typography variant="caption" sx={{ textDecoration: "line-through" }}>
-            ₦{product.price.toLocaleString("en")}
-          </Typography>
-          <small> - discount {product.discountPercentage}%</small>
-        </Box>
-      ) : (
-        <Typography variant="subtitle1" fontWeight={800} color={"primary"}>
+    <div className="product-content sm:shadow-lg sm:w-full mt-5 rounded-lg py-5 sm:py-4 sm:px-4 bg-[#f5f5f5] pb-20  relative">
+      <Box>
+        <h1 className="font-extrabold text-2xl text-primary-low">
           <b style={{ fontSize: "1.17em" }}>₦</b>
-          {product.price.toLocaleString("en")}
-        </Typography>
-      )}
+          {price.toLocaleString("en")}
+        </h1>
+        {Boolean(product.discountPercentage) && (
+          <div className="discount">
+            <span className="line-through text-sm">
+              ₦{product.price.toLocaleString("en")}
+            </span>
+            <small> - discount of {product.discountPercentage}%</small>
+          </div>
+        )}
+      </Box>
       <Box className="tags" mt={1}>
         <Stack direction="row" spacing={2}>
           {product.category.split(",").map((tag: string) => {
             return (
-              <Link key={tag} href={`/collections?shop_by=category&name=${tag.toLowerCase()}`}>
-              <Chip
-                label={tag}
+              <Link
                 key={tag}
-                size="small"
-                className="cursor-pointer"
-              /></Link>
+                href={`/collections?shop_by=category&name=${tag.toLowerCase()}`}
+              >
+                <Chip
+                  label={tag}
+                  key={tag}
+                  size="small"
+                  className="cursor-pointer"
+                />
+              </Link>
             );
           })}
         </Stack>
       </Box>
-
+      <hr className="my-4" />
       <div className="description-wrap my-4">
         <div
           className="text-sm"
@@ -127,20 +134,26 @@ function ProductContent(props: { product: Product }) {
         />
       </div>
       <div className="colors my-3">
-        <p className="font-bold text-sm">Colors</p>
+        <p className="font-bold text-sm mb-2">Select Color</p>
         <div className="flex gap-3 flex-wrap">
           {Object.keys(productColors).map((c: string) => {
             return (
-              <Chip
-                label={c}
+              <div
                 key={c}
-                style={{ background: color }}
-                onClick={() => {
-                  handleState("color", c);
-                  cartChange();
-                }}
-                variant={color == c ? "filled" : "outlined"}
-              />
+                className={
+                  "hcolor-wrap h-8 w-8 rounded-sm cursor-pointer ring-primary-low" +
+                  (color === c ? " ring-4 p-1" : " ring-0")
+                }
+              >
+                <button
+                  style={{ background: c }}
+                  className="h-full w-full"
+                  onClick={() => {
+                    handleState("color", c);
+                    cartChange();
+                  }}
+                />
+              </div>
             );
           })}
         </div>
@@ -151,26 +164,30 @@ function ProductContent(props: { product: Product }) {
         )}
       </div>
       <Box className="sizes" my={2}>
-        <p className="font-bold text-sm mb-2">Sizes</p>
+        <p className="font-bold text-sm mb-2">Select Size</p>
         <Stack direction={"row"} gap={1} flexWrap={"wrap"}>
-          {Object.keys(productSizes).map((_size) => {
+          {Object.keys(productSizes).map((c) => {
             return (
-              <Chip
-                label={_size}
-                key={_size}
-                size="small"
-                disabled={!productSizes[_size]}
+              <div
+                key={c}
                 className={
-                  size === _size
-                    ? "bg-slate-600 text-white hover:bg-slate-800"
-                    : ""
+                  "hcolor-wrap h-8 w-8 rounded-sm cursor-pointer ring-1 ring-gray-600" +
+                  (size === c
+                    ? " bg-primary-low text-white"
+                    : " bg-gray-100 text-gray-900")
                 }
-                onClick={() => {
-                  handleState("size", _size);
-                  cartChange();
-                }}
-                variant={size === _size ? "filled" : "outlined"}
-              />
+              >
+                <button
+                  style={{ background: c }}
+                  className="h-full w-full uppercase font-bold text-sm "
+                  onClick={() => {
+                    handleState("size", c);
+                    cartChange();
+                  }}
+                >
+                  {c}
+                </button>
+              </div>
             );
           })}
         </Stack>

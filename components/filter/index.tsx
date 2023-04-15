@@ -4,7 +4,7 @@ import { Box, Button, MenuItem, TextField, Divider } from "@mui/material";
 import type { Product, RouterQuery } from "@lib/types";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { useRouter } from "next/router";
-import { emitCustomEvent } from "react-custom-events";
+import { emitCustomEvent, useCustomEventListener } from "react-custom-events";
 
 import useMessage from "@hook/useMessage";
 
@@ -48,7 +48,7 @@ export const components: (keyof ReturnType<typeof ExtractProps>)[] = [
 ];
 
 function Filter(props: FilterProps) {
-  const { products } = props;
+  const [products, setProducts] = React.useState<Product[]>(props.products);
 
   const [filter, setFilter] = React.useState<FilterType>(initialFilter);
   const [width, setWidth] = React.useState<boolean>(true);
@@ -66,6 +66,8 @@ function Filter(props: FilterProps) {
     setSortValue(e.target.value as keyof typeof sort);
     emitCustomEvent(Events.SORT, e.target.value);
   };
+
+  useCustomEventListener(Events.FETCHED, setProducts);
 
   React.useEffect(() => {
     setWidth(window.innerWidth > 700);
@@ -95,7 +97,7 @@ function Filter(props: FilterProps) {
   if (!products?.length) return <></>;
 
   return (
-    <div className={""}>
+    <div className={"relative z-40"}>
       <div className="filter-box gap-x-4 items-center justify-between flex">
         {width ? (
           <div ref={filterRef} className="hidden sm:flex gap-x-4 max-h-full">

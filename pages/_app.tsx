@@ -27,7 +27,9 @@ import PageLoading from "@comp/PageLoading";
 import GetUser from "@lib/getUser";
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:8000";
+if (process.env.NODE_ENV != "production") {
+  axios.defaults.baseURL = "https://pauloxuries.com";
+}
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

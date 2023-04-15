@@ -15,19 +15,37 @@ import { Product } from "@lib/types";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import Image from "next/image";
+import IconButton from "@mui/material/IconButton";
+import DeleteForever from "@mui/icons-material/DeleteForever";
+import Edit from "@mui/icons-material/Edit";
+import useShop from "@hook/useShop";
+import { useAppSelector } from "@lib/redux/store";
 
 type Props = {
   item: Product;
 };
 
 export default function ProductCard({ item }: Props) {
-  const theme = useTheme();
+  const user = useAppSelector((state) => state.shop.user);
+  const { editProduct, deleteProduct } = useShop(item);
+
   const styles = useStyles();
-  const router = useRouter();
 
   return (
     <Card elevation={0} className={styles.cardArrival}>
       <div className="max-xs:h-[200px] h-[250px] md:h-[330px] relative">
+        {" "}
+        {/* show if user is admin to call action on the product */}
+        {user?.admin && (
+          <div className="product-higher-actions absolute left-0 top-0 z-20 flex flex-col gap-y-2 bg-black/10 rounded-lg p-2">
+            <IconButton size="small" onClickCapture={editProduct}>
+              <Edit fontSize="small" />
+            </IconButton>
+            <IconButton size="small" onClickCapture={deleteProduct}>
+              <DeleteForever fontSize="small" />
+            </IconButton>
+          </div>
+        )}
         <Image
           src={
             "http://pauloxuries.com/images/products/" +

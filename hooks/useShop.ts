@@ -5,6 +5,7 @@ import { useAppDispatch, useAppSelector } from "@lib/redux/store";
 import useMessage from "./useMessage";
 import { addToWish, deleteWish } from "@lib/redux/wishSlice";
 import { nanoid } from "nanoid";
+import axios from "axios";
 
 function useShop(item: Product) {
   const dispatch = useAppDispatch();
@@ -67,11 +68,29 @@ function useShop(item: Product) {
     );
   };
 
+  const deleteProduct = async () => {
+    try {
+      const deleteReq = await axios.delete("/api/product/" + item.id);
+      await deleteReq.data;
+
+      if (true) alertMessage("Deleted Successfully", "success");
+    } catch (error) {
+      console.log(error);
+      alertMessage("Unable to delete Product", "error");
+    }
+  };
+
+  const editProduct = () => {
+    alertMessage("Feature Coming Soon", "info");
+  };
+
   return {
     handleAddCart,
     handleRemoveCart,
     handleWish,
     handleCartChange,
+    deleteProduct,
+    editProduct,
     loading,
   };
 }

@@ -62,7 +62,7 @@ export type OrderType = CheckoutInterface<CartInterface> &
 
 export type FormDataType = {
   title: string;
-  price: number | string;
+  price: number;
   description: string;
   discountPercentage: number;
   frontImage: File;

@@ -23,6 +23,7 @@ export enum Events {
   FILTER = "filterEvent",
   SORT = "SortEvent",
   NEW_PRODUCTS = "Products",
+  FETCHED = "FetchProducts",
 }
 
 export const isProduction = process.env.NODE_ENV === "production";

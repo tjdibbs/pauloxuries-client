@@ -1,6 +1,6 @@
 import React from "react";
 import { NextPage } from "next";
-import { Box, Button, Container, Typography } from "@mui/material";
+import { Box, Button, Container, Grid, Typography } from "@mui/material";
 import Link from "next/link";
 import Filter, { FilterComponentLoader } from "@comp/filter";
 import ArrowForwardIosRounded from "@mui/icons-material/ArrowForwardIosRounded";
@@ -45,7 +45,7 @@ const Collections: NextPage<Props> = (props) => {
       try {
         let endpoint =
           "/api/products" + (shop_by && name ? `/${shop_by}/${name}` : "");
-        const getProducts = await axios.get( endpoint);
+        const getProducts = await axios.get(endpoint);
         const { success, products } = await getProducts.data;
 
         if (success && products) setProducts(products);
@@ -112,7 +112,9 @@ const Collections: NextPage<Props> = (props) => {
         </Box>
 
         {loading ? (
-          <ProductsLoader />
+          <Grid container spacing={1}>
+            <ProductsLoader />
+          </Grid>
         ) : (
           !!products.length && <RenderProducts {...{ products }} />
         )}

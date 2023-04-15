@@ -94,8 +94,8 @@ const SearchBar: React.FC<{
             animate={{
               scale: 1,
             }}
-            className="max-w-[90%] h-max max-h-[90%] overflow-auto m-auto w-[700px] bg-white rounded-xl"
-            exit={{ scale: 0 }}
+            className="sm:max-w-[90%] h-max sm:max-h-[90%] max-sm:h-screen max-sm:overflow-auto overflow-auto m-auto w-[700px] bg-white sm:rounded-xl"
+            exit={{ scale: 0.8, y: 200, opacity: 0 }}
           >
             <Paper
               elevation={0}
@@ -137,7 +137,7 @@ const SearchBar: React.FC<{
                   </Typography>
                   <motion.div
                     layout
-                    className={"search-result p-4"}
+                    className={"search-result sm:p-4"}
                     style={{
                       paddingBottom: "2em",
                     }}
@@ -153,9 +153,10 @@ const SearchBar: React.FC<{
                           <Grid item xs={6} sm={4} key={index}>
                             <ProductStyle2
                               component={"div"}
+                              keyPrefix="searchbar"
                               {...{ inCart, inWishlist, item }}
                             >
-                              <div className="h-[200px] sm:h-[250px] relative">
+                              <div className="h-[250px] relative">
                                 <Image
                                   src={
                                     "https://pauloxuries.com/images/products/" +

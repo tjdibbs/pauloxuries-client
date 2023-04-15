@@ -28,6 +28,8 @@ import { nanoid } from "nanoid";
 import useShop from "@hook/useShop";
 import ImageLoader from "./ImageLoader";
 import Image from "next/image";
+import DeleteForever from "@mui/icons-material/DeleteForever";
+import Edit from "@mui/icons-material/Edit";
 
 type Props = {
   item: Product;
@@ -38,25 +40,38 @@ type Props = {
   inCart: number;
   inWishlist: boolean;
   children?: React.ReactNode;
+  keyPrefix?: string;
 };
 
 function ProductStyle2(props: Props) {
-  const { inCart, inWishlist, item, sm, xs, component, md } = props;
-  const { handleAddCart, handleRemoveCart, handleWish, loading } = useShop(
-    props.item
-  );
+  const {
+    inCart,
+    inWishlist,
+    item,
+    sm,
+    xs,
+    component,
+    keyPrefix = "_",
+  } = props;
+  const {
+    handleAddCart,
+    handleRemoveCart,
+    handleWish,
+    deleteProduct,
+    editProduct,
+    loading,
+  } = useShop(props.item);
 
   const user = useAppSelector((state) => state.shop.user);
-  const userid = user?.id as string;
 
-  let isOutOfStock = Boolean((item.stock - item.sold) < 1);
+  let isOutOfStock = Boolean(item.stock - item.sold < 1);
 
   const ProductItem = (
     <motion.div
       layoutId={item.id}
       initial={{ scale: 0.9 }}
       animate={{ scale: 1 }}
-      key={item.id}
+      key={keyPrefix + item.id}
       className={
         "product-items bg-primary-low/5 shadow-xl relative overflow-hidden"
       }
@@ -76,14 +91,18 @@ function ProductStyle2(props: Props) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Show if product has discount */}
       {Boolean(item.discountPercentage) &&
         !Boolean(item.stock - item.sold < 1) && (
           <Chip
-            label={item.discountPercentage + "% discount"}
+            label={item.discountPercentage + "% OFF"}
             size={"small"}
-            className="!bg-primary-low text-white absolute top-2.5 right-2.5 z-10"
+            className="!bg-primary-low text-white absolute font-bold top-2.5 right-2.5 z-10"
           />
         )}
+
+      {/* show if product is out of stock */}
       {isOutOfStock && (
         <Chip
           label={"Out of stock"}
@@ -91,6 +110,19 @@ function ProductStyle2(props: Props) {
           className="!bg-primary-low text-white absolute top-2.5 right-2.5 z-10"
         />
       )}
+
+      {/* show if user is admin to call action on the product */}
+      {user?.admin && (
+        <div className="product-higher-actions absolute left-0 top-0 z-20 flex flex-col gap-y-2 bg-black/10 rounded-lg p-2">
+          <IconButton size="small" onClickCapture={editProduct}>
+            <Edit fontSize="small" />
+          </IconButton>
+          <IconButton size="small" onClickCapture={deleteProduct}>
+            <DeleteForever fontSize="small" />
+          </IconButton>
+        </div>
+      )}
+
       {props.children ?? (
         <div className="max-xs:h-[200px] h-[250px] md:h-[330px] relative">
           <Image

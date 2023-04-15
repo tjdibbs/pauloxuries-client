@@ -37,9 +37,16 @@ function FilterChunk(props: FilterChunkPropsType) {
         {Object.keys(filters).map((name, i) => {
           return (
             <Stack key={name} direction={"row"} gap={2} alignItems={"center"}>
-              <span className="font-semibold text-sm flex-grow capitalize">
-                {name}
-              </span>
+              {props.name == "colors" ? (
+                <span
+                  className="font-bold flex-grow capitalize w-6 h-4 rounded-lg shadow-lg"
+                  style={{ background: name.toLowerCase() }}
+                />
+              ) : (
+                <span className="font-semibold text-sm flex-grow capitalize">
+                  {name}
+                </span>
+              )}
               <span>{filters[name]}</span>
               <Checkbox
                 size={"small"}

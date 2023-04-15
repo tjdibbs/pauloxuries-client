@@ -38,6 +38,8 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
   const user = useAppSelector((state) => state.shop.user);
   const router = useRouter();
 
+  const headerRef = React.useRef<HTMLElement>(null);
+
   React.useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 700) {
@@ -45,16 +47,31 @@ const Header: React.FC<HeaderProps> = (): JSX.Element => {
       } else setWidth(false);
     };
 
-    window.addEventListener("resize", handleResize);
+    window.onresize = handleResize;
+    window.onscroll = (e) => {
+      let scrollTop = window.scrollY;
+      let header = headerRef.current as HTMLElement;
+      let top = parseInt(header.style.top);
+
+      if (scrollTop == 0) {
+        header.style.top = "-140px";
+      } else if (scrollTop > 160) header.style.top = "0px";
+      // console.log({ scrollTop, top });
+    };
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.onresize = null;
+      window.onscroll = null;
     };
   }, []);
 
   return (
     <>
-      <header className="page-header sticky top-0 z-50 bg-gray-300">
+      <header
+        ref={headerRef}
+        style={{ top: -160 }}
+        className="page-header sticky z-50 transition-all duration-500 bg-gray-300"
+      >
         {!user && (
           <div
             className={

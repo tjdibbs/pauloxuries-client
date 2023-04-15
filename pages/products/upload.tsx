@@ -23,12 +23,28 @@ import LinearProgress from "@mui/material/LinearProgress";
 import Cookie from "js-cookie";
 import { marked } from "marked";
 import ProductSizes from "@comp/upload/ProductSizes";
-import SelectProductColors from "@comp/upload/SelectProductColors";
-import SelectImages, { ProductImages } from "@comp/upload/SelectImages";
+import SelectProductColors from "@comp/upload/ProductColors";
+import SelectImages, { ProductImages } from "@comp/upload/ProductImages";
 import useMessage from "@hook/useMessage";
 import { BASE_URL } from "@lib/constants";
 import { GetServerSideProps, NextPage } from "next";
 import JWT from "jsonwebtoken";
+
+const requiredFields: (keyof FormDataType)[] = [
+  "frontImage",
+  "backImage",
+  "title",
+  "price",
+  "stock",
+  "category",
+  "colors",
+  "sizes",
+];
+
+export type RefObject = {
+  get(): { [x: string]: number };
+  clear(): void;
+};
 
 const Upload: NextPage<{ user: AppState["user"] }> = function (props) {
   const [progress, setProgress] = React.useState<number>(0);
@@ -47,6 +63,13 @@ const Upload: NextPage<{ user: AppState["user"] }> = function (props) {
   } = useForm<FormDataType>();
 
   const { description } = watch();
+
+  const sizesRef = React.useRef<RefObject>(null);
+  const colorsRef = React.useRef<RefObject>(null);
+  const imagesRef = React.useRef<{
+    getImages(): ProductImages;
+    clear(): void;
+  }>(null);
 
   React.useEffect(() => {
     // if (props.user) {
@@ -72,20 +95,10 @@ const Upload: NextPage<{ user: AppState["user"] }> = function (props) {
         userid: "12342",
         ...data,
         ...imagesRef.current?.getImages(),
-        sizes: sizesRef.current?.getSizes(),
-        colors: colorsRef.current?.getColors(),
+        sizes: sizesRef.current?.get(),
+        colors: colorsRef.current?.get(),
       };
 
-      let requiredFields: (keyof FormDataType)[] = [
-        "frontImage",
-        "backImage",
-        "title",
-        "price",
-        "stock",
-        "category",
-        "colors",
-        "sizes",
-      ];
       let missingFields: (keyof FormDataType)[] = [];
 
       requiredFields.forEach((field) => {
@@ -130,7 +143,7 @@ const Upload: NextPage<{ user: AppState["user"] }> = function (props) {
 
         const request = await axios.post<
           Pick<Response, "success" | "message" | "error">
-        >( "/api/upload", formData, config);
+        >("/api/upload", formData, config);
 
         let res = await request.data;
         // if (res.error) {
@@ -176,18 +189,6 @@ const Upload: NextPage<{ user: AppState["user"] }> = function (props) {
     }
     setResponse({});
   };
-
-  const sizesRef = React.useRef<{
-    getSizes(): { [x: string]: number };
-    clear(): void;
-  }>(null);
-  const colorsRef = React.useRef<{
-    getColors(): { [x: string]: number };
-    clear(): void;
-  }>(null);
-  const imagesRef = React.useRef<{ getImages(): ProductImages; clear(): void }>(
-    null
-  );
 
   return (
     <Container
@@ -252,6 +253,7 @@ const Upload: NextPage<{ user: AppState["user"] }> = function (props) {
                         );
                         setValue(
                           "price",
+                          // @ts-ignore
                           isNaN(value) ? "" : String(value.toLocaleString())
                         );
                       },
@@ -423,11 +425,22 @@ const Upload: NextPage<{ user: AppState["user"] }> = function (props) {
 export const getServerSideProps: GetServerSideProps = async (ctx) => {
   // @ts-ignore
   // const user = req.session.user ?? null;
+
+  if (process.env.NODE_ENV !== "production") {
+    return {
+      props: {
+        user: {},
+      },
+    };
+  }
+
   try {
+    // @ts-ignore
+    const session = ctx.req.session.user;
     const reqSessionUser = ctx.req.cookies;
     let access_token = reqSessionUser.access_token;
 
-    if (!access_token) throw Error("Not Allowed");
+    if (!access_token || !session) throw Error("Not Allowed");
 
     let user = JWT.verify(access_token, process.env.SECRET_KEY as string);
     if (!user) throw Error("Not Allowed");

@@ -1,12 +1,13 @@
 import { Badge, Button, Input, InputNumber } from "antd";
 import _ from "lodash";
 import React from "react";
-import { SIZE_COLOR_TYPE } from "./SelectProductColors";
+import { SIZE_COLOR_TYPE } from "./ProductColors";
 import dynamic from "next/dynamic";
+import { RefObject } from "pages/products/upload";
 
-function ProductSizes(
+const ProductSizes = React.forwardRef(function ProductSizes(
   props: {},
-  ref: React.ForwardedRef<{ getSizes(): { [x: string]: number } }>
+  ref: React.ForwardedRef<RefObject>
 ) {
   const [size, setSize] = React.useState<SIZE_COLOR_TYPE>({});
 
@@ -14,7 +15,7 @@ function ProductSizes(
   React.useImperativeHandle(
     ref,
     () => ({
-      getSizes: () => sizes,
+      get: () => sizes,
       clear: () => setSizes({}),
     }),
     [sizes]
@@ -48,11 +49,7 @@ function ProductSizes(
           value={size.count}
           onChange={(count) => setSize({ ...size, count: count ?? 1 })}
         />
-        <Button
-          className="bg-primary-low"
-          disabled={!size?.label || !size?.count}
-          onClick={addSize}
-        >
+        <Button disabled={!size?.label || !size?.count} onClick={addSize}>
           Add
         </Button>
       </div>
@@ -71,9 +68,9 @@ function ProductSizes(
       </div>
     </div>
   );
-}
-
-// export default React.memo(React.forwardRef(ProductSizes));
-export default dynamic(async () => React.memo(React.forwardRef(ProductSizes)), {
-  ssr: false,
 });
+
+export default ProductSizes;
+// export default dynamic(async () => React.memo(React.forwardRef(ProductSizes)), {
+//   ssr: false,
+// });
